@@ -180,7 +180,7 @@ export function useBookPlan(): PagePlan[] {
     const pushSection = (id: string, level: 1 | 2) => {
       const sec = sections[id];
       if (!sec) return;
-      tocRows.push({ level, title: sec.title, page: 0 });
+      tocRows.push({ level, title: sec.subtitle ? `${sec.title} — ${sec.subtitle}` : sec.title, page: 0 });
       tocIndex.push({ row: tocRows.length - 1, at: body.length });
       const layout = sec.layout ?? 'standard';
       const pages = paginate(sec.blocks, ctx, optsOf(layout, layout === 'twocol' ? 2 : 1));

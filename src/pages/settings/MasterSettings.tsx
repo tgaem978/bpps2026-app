@@ -5,7 +5,7 @@ import { useUiStore } from '@/stores/uiStore';
 import { fonts, masterDefaults, masterSchema, pageTypes, type MasterKey, type MasterProps, type PageType, type PropDef } from '@/templates/master';
 import { readImageFile, uid } from '@/lib/blocks';
 import { useBookCtx, useBookPlan } from '@/lib/pagination';
-import { ContentFrame, CoverPage, PageView } from '@/components/book/BookPages';
+import { ContentFrame, CoverPage, NotesPanels, PageView } from '@/components/book/BookPages';
 import BlockView from '@/components/book/BlockView';
 import type { Block } from '@/types/book';
 
@@ -111,7 +111,7 @@ function Sample({ type }: { type: PageType }) {
   return (
     <ContentFrame pt={type} title="CONTOH HALAMAN" number={1}>
       {sampleBlocks.map((b) => <BlockView key={b.id} block={b} ctx={ctx} />)}
-      {type === 'notes' && <div className="bp-ruled" />}
+      {type === 'notes' && <NotesPanels count={3} />}
     </ContentFrame>
   );
 }

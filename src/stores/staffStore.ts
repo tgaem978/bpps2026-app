@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import type { FieldValue, StaffField, Teacher } from '@/types/staff';
 import { defaultFields, defaultTeachers } from '@/config/defaultStaff';
 import { uid } from '@/lib/blocks';
+import { F_NAME } from '@/types/staff';
 
 interface StaffState {
   fields: StaffField[];
@@ -54,11 +55,19 @@ export const useStaffStore = create<StaffState>()(
           bump((s) => ({ teachers: [...s.teachers, { id, photo: '', values }], fields: withOptions(s.fields, values) }));
           return id;
         },
+        // Tampal senarai: guru dengan nama sama dikemas kini, yang baharu ditambah.
         addTeachers: (rows) =>
           bump((s) => {
             let fields = s.fields;
             for (const r of rows) fields = withOptions(fields, r);
-            return { fields, teachers: [...s.teachers, ...rows.map((values) => ({ id: uid(), photo: '', values }))] };
+            const key = (v: unknown) => String(v ?? '').trim().toUpperCase();
+            const teachers = [...s.teachers];
+            for (const values of rows) {
+              const i = teachers.findIndex((t) => key(t.values[F_NAME]) === key(values[F_NAME]));
+              if (i >= 0) teachers[i] = { ...teachers[i], values: { ...teachers[i].values, ...values } };
+              else teachers.push({ id: uid(), photo: '', values });
+            }
+            return { fields, teachers };
           }),
         updateTeacher: (id, patch) => bump((s) => ({ teachers: s.teachers.map((t) => (t.id === id ? { ...t, ...patch } : t)) })),
         setValue: (id, fieldId, value) =>
@@ -109,6 +118,19 @@ export const useStaffStore = create<StaffState>()(
         reset: () => bump(() => ({ fields: defaultFields(), teachers: defaultTeachers() })),
       };
     },
-    { name: 'bpps2026-staff', version: 1 },
+    {
+      name: 'bpps2026-staff',
+      version: 2,
+      // v1: data contoh yang belum pernah disunting diganti dengan senarai sebenar; medan baharu ditambah.
+      migrate: (persisted, version) => {
+        const p = persisted as Partial<StaffState>;
+        if (version < 2) {
+          if (!p.rev) return { ...p, fields: defaultFields(), teachers: defaultTeachers(), rev: 1 } as StaffState;
+          const have = new Set((p.fields ?? []).map((f) => f.id));
+          p.fields = [...(p.fields ?? []), ...defaultFields().filter((f) => !have.has(f.id))];
+        }
+        return p as StaffState;
+      },
+    },
   ),
 );

@@ -206,7 +206,15 @@ export function StaffListEditor({ block, onChange }: { block: StaffListBlock; on
           </div>
         )}
       </div>
-      <p className="text-xs text-muted">Senarai dijana automatik & diisih ikut hierarki jawatan.</p>
+      <label className="flex items-center gap-2 text-sm">
+        Susunan
+        <select className={`${field} w-auto`} value={block.sort ?? 'hierarki'} onChange={(e) => onChange({ ...block, sort: e.target.value as StaffListBlock['sort'] })}>
+          <option value="pentadbir">Pentadbir dahulu, kemudian ikut abjad</option>
+          <option value="hierarki">Ikut hierarki kategori jawatan</option>
+          <option value="abjad">Ikut abjad nama</option>
+        </select>
+      </label>
+      <p className="text-xs text-muted">Senarai dijana automatik daripada Pangkalan Data Guru.</p>
     </div>
   );
 }

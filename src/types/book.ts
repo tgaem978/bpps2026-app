@@ -8,7 +8,13 @@ interface BaseBlock {
 export interface HeadingBlock extends BaseBlock { type: 'heading'; text: string }
 export interface ParagraphBlock extends BaseBlock { type: 'paragraph'; text: string }
 export interface ListBlock extends BaseBlock { type: 'list'; ordered: boolean; items: string[] }
-export interface TableBlock extends BaseBlock { type: 'table'; columns: string[]; rows: string[][] }
+/** Gaya jadual dokumen BPPS: 'navy' (kepala biru gelap, lajur BIL emas) atau 'gold' (kepala emas). */
+export type TableStyle = 'navy' | 'gold';
+export interface TableBlock extends BaseBlock {
+  type: 'table'; columns: string[]; rows: string[][]; style?: TableStyle;
+  /** Lajur BIL automatik (lalai: ya untuk gaya biru gelap). Jika tiada, lajur pertama berwarna emas. */
+  numbered?: boolean;
+}
 export interface KeyValueBlock extends BaseBlock { type: 'keyvalue'; pairs: { key: string; value: string }[] }
 export interface ImageBlock extends BaseBlock { type: 'image'; src: string; caption: string }
 
@@ -44,6 +50,8 @@ export interface StaffListBlock extends BaseBlock {
   /** Tapis: medan + nilai yang dibenarkan (kosong = semua) */
   filterField: string;
   filterValues: string[];
+  /** 'hierarki' = ikut susunan kategori jawatan; 'pentadbir' = pentadbir dahulu, lain ikut abjad; 'abjad' */
+  sort?: 'hierarki' | 'pentadbir' | 'abjad';
 }
 
 /** Blok dalaman (tidak boleh ditambah pengguna): baris isi kandungan. */

@@ -2,12 +2,13 @@ import type { ReactNode } from 'react';
 import { useBookStore } from '@/stores/bookStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { useMaster, useMasterStore, resolveMaster } from '@/stores/masterStore';
-import { applyMasterCss, type PageType } from '@/templates/master';
+import { applyMasterCss, fonts, type PageType } from '@/templates/master';
 import { useBookCtx, useBookPlan, type PagePlan, type Segment } from '@/lib/pagination';
 import { resolveTokens, type BookCtx } from '@/lib/resolve';
 import { locate } from '@/lib/outline';
 import type { Block } from '@/types/book';
 import BlockView from './BlockView';
+import { fitPt } from '@/lib/fit';
 
 /** Gaya master semua jenis halaman sebagai CSS variables dalam <head>. */
 export function MasterStyles() {
@@ -35,15 +36,18 @@ export function ContentFrame({ pt, title, badge, number, children }: { pt: PageT
   const m = useMaster(pt);
   const ctx = useBookCtx();
   const footer = useFooterText(m.footerText, ctx);
-  const len = title.length;
+  // Geometri dokumen: kotak tajuk 6-122mm (berpusat 64mm); lencana 99-161mm.
+  const titleW = badge ? 68 : 118;
+  const titlePt = fitPt(m.titleUpper ? title.toUpperCase() : title, fonts[m.titleFont], titleW, 18, m.titleSize);
+  const badgePt = badge ? fitPt(badge.toUpperCase(), fonts[m.titleFont], 58, 9.5, m.badgeSize, 1.05, 6, 1) : 0;
   return (
     <Sheet pt={pt} className={`bp-content-page bp-pt-${pt}`}>
       {m.showBg && m.bgImage && <img className="bp-bg-img" src={m.bgImage} alt="" />}
       {m.headerImage && <img className="bp-header-img" src={m.headerImage} alt="" />}
-      <div className="bp-title-box">
-        <h2 className={`bp-title ${len > 40 ? 'bp-title-sm' : len > 26 ? 'bp-title-md' : ''}`}>{title}</h2>
-        {badge && <span className="bp-badge">{badge}</span>}
+      <div className={`bp-title-box ${badge ? 'bp-has-badge' : ''}`}>
+        <h2 className="bp-title" style={{ fontSize: `calc(var(--pt) * ${titlePt})` }}>{title}</h2>
       </div>
+      {badge && <span className="bp-badge" style={{ fontSize: `calc(var(--pt) * ${badgePt})` }}>{badge}</span>}
       <div className="bp-frame">
         <div className="bp-content">{children}</div>
       </div>
@@ -62,13 +66,13 @@ export function DividerPage({ partId }: { partId: string }) {
   const m = useMaster('divider');
   const ctx = useBookCtx();
   if (!part) return null;
-  const len = part.title.length;
   const note = resolveTokens(part.note, ctx);
+  const titlePt = fitPt(m.titleUpper ? part.title.toUpperCase() : part.title, fonts[m.titleFont], 104, note ? 28 : 36, m.titleSize, 1.04, 7, 3);
   return (
     <Sheet pt="divider" className="bp-divider">
       <img className="bp-full-img" src={m.bgImage} alt="" />
       <div className="bp-divider-box">
-        <h2 className={`bp-divider-title ${len > 28 ? 'bp-divider-sm' : len > 16 ? 'bp-divider-md' : ''}`}>{part.title}</h2>
+        <h2 className="bp-divider-title" style={{ fontSize: `calc(var(--pt) * ${titlePt})` }}>{part.title}</h2>
         {note && <p className="bp-divider-note">{note}</p>}
       </div>
     </Sheet>
@@ -142,9 +146,23 @@ function SectionContentPage({ page }: { page: Extract<PagePlan, { kind: 'content
       ) : (
         <Segments segments={page.columns[0]} byId={byId} ctx={ctx} />
       )}
-      {page.layout === 'notes' && page.part === page.parts - 1 && <div className="bp-ruled" />}
+      {page.layout === 'notes' && page.part === page.parts - 1 && <NotesPanels count={empty ? 5 : 3} />}
       {empty && page.layout !== 'notes' && <p className="bp-empty">Tiada kandungan.</p>}
     </ContentFrame>
+  );
+}
+
+/** Panel "AKTIVITI : / CATATAN" seperti halaman Catatan dalam dokumen BPPS. */
+export function NotesPanels({ count }: { count: number }) {
+  return (
+    <div className="bp-notes">
+      {Array.from({ length: count }, (_, i) => (
+        <div key={i} className="bp-np">
+          <div className="bp-np-line">AKTIVITI :</div>
+          <div className="bp-np-box">CATATAN</div>
+        </div>
+      ))}
+    </div>
   );
 }
 

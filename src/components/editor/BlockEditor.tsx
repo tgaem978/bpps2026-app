@@ -106,6 +106,17 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
         onChange({ ...block, rows: block.rows.map((row, ri) => (ri === r ? block.columns.map((_, ci) => (ci === c ? v : row[ci] ?? '')) : row)) });
       return (
         <div className="grid gap-2">
+          <label className="flex items-center gap-2 text-xs text-muted">
+            Gaya jadual
+            <select className="rounded-md border border-border bg-surface px-2 py-1 text-xs" value={block.style ?? 'navy'} onChange={(e) => onChange({ ...block, style: e.target.value as 'navy' | 'gold' })}>
+              <option value="navy">Biru gelap + lajur BIL emas</option>
+              <option value="gold">Kepala emas</option>
+            </select>
+            <label className="flex items-center gap-1">
+              <input type="checkbox" checked={block.numbered ?? block.style !== 'gold'} onChange={(e) => onChange({ ...block, numbered: e.target.checked })} /> Lajur BIL
+            </label>
+            <span className="hidden sm:inline">· Guna **teks** untuk huruf tebal</span>
+          </label>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>

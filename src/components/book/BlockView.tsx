@@ -16,6 +16,12 @@ export function Avatar({ name }: { name: string }) {
   );
 }
 
+/** Teks dengan **tebal** (format dokumen BPPS). */
+export function Rich({ text }: { text: string }) {
+  const parts = text.split(/\*\*(.+?)\*\*/g);
+  return <>{parts.map((p, i) => (i % 2 ? <strong key={i}>{p}</strong> : p))}</>;
+}
+
 const chunk = <T,>(arr: T[], n: number) => Array.from({ length: Math.ceil(arr.length / n) }, (_, i) => arr.slice(i * n, i * n + n));
 
 type OcPerson = { name: string; position: string; photo: string };
@@ -79,12 +85,22 @@ export default function BlockView({ block, ctx, from = 0, to }: { block: AnyBloc
   const end = to ?? unitCount(block, ctx);
   const t = (s: string) => resolveTokens(s, ctx);
   switch (block.type) {
-    case 'heading':
-      return <div className="bp-block"><h3 className="bp-heading u">{t(block.text)}</h3></div>;
+    case 'heading': {
+      // "TAHUN 1 | NAMA" → dua bar bersebelahan seperti dokumen
+      const parts = t(block.text).split(/\s+\|\s+/);
+      if (parts.length > 1) {
+        return (
+          <div className="bp-block">
+            <div className="bp-heading-split u">{parts.map((p, i) => <h3 key={i} className="bp-heading">{p}</h3>)}</div>
+          </div>
+        );
+      }
+      return <div className="bp-block"><h3 className="bp-heading u">{parts[0]}</h3></div>;
+    }
     case 'paragraph':
       return (
         <div className="bp-block">
-          {paragraphParts(block.text).slice(from, end).map((s, i) => <p key={i} className="bp-para u">{t(s)}</p>)}
+          {paragraphParts(block.text).slice(from, end).map((s, i) => <p key={i} className="bp-para u"><Rich text={t(s)} /></p>)}
         </div>
       );
     case 'list': {
@@ -92,36 +108,39 @@ export default function BlockView({ block, ctx, from = 0, to }: { block: AnyBloc
       return (
         <div className="bp-block bp-list-wrap">
           <Tag className={`bp-list ${block.ordered ? 'list-decimal' : 'list-disc'}`} start={block.ordered ? from + 1 : undefined}>
-            {listItems(block.items).slice(from, end).map((it, i) => <li key={i} className="u">{t(it)}</li>)}
+            {listItems(block.items).slice(from, end).map((it, i) => <li key={i} className="u"><Rich text={t(it)} /></li>)}
           </Tag>
         </div>
       );
     }
-    case 'table':
+    case 'table': {
+      const num = block.numbered ?? block.style !== 'gold';
+      const firstGold = !num && block.style !== 'gold';
       return (
         <div className="bp-block bp-table-wrap">
-          <table className="bp-table">
+          <table className={`bp-table ${block.style === 'gold' ? 'bp-table-gold' : ''}`}>
             <colgroup>
-              <col className="bp-num-col" />
+              {num && <col className="bp-num-col" />}
               {block.columns.map((_, i) => <col key={i} />)}
             </colgroup>
             <thead>
               <tr>
-                <th className="bp-num">Bil.</th>
+                {num && <th className="bp-num">Bil.</th>}
                 {block.columns.map((c, i) => <th key={i}>{t(c)}</th>)}
               </tr>
             </thead>
             <tbody>
               {block.rows.slice(from, end).map((r, ri) => (
                 <tr key={ri} className="u">
-                  <td className="bp-num">{from + ri + 1}</td>
-                  {block.columns.map((_, ci) => <td key={ci}>{t(r[ci] ?? '')}</td>)}
+                  {num && <td className="bp-num">{from + ri + 1}</td>}
+                  {block.columns.map((_, ci) => <td key={ci} className={firstGold && ci === 0 ? 'bp-num' : ci === 0 && block.style !== 'gold' ? 'bp-l' : 'bp-c'}><Rich text={t(r[ci] ?? '')} /></td>)}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       );
+    }
     case 'keyvalue':
       return (
         <div className="bp-block">
@@ -203,7 +222,7 @@ export default function BlockView({ block, ctx, from = 0, to }: { block: AnyBloc
                 <tr key={tch.id} className="u">
                   <td className="bp-num">{from + i + 1}</td>
                   {block.showPhoto && <td className="bp-photo-cell"><div className="bp-thumb">{tch.photo ? <img src={tch.photo} alt="" /> : <Avatar name={nameOf(tch)} />}</div></td>}
-                  {cols.map((c) => <td key={c.id} className={c.id === 'nama' ? 'bp-strong' : undefined}>{valueText(tch.values[c.id])}</td>)}
+                  {cols.map((c) => <td key={c.id} className={c.id === 'nama' ? 'bp-l' : c.id === 'tugas' ? 'bp-c bp-small' : 'bp-c'}>{valueText(tch.values[c.id])}</td>)}
                 </tr>
               ))}
             </tbody>

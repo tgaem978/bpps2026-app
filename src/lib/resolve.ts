@@ -61,6 +61,12 @@ export function staffRows(ctx: BookCtx, b: StaffListBlock): Teacher[] {
         return vals.some((x) => b.filterValues.includes(x));
       })
     : ctx.teachers;
+  if (b.sort === 'abjad') return [...list].sort((x, y) => nameOf(x).localeCompare(nameOf(y), 'ms'));
+  if (b.sort === 'pentadbir') {
+    const admins = new Set(ctx.fields.find((f) => f.id === F_POSITION)?.options.slice(0, 6) ?? []);
+    const r = (t: Teacher) => (admins.has(positionOf(t)) ? rankOf(ctx, t) : 99);
+    return [...list].sort((x, y) => r(x) - r(y) || nameOf(x).localeCompare(nameOf(y), 'ms'));
+  }
   return sortTeachers(ctx, list);
 }
 

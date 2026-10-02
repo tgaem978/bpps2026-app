@@ -28,11 +28,12 @@ export const layoutOptions: { id: SectionLayout; label: string; desc: string }[]
 export interface MasterProps {
   headerImage: string; footerImage: string; bgImage: string; showBg: boolean;
   titleFont: string; titleSize: number; titleColor: string; titleUpper: boolean;
-  badgeBg: string; badgeColor: string;
+  badgeBg: string; badgeColor: string; badgeSize: number;
   showFrame: boolean; frameColor: string; frameWidth: number; frameBg: string;
   bodyFont: string; bodySize: number; lineHeight: number; textColor: string; accentColor: string;
   headingBg: string; headingColor: string; headingAccent: string; headingSize: number;
   tableHeadBg: string; tableHeadColor: string; tableAccent: string; rowAlt: string; tableSize: number;
+  numBg: string; numColor: string; tableBorder: string; panelColor: string;
   footerText: string; footerColor: string; footerSize: number; showPageNo: boolean;
   pageTitle: string; tocPartBg: string; ruleColor: string; ruleGap: number;
   noteSize: number; noteColor: string; schoolColor: string; subtitleColor: string; mottoColor: string;
@@ -53,17 +54,25 @@ export const fonts: Record<string, string> = {
   'Arial': 'Arial, Helvetica, sans-serif',
 };
 
+/** Nilai lalai = dokumen sebenar "BPPS 2026 - Bahagian A Pentadbiran Sekolah" (v10). */
 const contentBase: MasterProps = {
   headerImage: templateAssets.header, footerImage: templateAssets.footer, bgImage: templateAssets.pageBg, showBg: true,
-  titleFont: 'Poppins', titleSize: 16, titleColor: '#14212B', titleUpper: true,
-  badgeBg: '#004358', badgeColor: '#FFFFFF',
-  showFrame: true, frameColor: '#3D5468', frameWidth: 1.4, frameBg: '#FFFFFF',
-  bodyFont: 'Source Sans 3', bodySize: 10.5, lineHeight: 1.5, textColor: '#1F2A33', accentColor: '#C9962B',
-  headingBg: '#004358', headingColor: '#FFFFFF', headingAccent: '#E5BE7B', headingSize: 9.5,
-  tableHeadBg: '#004358', tableHeadColor: '#FFFFFF', tableAccent: '#E5BE7B', rowAlt: '#F3F6F8', tableSize: 10,
-  footerText: '{{motto}}', footerColor: '#FFFFFF', footerSize: 7.5, showPageNo: true,
-  pageTitle: '', tocPartBg: '#E8EEF2', ruleColor: '#C9D4DC', ruleGap: 8,
-  noteSize: 11, noteColor: '#22313B', schoolColor: '#004358', subtitleColor: '#004358', mottoColor: '#004358',
+  // Tajuk: Poppins Bold 24pt, berpusat, hitam
+  titleFont: 'Poppins', titleSize: 24, titleColor: '#000000', titleUpper: true,
+  // Lencana: Poppins Bold 12.8pt, teks #F6F6F4 atas #004358, bingkai putih
+  badgeBg: '#004358', badgeColor: '#F6F6F4', badgeSize: 12.8,
+  // Bingkai: 4.5pt #2D445B (80%)
+  showFrame: true, frameColor: '#56697C', frameWidth: 1.6, frameBg: '#FFFFFF',
+  // Isi: Arial Narrow 11pt, justify, jarak baris tunggal
+  bodyFont: 'Arial Narrow', bodySize: 11, lineHeight: 1.15, textColor: '#000000', accentColor: '#CB8200',
+  // Bar tajuk kecil: Poppins Bold 12pt putih atas #004358, garis #E5BE7B
+  headingBg: '#004358', headingColor: '#FFFFFF', headingAccent: '#E5BE7B', headingSize: 12,
+  // Jadual: kepala #004257 teks putih (Arial Narrow Bold 11pt), lajur BIL #CB8200, garisan #D9D9D9; gaya emas #FFBA4B
+  tableHeadBg: '#004257', tableHeadColor: '#FFFFFF', tableAccent: '#FFBA4B', rowAlt: '#FFFFFF', tableSize: 11,
+  numBg: '#CB8200', numColor: '#FFFFFF', tableBorder: '#D9D9D9', panelColor: '#FFBA4B',
+  footerText: '', footerColor: '#FFFFFF', footerSize: 7.5, showPageNo: true,
+  pageTitle: '', tocPartBg: '#004358', ruleColor: '#C9D4DC', ruleGap: 8,
+  noteSize: 14, noteColor: '#22313B', schoolColor: '#004358', subtitleColor: '#004358', mottoColor: '#004358',
 };
 
 export function masterDefaults(type: PageType): MasterProps {
@@ -71,8 +80,9 @@ export function masterDefaults(type: PageType): MasterProps {
     case 'toc': return { ...contentBase, pageTitle: 'ISI KANDUNGAN' };
     case 'notes': return { ...contentBase, pageTitle: 'CATATAN' };
     case 'open': return { ...contentBase, showFrame: false };
-    case 'divider': return { ...contentBase, bgImage: templateAssets.divider, titleSize: 25, titleColor: '#0B0F12', titleFont: 'Poppins' };
-    case 'cover': return { ...contentBase, bgImage: templateAssets.divider, titleSize: 18, titleColor: '#0B0F12', titleFont: 'Poppins' };
+    // Partition: Poppins Bold 50pt (dikecilkan automatik supaya muat kotak)
+    case 'divider': return { ...contentBase, bgImage: templateAssets.divider, titleSize: 50, titleColor: '#000000', titleFont: 'Poppins' };
+    case 'cover': return { ...contentBase, bgImage: templateAssets.divider, titleSize: 20, titleColor: '#000000', titleFont: 'Poppins' };
     default: return { ...contentBase };
   }
 }
@@ -88,11 +98,12 @@ const contentDefs: PropDef[] = [
   { key: 'bgImage', label: 'Corak latar', kind: 'image', group: g.img },
   { key: 'showBg', label: 'Papar corak latar', kind: 'toggle', group: g.img },
   { key: 'titleFont', label: 'Fon', kind: 'font', group: g.title },
-  { key: 'titleSize', label: 'Saiz (pt)', kind: 'size', group: g.title, min: 9, max: 28, step: 0.5 },
+  { key: 'titleSize', label: 'Saiz maksimum (pt)', kind: 'size', group: g.title, min: 9, max: 32, step: 0.5 },
   { key: 'titleColor', label: 'Warna', kind: 'color', group: g.title },
   { key: 'titleUpper', label: 'Huruf besar', kind: 'toggle', group: g.title },
   { key: 'badgeBg', label: 'Lencana: latar', kind: 'color', group: g.title },
   { key: 'badgeColor', label: 'Lencana: teks', kind: 'color', group: g.title },
+  { key: 'badgeSize', label: 'Lencana: saiz (pt)', kind: 'size', group: g.title, min: 7, max: 18, step: 0.2 },
   { key: 'bodyFont', label: 'Fon', kind: 'font', group: g.body },
   { key: 'bodySize', label: 'Saiz (pt)', kind: 'size', group: g.body, min: 7, max: 16, step: 0.5 },
   { key: 'lineHeight', label: 'Jarak baris', kind: 'size', group: g.body, min: 1.1, max: 2.2, step: 0.05 },
@@ -104,7 +115,10 @@ const contentDefs: PropDef[] = [
   { key: 'headingSize', label: 'Saiz (pt)', kind: 'size', group: g.head, min: 7, max: 16, step: 0.5 },
   { key: 'tableHeadBg', label: 'Kepala: latar', kind: 'color', group: g.table },
   { key: 'tableHeadColor', label: 'Kepala: teks', kind: 'color', group: g.table },
-  { key: 'tableAccent', label: 'Kepala: garis', kind: 'color', group: g.table },
+  { key: 'tableAccent', label: 'Kepala gaya emas: latar', kind: 'color', group: g.table },
+  { key: 'numBg', label: 'Lajur BIL: latar', kind: 'color', group: g.table },
+  { key: 'numColor', label: 'Lajur BIL: teks', kind: 'color', group: g.table },
+  { key: 'tableBorder', label: 'Garisan jadual', kind: 'color', group: g.table },
   { key: 'rowAlt', label: 'Baris berselang', kind: 'color', group: g.table },
   { key: 'tableSize', label: 'Saiz teks (pt)', kind: 'size', group: g.table, min: 7, max: 14, step: 0.5 },
   { key: 'showFrame', label: 'Papar bingkai', kind: 'toggle', group: g.frame },
@@ -128,14 +142,13 @@ export const masterSchema: Record<PageType, PropDef[]> = {
   ],
   notes: [
     { key: 'pageTitle', label: 'Tajuk halaman (jika tiada tajuk bahagian)', kind: 'text', group: g.text },
-    { key: 'ruleColor', label: 'Warna garisan', kind: 'color', group: g.special },
-    { key: 'ruleGap', label: 'Jarak garisan (mm)', kind: 'size', group: g.special, min: 5, max: 14, step: 0.5 },
+    { key: 'panelColor', label: 'Warna panel catatan', kind: 'color', group: g.special },
     ...contentDefs,
   ],
   divider: [
     { key: 'bgImage', label: 'Imej latar partition', kind: 'image', group: g.img },
     { key: 'titleFont', label: 'Fon tajuk', kind: 'font', group: g.title },
-    { key: 'titleSize', label: 'Saiz tajuk (pt)', kind: 'size', group: g.title, min: 12, max: 40, step: 0.5 },
+    { key: 'titleSize', label: 'Saiz tajuk maksimum (pt)', kind: 'size', group: g.title, min: 12, max: 60, step: 0.5 },
     { key: 'titleColor', label: 'Warna tajuk', kind: 'color', group: g.title },
     { key: 'titleUpper', label: 'Huruf besar', kind: 'toggle', group: g.title },
     { key: 'noteSize', label: 'Saiz catatan (pt)', kind: 'size', group: g.title, min: 7, max: 18, step: 0.5 },
@@ -162,6 +175,11 @@ export function masterCss(type: PageType, m: MasterProps): string {
     '--m-title-case': m.titleUpper ? 'uppercase' : 'none',
     '--m-badge-bg': m.badgeBg,
     '--m-badge-color': m.badgeColor,
+    '--m-badge-size': `calc(var(--pt) * ${m.badgeSize})`,
+    '--m-num-bg': m.numBg,
+    '--m-num-color': m.numColor,
+    '--m-table-border': m.tableBorder,
+    '--m-panel': m.panelColor,
     '--m-frame-color': m.showFrame ? m.frameColor : 'transparent',
     '--m-frame-width': `calc(var(--mm) * ${m.showFrame ? m.frameWidth : 0})`,
     '--m-frame-bg': m.showFrame ? m.frameBg : 'transparent',

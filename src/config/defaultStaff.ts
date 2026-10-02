@@ -1,9 +1,13 @@
 import type { StaffField, Teacher } from '@/types/staff';
-import { F_NAME, F_POSITION, F_SESSION } from '@/types/staff';
+import { F_NAME, F_POSITION, F_SESSION, F_TASK } from '@/types/staff';
+import { partAStaff } from './partA';
 
 const base = import.meta.env.BASE_URL;
 
-/** Susunan pilihan jawatan = susunan hierarki (digunakan untuk isihan & carta organisasi). */
+/**
+ * Kategori jawatan - susunan = hierarki (digunakan untuk carta organisasi & isihan).
+ * "Jawatan" (tugas) pula ialah teks bebas seperti dalam dokumen, cth. "GURU KELAS 5 USM / SU B. INGGERIS".
+ */
 export const POSITIONS = [
   'Guru Besar',
   'GPK Pentadbiran',
@@ -19,50 +23,42 @@ export const POSITIONS = [
   'Guru Prasekolah',
   'Guru Pendidikan Khas',
   'Guru Pemulihan',
-  'Pembantu Pengurusan Murid',
+  'Ketua Pembantu Tadbir',
+  'Penolong Akauntan',
   'Pembantu Tadbir',
+  'Pembantu Pengurusan Murid',
+  'Pembantu Khidmat Am',
 ];
 
-/** Senarai jawatan pentadbir (Guru Besar + GPK). */
+/** Guru Besar + GPK. */
 export const ADMIN_POSITIONS = POSITIONS.slice(0, 6);
+/** Anggota Kumpulan Pelaksana (AKP). */
+export const AKP_POSITIONS = POSITIONS.slice(14);
 
 export const defaultFields = (): StaffField[] => [
-  { id: F_NAME, label: 'Nama Penuh', type: 'text', options: [], locked: true },
-  { id: F_POSITION, label: 'Jawatan', type: 'select', options: [...POSITIONS], locked: true },
+  { id: F_NAME, label: 'Nama', type: 'text', options: [], locked: true },
+  { id: F_POSITION, label: 'Kategori Jawatan', type: 'select', options: [...POSITIONS], locked: true },
+  { id: F_TASK, label: 'Jawatan', type: 'text', options: [] },
   { id: F_SESSION, label: 'Sesi', type: 'select', options: ['Pagi', 'Petang'] },
+  { id: 'gred', label: 'Gred', type: 'select', options: ['DG 9', 'DG 10', 'DG 12', 'DG 13', 'DG 14', 'N1', 'N2', 'N3', 'H1', 'W5'] },
   {
     id: 'opsyen',
     label: 'Opsyen',
     type: 'multi',
-    options: [
-      'Bahasa Melayu', 'Bahasa Inggeris', 'Matematik', 'Sains', 'Pendidikan Islam', 'Pendidikan Moral', 'Sejarah',
-      'Pendidikan Jasmani & Kesihatan', 'Pendidikan Seni Visual', 'Pendidikan Muzik', 'Reka Bentuk & Teknologi',
-      'Bahasa Arab', 'Bahasa Cina', 'Bahasa Tamil', 'Pendidikan Khas', 'Prasekolah', 'Bimbingan & Kaunseling', 'Pemulihan',
-    ],
+    options: [...new Set([
+      'B. MELAYU', 'B. INGGERIS', 'MATEMATIK', 'SAINS', 'PEND. ISLAM', 'P. MORAL', 'SEJARAH', 'PJK', 'PSV', 'MUZIK', 'RBT', 'B. ARAB',
+      'B. CINA', 'B. TAMIL', 'PEND. KHAS', 'PRA SEKOLAH', 'KAUNSELING', 'PEMULIHAN', ...partAStaff.flatMap((s) => s.opsyen),
+    ])],
   },
-  { id: 'telefon', label: 'No. Telefon', type: 'phone', options: [] },
+  { id: 'telefon', label: 'No. Tel', type: 'phone', options: [] },
 ];
 
-const t = (id: string, name: string, position: string, session = '', photo = ''): Teacher => ({
-  id,
-  photo: photo ? `${base}staff/${photo}.jpg` : '',
-  values: { [F_NAME]: name, [F_POSITION]: position, [F_SESSION]: session, opsyen: [], telefon: '' },
-});
-
-/** Data awal daripada BPPS 2026 SKBTS (carta organisasi induk). Boleh disunting sepenuhnya. */
-export const defaultTeachers = (): Teacher[] => [
-  t('gb', 'SHAMSUKAMAL BIN ANIFAR', 'Guru Besar', 'Pagi', 'gb'),
-  t('pk-pentadbiran', 'ZALEHA BINTI YUSOH', 'GPK Pentadbiran', 'Pagi', 'pk-pentadbiran'),
-  t('pk-hem', 'HASRE ADHA BIN MOHD HASSAN', 'GPK Hal Ehwal Murid', 'Pagi', 'pk-hem'),
-  t('pk-koku', 'MUHAMMAD RIZAL BIN CHE DIN', 'GPK Kokurikulum', 'Pagi', 'pk-koku'),
-  t('pk-petang', 'VINCENT NATHAN A/L IRATHAYA SAMI', 'GPK Petang', 'Petang', 'pk-petang'),
-  t('pk-pkhas', 'SYAHIDA BINTI MOHAMED MOKHTAR', 'GPK Pendidikan Khas', 'Pagi', 'pk-pkhas'),
-  t('g-bestari', 'ABDULLAH MUHAIMIN BIN AHAMAD', 'Guru Penyelaras Bestari'),
-  t('g-pss', 'SARAH AQILAH BINTI JAMALULAIL', 'Guru Perpustakaan dan Media'),
-  t('g-data', 'YETTE SURIANE BINTI MOHD BAHARUDDIN', 'Guru Data'),
-  t('g-bk1', 'ZURIFAH BINTI ABD RAHMAN', 'Guru Bimbingan dan Kaunseling'),
-  t('g-bk2', 'NUR FAKHIRA BINTI JALALUDDIN', 'Guru Bimbingan dan Kaunseling'),
-  t('g-bk3', 'SITI NOR AINIYAH BINTI RIDAWI', 'Guru Bimbingan dan Kaunseling'),
-  t('g-pra1', 'FARAH NUR IMANIAH BINTI MOHD SHUKRI', 'Guru Prasekolah'),
-  t('g-pra2', 'ZULATUL AZRINA BINTI ZULKEFLI', 'Guru Prasekolah'),
-];
+/** Data awal: senarai guru & AKP SK Bandar Tasik Selatan (BPPS 2026, Bahagian A). */
+export const defaultTeachers = (): Teacher[] =>
+  partAStaff.map((s, i) => ({
+    id: `t${i + 1}`,
+    photo: s.photo ? `${base}staff/${s.photo}.jpg` : '',
+    values: {
+      [F_NAME]: s.nama, [F_POSITION]: s.kategori, [F_TASK]: s.tugas, [F_SESSION]: s.sesi, gred: s.gred, opsyen: s.opsyen, telefon: '',
+    },
+  }));

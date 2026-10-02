@@ -1,8 +1,9 @@
 import type { Block, CommitteeRow, CoverContent, MemberRef, OrgLevel, OutlinePart, SectionContent, SectionLayout } from '@/types/book';
 import { uid } from '@/lib/blocks';
 import { templateAssets } from '@/templates/bpps';
-import { ADMIN_POSITIONS } from '@/config/defaultStaff';
-import { F_NAME, F_POSITION, F_SESSION } from '@/types/staff';
+import { ADMIN_POSITIONS, AKP_POSITIONS } from '@/config/defaultStaff';
+import { F_NAME, F_POSITION, F_SESSION, F_TASK } from '@/types/staff';
+import { partASections } from '@/config/partA';
 
 const h = (text: string): Block => ({ id: uid(), type: 'heading', text });
 const p = (text: string): Block => ({ id: uid(), type: 'paragraph', text });
@@ -39,9 +40,16 @@ export const defaultOutline = (): OutlinePart[] => [
     id: 'p-pentadbiran', title: 'PENTADBIRAN SEKOLAH', note: '{{jawatan:Guru Besar}}', divider: true,
     topics: [
       { id: 'carta-organisasi', children: [] },
-      { id: 'pentadbiran', children: [] },
-      { id: 'senarai-guru', children: [] },
+      { id: 'senarai-pagi', children: [] },
+      { id: 'senarai-petang', children: [] },
+      { id: 'senarai-akp', children: [] },
       { id: 'jk-pengurusan', children: [] },
+      { id: 'panduan-am', children: [] },
+      { id: 'akuan', children: [] },
+      { id: 'bidang-tugas-guru', children: [] },
+      { id: 'bidang-tugas-akp', children: [] },
+      { id: 'guru-kelas', children: [] },
+      { id: 'kumpulan-bertugas', children: ['jadual-bertugas-1', 'jadual-bertugas-2', 'jadual-bertugas-ppki'] },
     ],
   },
   { id: 'p-kurikulum', title: 'PENGURUSAN KURIKULUM', note: '{{jawatan:GPK Pentadbiran}}', divider: true, topics: [{ id: 'kurikulum', children: ['jk-kurikulum'] }] },
@@ -54,7 +62,13 @@ export const defaultOutline = (): OutlinePart[] => [
 ];
 
 /** Kandungan contoh (BPPS 2026 SKBTS). Semua boleh disunting; nama dijana daripada Pangkalan Data Guru. */
+const staffList = (filterField: string, filterValues: string[], sort: 'hierarki' | 'pentadbir' | 'abjad', withOption = true): Block => ({
+  id: uid(), type: 'stafflist', title: '', showPhoto: false, filterField, filterValues, sort,
+  columns: withOption ? [F_NAME, F_TASK, 'gred', 'opsyen', 'telefon'] : [F_NAME, F_TASK, 'gred', 'telefon'],
+});
+
 export const defaultSections = (): Record<string, SectionContent> => ({
+  ...partASections(),
   'kata-aluan': section('KATA ALUAN', 'GURU BESAR', [
     p('Assalamualaikum Warahmatullahi Wabarakatuh dan Salam Sejahtera.'),
     p('Alhamdulillah, syukur ke hadrat Ilahi kerana dengan limpah dan izin-Nya, kita dapat menyempurnakan Buku Panduan Pengurusan Sekolah (BPPS) Tahun {{tahun}} iaitu BPPS {{nama_sekolah}}. Sekalung tahniah saya ucapkan kepada Jawatankuasa Buku Pengurusan yang telah bertungkus-lumus memastikan dokumen penting ini dapat disiapkan sebagai panduan rasmi kita bersama.'),
@@ -80,9 +94,9 @@ export const defaultSections = (): Record<string, SectionContent> => ({
     h('Piagam Pelanggan'),
     ul(['Memberi layanan mesra dan profesional.', 'Menyediakan persekitaran pembelajaran yang selamat dan kondusif.']),
   ]),
-  'carta-organisasi': section('CARTA ORGANISASI INDUK', '', [
+  'carta-organisasi': section('CARTA ORGANISASI INDUK PENTADBIRAN', 'PENTADBIRAN SEKOLAH', [
     {
-      id: uid(), type: 'orgchart', title: 'CARTA ORGANISASI INDUK PENGURUSAN SEKOLAH', session: '',
+      id: uid(), type: 'orgchart', title: 'CARTA ORGANISASI INDUK PENTADBIRAN SEKOLAH', session: '',
       levels: [
         level('Guru Besar', [GB]),
         level('Guru Penolong Kanan', [PKP, PKHEM, PKKO, PKPTG, PKPK]),
@@ -90,12 +104,9 @@ export const defaultSections = (): Record<string, SectionContent> => ({
       ],
     },
   ], 'open'),
-  pentadbiran: section('BARISAN PENTADBIR', '', [
-    { id: uid(), type: 'stafflist', title: '', columns: [F_NAME, F_POSITION, F_SESSION, 'telefon'], showPhoto: true, filterField: F_POSITION, filterValues: [...ADMIN_POSITIONS] },
-  ]),
-  'senarai-guru': section('SENARAI GURU', '', [
-    { id: uid(), type: 'stafflist', title: '', columns: [F_NAME, F_POSITION, F_SESSION, 'opsyen'], showPhoto: false, filterField: '', filterValues: [] },
-  ]),
+  'senarai-pagi': section('SENARAI NAMA GURU & AKP', 'GURU SESI PAGI', [staffList(F_SESSION, ['Pagi'], 'pentadbir')]),
+  'senarai-petang': section('SENARAI NAMA GURU & AKP', 'GURU SESI PETANG', [staffList(F_SESSION, ['Petang'], 'pentadbir')]),
+  'senarai-akp': section('SENARAI NAMA GURU & AKP', 'AKP', [staffList(F_POSITION, [...AKP_POSITIONS], 'hierarki', false)]),
   'jk-pengurusan': section('JAWATANKUASA PENGURUSAN SEKOLAH', '', [
     committee('JAWATANKUASA PENGURUSAN SEKOLAH', [
       row('Pengerusi', pos(GB)),

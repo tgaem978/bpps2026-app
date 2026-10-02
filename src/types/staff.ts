@@ -24,3 +24,4 @@ export interface Teacher {
 export const F_NAME = 'nama';
 export const F_POSITION = 'jawatan';
 export const F_SESSION = 'sesi';
+export const F_TASK = 'tugas';

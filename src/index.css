@@ -27,25 +27,28 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 .bp-bg-img { position: absolute; left: 0; top: calc(var(--mm) * 7); width: 100%; height: calc(var(--mm) * 290); object-fit: cover; }
 .bp-header-img { position: absolute; left: 0; top: 0; width: 100%; height: calc(var(--mm) * 37); }
 .bp-title-box {
-  position: absolute; left: calc(var(--mm) * 9); top: calc(var(--mm) * 4.8); width: calc(var(--mm) * 121); height: calc(var(--mm) * 25.9);
-  display: flex; align-items: center; gap: calc(var(--mm) * 3); padding-right: calc(var(--mm) * 3);
+  /* Kotak tajuk dokumen: 6-122mm, tajuk berpusat (64mm). Dengan lencana: 30-98mm. */
+  position: absolute; left: calc(var(--mm) * 6); top: calc(var(--mm) * 4.8); width: calc(var(--mm) * 116); height: calc(var(--mm) * 25.9);
+  display: flex; align-items: center; justify-content: center;
 }
+.bp-title-box:not(.bp-has-badge) { left: calc(var(--mm) * 2); width: calc(var(--mm) * 120); }
+.bp-title-box.bp-has-badge { left: calc(var(--mm) * 29); width: calc(var(--mm) * 70); }
 .bp-title {
-  flex: 1; margin: 0; font-family: var(--m-title-font); font-weight: 700; font-size: var(--m-title-size); line-height: 1.12; letter-spacing: .01em;
-  text-transform: var(--m-title-case); color: var(--m-title-color); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  margin: 0; font-family: var(--m-title-font); font-weight: 700; font-size: var(--m-title-size); line-height: .98; letter-spacing: 0; text-align: center;
+  text-transform: var(--m-title-case); color: var(--m-title-color);
 }
-.bp-title-md { font-size: calc(var(--m-title-size) * .86); }
-.bp-title-sm { font-size: calc(var(--m-title-size) * .72); }
 .bp-badge {
-  flex: none; max-width: 45%; background: var(--m-badge-bg); color: var(--m-badge-color); font-family: var(--m-title-font); font-weight: 600;
-  font-size: calc(var(--pt) * 7.5); letter-spacing: .08em; padding: calc(var(--mm) * 1.5) calc(var(--mm) * 3.2);
-  border: calc(var(--mm) * .5) solid #fff; outline: calc(var(--mm) * .3) solid var(--m-badge-bg); text-transform: uppercase; text-align: center; line-height: 1.2;
+  /* Lencana dokumen: 99-161mm x 10-21mm, Poppins Bold, bingkai putih */
+  position: absolute; left: calc(var(--mm) * 99); top: calc(var(--mm) * 10); width: calc(var(--mm) * 62); height: calc(var(--mm) * 11);
+  display: flex; align-items: center; justify-content: center; box-sizing: border-box; padding: 0 calc(var(--mm) * 2);
+  background: var(--m-badge-bg); color: var(--m-badge-color); font-family: var(--m-title-font); font-weight: 700; font-size: var(--m-badge-size);
+  border: calc(var(--mm) * .6) solid #fff; outline: calc(var(--mm) * .35) solid var(--m-badge-bg); text-transform: uppercase; text-align: center; line-height: 1;
 }
 .bp-frame {
-  position: absolute; left: calc(var(--mm) * 6); top: calc(var(--mm) * 40); right: calc(var(--mm) * 5); bottom: calc(var(--mm) * 21);
+  position: absolute; left: calc(var(--mm) * 7); top: calc(var(--mm) * 38); right: calc(var(--mm) * 4); bottom: calc(var(--mm) * 20);
   border: var(--m-frame-width) solid var(--m-frame-color); background: var(--m-frame-bg); overflow: hidden;
 }
-.bp-frame > .bp-content { padding: calc(var(--mm) * 6); height: 100%; box-sizing: border-box; display: flex; flex-direction: column; }
+.bp-frame > .bp-content { padding: calc(var(--mm) * 3.5); height: 100%; box-sizing: border-box; display: flex; flex-direction: column; }
 .bp-footer-img { position: absolute; left: 0; top: calc(var(--mm) * 280); width: 100%; height: calc(var(--mm) * 17); }
 .bp-footer-text {
   position: absolute; left: calc(var(--mm) * 92); right: calc(var(--mm) * 8); top: calc(var(--mm) * 283); height: calc(var(--mm) * 12);
@@ -58,35 +61,42 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 .bp-content { color: var(--m-text); }
 .bp-block { padding-bottom: calc(var(--mm) * 3.2); }
 .bp-heading {
-  margin: 0; background: var(--m-head-bg); color: var(--m-head-color); border: calc(var(--mm) * .35) solid var(--m-head-accent);
-  font-family: var(--m-title-font); font-weight: 600; font-size: var(--m-head-size); letter-spacing: .09em; text-transform: uppercase; text-align: center;
-  padding: calc(var(--mm) * 1.6) calc(var(--mm) * 3); line-height: 1.3;
+  /* Bar dokumen: Poppins Bold 12pt putih atas #004358, garis #E5BE7B */
+  margin: 0; background: var(--m-head-bg); color: var(--m-head-color); border: calc(var(--mm) * .4) solid var(--m-head-accent);
+  font-family: var(--m-title-font); font-weight: 700; font-size: var(--m-head-size); letter-spacing: 0; text-transform: uppercase; text-align: center;
+  padding: calc(var(--mm) * 1.1) calc(var(--mm) * 3); line-height: 1.25;
 }
-.bp-para { margin: 0; padding-bottom: calc(var(--mm) * 2.4); text-align: justify; hyphens: auto; text-wrap: pretty; white-space: pre-line; }
+/* Perenggan dokumen: Arial Narrow 11pt, justify, satu baris kosong antara perenggan */
+.bp-heading-split { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: calc(var(--mm) * 2); }
+.bp-para { margin: 0; padding-bottom: calc(var(--m-body-size) * var(--m-line-height)); text-align: justify; white-space: pre-line; }
 .bp-para:last-child { padding-bottom: 0; }
-.bp-list { margin: 0; padding: 0 0 0 calc(var(--mm) * 5.5); }
-.bp-list li { padding-bottom: calc(var(--mm) * 1.1); padding-left: calc(var(--mm) * .8); }
-.bp-list li::marker { color: var(--m-accent); font-weight: 700; }
-.bp-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: var(--m-table-size); font-variant-numeric: tabular-nums; }
+.bp-para strong, .bp-list strong, .bp-table strong { font-weight: 700; }
+.bp-list { margin: 0; padding: 0 0 0 calc(var(--mm) * 5.5); text-align: justify; }
+.bp-list li { padding-bottom: calc(var(--mm) * .6); padding-left: calc(var(--mm) * .6); }
+.bp-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: var(--m-table-size); line-height: 1.15; font-variant-numeric: tabular-nums; }
 .bp-table .bp-num-col { width: calc(var(--mm) * 11); }
+/* Jadual dokumen: kepala #004257 Arial Narrow Bold putih, garisan 1pt #D9D9D9, lajur BIL emas #CB8200 */
 .bp-table th {
-  background: var(--m-th-bg); color: var(--m-th-color); font-family: var(--m-title-font); font-weight: 600; font-size: calc(var(--m-table-size) * .8);
-  letter-spacing: .07em; text-transform: uppercase; text-align: center;
-  border: calc(var(--mm) * .25) solid var(--m-th-bg); border-bottom: calc(var(--mm) * .7) solid var(--m-th-accent);
-  padding: calc(var(--mm) * 1.7) calc(var(--mm) * 2);
+  background: var(--m-th-bg); color: var(--m-th-color); font-family: var(--m-body-font); font-weight: 700; font-size: var(--m-table-size);
+  text-transform: uppercase; text-align: center; vertical-align: middle;
+  border: calc(var(--mm) * .35) solid var(--m-table-border); padding: calc(var(--mm) * 1.6) calc(var(--mm) * 1.5);
 }
-.bp-table td { border: calc(var(--mm) * .25) solid rgba(45,68,91,.22); padding: calc(var(--mm) * 1.5) calc(var(--mm) * 2.2); vertical-align: top; overflow-wrap: anywhere; }
+.bp-table td { border: calc(var(--mm) * .35) solid var(--m-table-border); padding: calc(var(--mm) * .55) calc(var(--mm) * 1.4); vertical-align: middle; overflow-wrap: anywhere; white-space: pre-line; }
 .bp-table tbody tr:nth-child(even) td { background: var(--m-row-alt); }
 .bp-table .bp-num { text-align: center; }
-.bp-table td.bp-num { color: #5D6B75; }
+.bp-table td.bp-num { background: var(--m-num-bg) !important; color: var(--m-num-color); font-weight: 700; }
+.bp-table td.bp-c { text-align: center; }
+.bp-table td.bp-l { text-align: left; }
+.bp-table td.bp-small { font-size: .82em; }
+.bp-table-gold th { background: var(--m-th-accent); color: #000; }
 .bp-staff .bp-name-col { width: 34%; }
-.bp-strong { font-weight: 600; }
+.bp-strong { font-weight: 700; }
 .bp-kv { margin: 0; }
 .bp-kv > div {
   display: grid; grid-template-columns: 34% 1fr; gap: calc(var(--mm) * 3);
-  padding: calc(var(--mm) * 1.5) 0; border-bottom: calc(var(--mm) * .25) dotted rgba(45,68,91,.35);
+  padding: calc(var(--mm) * 1.3) 0; border-bottom: calc(var(--mm) * .3) solid var(--m-table-border);
 }
-.bp-kv dt { font-family: var(--m-title-font); font-weight: 600; font-size: .86em; letter-spacing: .03em; color: var(--m-head-bg); padding-top: .1em; }
+.bp-kv dt { font-weight: 700; }
 .bp-kv dt::after { content: ''; }
 .bp-kv dd { margin: 0; }
 .bp-figure { margin: 0; text-align: center; }
@@ -99,25 +109,34 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 .bp-cols::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; border-left: calc(var(--mm) * .25) solid rgba(45,68,91,.18); }
 .bp-col { min-width: 0; }
 
-/* Catatan: baki halaman bergaris */
+/* Catatan: panel emas "AKTIVITI : / CATATAN" seperti dokumen */
+.bp-notes { flex: 1; display: flex; flex-direction: column; gap: calc(var(--mm) * 4); margin-top: calc(var(--mm) * 1); }
+.bp-np { flex: 1; min-height: calc(var(--mm) * 30); background: var(--m-panel); padding: calc(var(--mm) * 2.5) calc(var(--mm) * 3); display: flex; flex-direction: column; gap: calc(var(--mm) * 2); font-family: var(--m-title-font); font-size: calc(var(--pt) * 12.5); }
+.bp-np-line { background: #fff; padding: calc(var(--mm) * 1.2) calc(var(--mm) * 2); }
+.bp-np-box { flex: 1; background: #fff; padding: calc(var(--mm) * 1.2) calc(var(--mm) * 2); margin-right: 18%; }
+/* (lama) baki halaman bergaris */
 .bp-ruled {
   flex: 1; min-height: calc(var(--mm) * 10); margin-top: calc(var(--mm) * 2);
   background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--m-rule-gap) - var(--mm) * .25), var(--m-rule-color) calc(var(--m-rule-gap) - var(--mm) * .25), var(--m-rule-color) var(--m-rule-gap));
 }
 
-/* Isi kandungan */
+/* Isi kandungan - gaya senarai dokumen (Arial Narrow Bold, garisan #D9D9D9) */
 .bp-toc { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-.bp-toc td { padding: calc(var(--mm) * 1.7) 0; vertical-align: bottom; }
-.bp-toc .bp-toc-page { width: calc(var(--mm) * 14); text-align: right; padding-right: calc(var(--mm) * 2.5); }
+.bp-toc td { padding: calc(var(--mm) * 1.5) calc(var(--mm) * 2); vertical-align: middle; border-bottom: calc(var(--mm) * .3) solid var(--m-table-border); }
+.bp-toc .bp-toc-page { width: calc(var(--mm) * 14); text-align: right; font-weight: 700; }
 .bp-toc-l0 td {
-  font-family: var(--m-title-font); font-weight: 700; font-size: .9em; letter-spacing: .06em; text-transform: uppercase; color: var(--m-head-bg);
-  background: var(--m-toc-part); padding: calc(var(--mm) * 2) calc(var(--mm) * 2.5); border-top: calc(var(--mm) * 2.5) solid var(--m-frame-bg);
+  font-family: var(--m-title-font); font-weight: 700; font-size: var(--m-head-size); text-transform: uppercase; color: var(--m-head-color);
+  background: var(--m-toc-part); border: calc(var(--mm) * .4) solid var(--m-head-accent); padding: calc(var(--mm) * 1.3) calc(var(--mm) * 3);
 }
-.bp-toc-l1 td { font-weight: 600; border-bottom: calc(var(--mm) * .25) dotted rgba(45,68,91,.35); }
-.bp-toc-l1 td:first-child { padding-left: calc(var(--mm) * 4); }
-.bp-toc-l2 td { color: #4A5963; font-size: .94em; border-bottom: calc(var(--mm) * .25) dotted rgba(45,68,91,.22); }
-.bp-toc-l2 td:first-child { padding-left: calc(var(--mm) * 10); }
+.bp-toc-l0 td:first-child { border-right: 0; }
+.bp-toc-l0 td:last-child { border-left: 0; }
+.bp-toc-l0 + tr td, tr + .bp-toc-l0 td { }
+.bp-toc-l1 td { font-weight: 700; text-transform: uppercase; }
+.bp-toc-l1 td:first-child { padding-left: calc(var(--mm) * 3); }
+.bp-toc-l2 td { font-size: .95em; }
+.bp-toc-l2 td:first-child { padding-left: calc(var(--mm) * 9); }
 .bp-toc-l2 .bp-toc-text::before { content: '–'; color: var(--m-accent); margin-right: calc(var(--mm) * 1.8); }
+tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(--m-frame-bg); }
 
 /* Carta organisasi */
 .bp-oc { padding-top: calc(var(--mm) * 4); --oc-line: calc(var(--mm) * .35) solid var(--m-head-bg); }
@@ -154,7 +173,7 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 .bp-cm-title { margin-bottom: calc(var(--mm) * 1); }
 .bp-cm-row { display: grid; grid-template-columns: calc(var(--mm) * 46) 1fr; border-bottom: calc(var(--mm) * .25) solid rgba(45,68,91,.16); padding: calc(var(--mm) * 2.2) 0; }
 .bp-cm-role {
-  font-family: var(--m-title-font); font-weight: 600; font-size: .8em; letter-spacing: .07em; text-transform: uppercase; color: var(--m-head-bg);
+  font-weight: 700; text-transform: uppercase; color: var(--m-head-bg);
   padding: .15em calc(var(--mm) * 3) 0 calc(var(--mm) * 2.5); border-left: calc(var(--mm) * .8) solid var(--m-accent);
 }
 .bp-cm-members { display: grid; gap: calc(var(--mm) * 1); }
@@ -173,9 +192,7 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
   position: absolute; left: calc(var(--mm) * 29); top: calc(var(--mm) * 123.5); width: calc(var(--mm) * 114); height: calc(var(--mm) * 41);
   display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 calc(var(--mm) * 5);
 }
-.bp-divider-title { margin: 0; font-family: var(--m-title-font); font-weight: 800; font-size: var(--m-title-size); line-height: 1.08; letter-spacing: .005em; text-transform: var(--m-title-case); color: var(--m-title-color); }
-.bp-divider-md { font-size: calc(var(--m-title-size) * .8); }
-.bp-divider-sm { font-size: calc(var(--m-title-size) * .62); }
+.bp-divider-title { margin: 0; font-family: var(--m-title-font); font-weight: 700; font-size: var(--m-title-size); line-height: 1.02; letter-spacing: 0; text-transform: var(--m-title-case); color: var(--m-title-color); }
 .bp-divider-note { margin: calc(var(--mm) * 2.2) 0 0; font-family: var(--m-title-font); font-weight: 600; font-size: var(--m-note-size); letter-spacing: .06em; color: var(--m-note-color); text-transform: uppercase; }
 
 /* BPPS 01 - muka hadapan dijana (bila tiada imej reka bentuk) */

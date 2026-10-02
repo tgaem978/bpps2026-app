@@ -108,7 +108,7 @@ export default function Sidebar() {
                           <div className="flex items-stretch">
                             <button onClick={() => openSection(t.id)} aria-current={isActive(t.id) ? 'page' : undefined} className={`${itemCls(isActive(t.id))} min-w-0 flex-1`}>
                               <Icon size={16} className="shrink-0 opacity-90" aria-hidden />
-                              <span className="flex-1 truncate">{sec?.title || 'Tanpa tajuk'}</span>
+                              <span className="flex-1 truncate">{sec?.title || 'Tanpa tajuk'}{sec?.subtitle && <span className="opacity-60"> · {sec.subtitle}</span>}</span>
                               {sec?.updatedAt && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-label="Telah disunting" />}
                             </button>
                             {t.children.length > 0 && (
@@ -127,7 +127,7 @@ export default function Sidebar() {
                               {t.children.map((c) => (
                                 <li key={c}>
                                   <button onClick={() => openSection(c)} aria-current={isActive(c) ? 'page' : undefined} className={itemCls(isActive(c), 2)}>
-                                    <span className="flex-1 truncate">{sections[c]?.title || 'Tanpa tajuk'}</span>
+                                    <span className="flex-1 truncate">{sections[c]?.title || 'Tanpa tajuk'}{sections[c]?.subtitle && <span className="opacity-60"> · {sections[c].subtitle}</span>}</span>
                                     {sections[c]?.updatedAt && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-label="Telah disunting" />}
                                   </button>
                                 </li>
