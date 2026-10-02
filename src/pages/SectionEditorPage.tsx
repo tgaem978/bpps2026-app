@@ -7,7 +7,8 @@ import { useUiStore } from '@/stores/uiStore';
 import { blockLabels, readImageFile } from '@/lib/blocks';
 import type { BlockType } from '@/types/book';
 import BlockEditor, { field } from '@/components/editor/BlockEditor';
-import { CoverPage, SectionPage } from '@/components/book/BookPages';
+import { SectionPages } from '@/components/book/BookPages';
+import { templateAssets } from '@/templates/bpps';
 
 const addable: BlockType[] = ['heading', 'paragraph', 'list', 'table', 'keyvalue', 'image'];
 const btn = 'inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium hover:bg-surface-2';
@@ -24,7 +25,6 @@ export default function SectionEditorPage({ id }: { id: string }) {
   const prev = bookSections[idx - 1];
   const next = bookSections[idx + 1];
   const Icon = meta.icon;
-  const number = id === 'kulit' ? undefined : idx + 1;
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -58,9 +58,11 @@ export default function SectionEditorPage({ id }: { id: string }) {
           {id === 'kulit' ? <CoverForm /> : <SectionForm id={id} />}
         </div>
         {showPreview && (
-          <div className="xl:sticky xl:top-0 xl:self-start">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">Pratonton langsung</p>
-            {id === 'kulit' ? <CoverPage /> : <SectionPage id={id} number={number} />}
+          <div className="xl:sticky xl:top-0 xl:max-h-[calc(100vh-9rem)] xl:self-start xl:overflow-y-auto">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">Pratonton langsung · A4</p>
+            <div className="mx-auto grid max-w-md gap-4">
+              <SectionPages id={id} />
+            </div>
           </div>
         )}
       </div>
@@ -86,9 +88,19 @@ function SectionForm({ id }: { id: string }) {
           <input className={`${field} mt-1`} value={sec.title} onChange={(e) => updateSection(id, { title: e.target.value })} />
         </label>
         <label className="text-sm font-medium">
-          Subtajuk
+          Lencana tajuk <span className="font-normal text-muted">(pilihan, cth. SESI PAGI)</span>
           <input className={`${field} mt-1`} value={sec.subtitle} onChange={(e) => updateSection(id, { subtitle: e.target.value })} />
         </label>
+        <label className="flex items-center gap-2 text-sm font-medium sm:col-span-2">
+          <input type="checkbox" className="h-4 w-4" checked={sec.divider} onChange={(e) => updateSection(id, { divider: e.target.checked })} />
+          Halaman partition sebelum bahagian ini
+        </label>
+        {sec.divider && (
+          <label className="text-sm font-medium sm:col-span-2">
+            Catatan partition <span className="font-normal text-muted">(cth. nama penyelaras)</span>
+            <input className={`${field} mt-1`} value={sec.dividerNote} onChange={(e) => updateSection(id, { dividerNote: e.target.value })} />
+          </label>
+        )}
       </div>
 
       {sec.blocks.length === 0 && (
@@ -125,6 +137,34 @@ function CoverForm() {
 
   return (
     <div className="grid gap-4 rounded-lg border border-border bg-surface p-4 shadow-card">
+      <div className="text-sm font-medium">
+        Reka bentuk muka hadapan
+        <p className="mt-0.5 text-xs font-normal text-muted">
+          Seperti template PPTX: muka hadapan ialah satu imej reka bentuk penuh (A4 potret). Muat naik reka bentuk anda sendiri,
+          atau kosongkan untuk menjana kulit daripada teks di bawah.
+        </p>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          {cover.image && <img src={cover.image} alt="" className="h-24 w-[68px] rounded border border-border object-cover" />}
+          <label className={`${btn} cursor-pointer`}>
+            <ImagePlus size={16} /> Muat naik reka bentuk
+            <input
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={async (e) => {
+                const f = e.target.files?.[0];
+                e.target.value = '';
+                if (!f) return;
+                try { updateCover({ image: await readImageFile(f, 2_500_000) }); } catch (err) { toast((err as Error).message, 'error'); }
+              }}
+            />
+          </label>
+          {cover.image !== templateAssets.cover && (
+            <button className={btn} onClick={() => updateCover({ image: templateAssets.cover })}><RotateCcw size={16} /> Guna kulit template</button>
+          )}
+          {cover.image && <button className={btn} onClick={() => updateCover({ image: '' })}><Trash2 size={16} /> Jana daripada teks</button>}
+        </div>
+      </div>
       <label className="text-sm font-medium">
         Tajuk buku
         <input className={`${field} mt-1`} value={cover.title} onChange={(e) => updateCover({ title: e.target.value })} />
@@ -138,7 +178,7 @@ function CoverForm() {
         <input className={`${field} mt-1`} value={cover.address} onChange={(e) => updateCover({ address: e.target.value })} />
       </label>
       <label className="text-sm font-medium">
-        Moto
+        Moto <span className="font-normal text-muted">(juga dipaparkan di kaki setiap halaman)</span>
         <input className={`${field} mt-1`} value={cover.motto} onChange={(e) => updateCover({ motto: e.target.value })} />
       </label>
       <div className="text-sm font-medium">

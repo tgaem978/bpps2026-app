@@ -39,9 +39,10 @@ export function blockHasContent(b: Block): boolean {
 }
 
 export function readImageFile(file: File, maxBytes = 1_500_000): Promise<string> {
+  const mb = (maxBytes / 1_000_000).toFixed(1);
   return new Promise((resolve, reject) => {
     if (!file.type.startsWith('image/')) return reject(new Error('Fail mesti imej.'));
-    if (file.size > maxBytes) return reject(new Error('Imej terlalu besar (maks 1.5 MB).'));
+    if (file.size > maxBytes) return reject(new Error(`Imej terlalu besar (maks ${mb} MB).`));
     const r = new FileReader();
     r.onload = () => resolve(String(r.result));
     r.onerror = () => reject(new Error('Gagal membaca fail.'));

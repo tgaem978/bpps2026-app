@@ -15,12 +15,19 @@ export type Block = HeadingBlock | ParagraphBlock | ListBlock | TableBlock | Key
 
 export interface SectionContent {
   title: string;
+  /** Dipaparkan sebagai lencana di jalur tajuk (cth. "SESI PAGI") */
   subtitle: string;
+  /** Halaman partition (BPPS 03) sebelum bahagian ini */
+  divider: boolean;
+  /** Teks kecil di halaman partition, cth. nama penyelaras */
+  dividerNote: string;
   blocks: Block[];
   updatedAt: number | null;
 }
 
 export interface CoverContent {
+  /** Reka bentuk kulit penuh (imej). Kosong = kulit dijana daripada teks. */
+  image: string;
   title: string;
   subtitle: string;
   motto: string;

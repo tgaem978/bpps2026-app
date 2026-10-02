@@ -7,68 +7,117 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 
 /* ---------- Halaman buku (skrin + cetak) ----------
-   Unit cqw membuatkan tipografi diskala ikut lebar halaman, jadi pratonton kecil
-   dan cetakan A4 kelihatan sama. */
-.book-page-wrap { container-type: inline-size; width: 100%; }
+   Mengikut template PPTX BPPS 2026 (A4 potret 210x297mm).
+   --mm = 1 milimeter halaman, diskala ikut lebar halaman (cqw), jadi pratonton kecil,
+   pengukur penomboran dan cetakan A4 kelihatan sama. Geometri: src/templates/bpps.ts */
+.book-page-wrap { container-type: inline-size; width: 100%; --mm: calc(100cqw / 210); --pt: calc(var(--mm) * 0.3528); }
 .book-page {
-  position: relative; display: flex; flex-direction: column; overflow: hidden;
-  min-height: calc(100cqw * var(--page-ratio, 0.7071));
-  background: #fff; color: var(--color-text); font-size: 1.35cqw; line-height: 1.5;
+  position: relative; overflow: hidden; width: 100%; aspect-ratio: 210 / 297;
+  background: #fff; color: var(--book-ink); font-family: var(--font-body); font-size: calc(var(--pt) * 11); line-height: 1.32;
   box-shadow: var(--shadow-card); border: 1px solid var(--color-border);
 }
-.bp-header, .bp-footer {
-  display: flex; justify-content: space-between; padding: 1.2em 3em; font-size: .75em;
-  color: var(--color-muted); letter-spacing: .05em; text-transform: uppercase;
-}
-.bp-header { border-bottom: .25em solid var(--color-primary); }
-.bp-footer { margin-top: auto; border-top: 1px solid var(--color-border); }
-.bp-body { padding: 1.6em 3em; flex: 1; }
-.bp-section-head { margin-bottom: 1.2em; border-left: .4em solid var(--color-accent); padding-left: .8em; }
-.bp-section-head h2 { font-family: var(--font-heading); font-size: 2em; font-weight: 800; color: var(--color-primary); line-height: 1.1; margin: 0; }
-.bp-section-head p { margin: .2em 0 0; color: var(--color-muted); }
-.bp-heading { font-family: var(--font-heading); font-size: 1.2em; font-weight: 700; color: var(--color-primary); margin: 1em 0 .4em; }
-.bp-para { margin: 0 0 .7em; text-align: justify; white-space: pre-line; }
-.bp-list { margin: 0 0 .8em; padding-left: 1.6em; }
-.bp-list li { margin: .15em 0; }
-.bp-table { width: 100%; border-collapse: collapse; margin: 0 0 1em; font-size: .92em; break-inside: avoid; }
-.bp-table th { background: var(--color-primary); color: var(--color-primary-fg); text-align: left; }
-.bp-table th, .bp-table td { border: 1px solid var(--color-border); padding: .35em .6em; }
-.bp-table tbody tr:nth-child(even) td { background: var(--color-surface-2); }
-.bp-table .bp-num { width: 3.5em; text-align: center; }
-.bp-kv { margin: 0 0 1em; display: grid; gap: .25em; }
-.bp-kv > div { display: grid; grid-template-columns: 30% 1fr; gap: 1em; border-bottom: 1px dotted var(--color-border); padding: .2em 0; }
-.bp-kv dt { font-weight: 600; }
-.bp-kv dd { margin: 0; }
-.bp-figure { margin: 0 0 1em; text-align: center; break-inside: avoid; }
-.bp-figure img { max-width: 100%; max-height: 25em; display: inline-block; }
-.bp-figure figcaption { font-size: .85em; color: var(--color-muted); margin-top: .3em; }
-.bp-toc { list-style: none; margin: 0; padding: 0; }
-.bp-toc li { display: flex; align-items: baseline; gap: .5em; padding: .35em 0; font-weight: 600; }
-.bp-toc-dots { flex: 1; border-bottom: 2px dotted var(--color-border); }
+.book-page img { max-width: none; }
+.book-page.bp-measure { aspect-ratio: auto; overflow: visible; border: 0; box-shadow: none; }
+.bp-full-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 
-.bp-cover {
-  position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-align: center; padding: 3em; min-height: calc(100cqw * var(--page-ratio, 0.7071));
-  background: linear-gradient(160deg, var(--color-primary) 0%, var(--color-sidebar) 100%); color: var(--color-primary-fg);
+/* BPPS 05 - halaman isi */
+.bp-content-page { background: #fff url('/template/page-bg.svg') 0 calc(var(--mm) * 7) / 100% auto no-repeat; }
+.bp-header-img { position: absolute; left: 0; top: 0; width: 100%; height: calc(var(--mm) * 37); }
+.bp-title-box {
+  position: absolute; left: calc(var(--mm) * 9); top: calc(var(--mm) * 4.8); width: calc(var(--mm) * 121); height: calc(var(--mm) * 25.9);
+  display: flex; align-items: center; gap: calc(var(--mm) * 3); padding-right: calc(var(--mm) * 3);
 }
-.bp-cover-band { position: absolute; left: 0; right: 0; bottom: 0; height: 1.2em; background: var(--color-accent); }
-.bp-cover-logo { width: 9em; height: 9em; object-fit: contain; margin-bottom: 1.4em; }
-.bp-cover-logo-empty { display: grid; place-items: center; border: .15em dashed rgba(255,255,255,.5); border-radius: 50%; font-size: 1em; opacity: .7; }
-.bp-cover-subtitle { letter-spacing: .3em; font-size: 1em; color: var(--color-accent); font-weight: 700; margin: 0; }
-.bp-cover-title { font-family: var(--font-heading); font-size: 2.8em; font-weight: 800; line-height: 1.1; margin: .3em 0; max-width: 80%; }
-.bp-cover-school { font-size: 1.4em; font-weight: 600; margin: .4em 0 0; }
-.bp-cover-address { opacity: .8; margin: .3em 0 0; }
-.bp-cover-motto { font-style: italic; margin-top: 2em; opacity: .9; }
+.bp-title {
+  flex: 1; margin: 0; font-family: var(--font-heading); font-weight: 700; font-size: calc(var(--pt) * 17); line-height: 1.12;
+  text-transform: uppercase; color: var(--book-ink); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.bp-title-md { font-size: calc(var(--pt) * 14); }
+.bp-title-sm { font-size: calc(var(--pt) * 11.5); }
+.bp-badge {
+  flex: none; max-width: 45%; background: var(--book-navy); color: #fff; font-family: var(--font-heading); font-weight: 700;
+  font-size: calc(var(--pt) * 8); padding: calc(var(--mm) * 1.4) calc(var(--mm) * 3); border: calc(var(--mm) * 0.5) solid #fff;
+  outline: calc(var(--mm) * 0.35) solid var(--book-navy); text-transform: uppercase; text-align: center; line-height: 1.2;
+}
+.bp-frame {
+  position: absolute; left: calc(var(--mm) * 6); top: calc(var(--mm) * 40); right: calc(var(--mm) * 5); bottom: calc(var(--mm) * 21);
+  border: calc(var(--mm) * 1.6) solid var(--book-frame); background: rgba(255,255,255,.9); overflow: hidden;
+}
+.bp-frame > .bp-content { padding: calc(var(--mm) * 6); }
+.bp-footer-img { position: absolute; left: 0; top: calc(var(--mm) * 280); width: 100%; height: calc(var(--mm) * 17); }
+.bp-footer-text {
+  position: absolute; left: calc(var(--mm) * 92); right: calc(var(--mm) * 8); top: calc(var(--mm) * 283); height: calc(var(--mm) * 12);
+  display: flex; align-items: center; justify-content: space-between; gap: calc(var(--mm) * 3);
+  color: #fff; font-family: var(--font-heading); font-weight: 600; font-size: calc(var(--pt) * 7.5); letter-spacing: .06em;
+}
+.bp-page-no { font-weight: 700; font-size: calc(var(--pt) * 11); letter-spacing: 0; }
+
+/* Blok kandungan - jarak guna padding (bukan margin) supaya pengukur penomboran tepat */
+.bp-content { color: var(--book-ink); }
+.bp-block { padding-bottom: calc(var(--mm) * 3); }
+.bp-heading {
+  margin: 0; background: var(--book-navy); color: #fff; border: calc(var(--mm) * 0.4) solid var(--book-sand);
+  font-family: var(--font-heading); font-weight: 700; font-size: calc(var(--pt) * 10.5); text-transform: uppercase; text-align: center;
+  padding: calc(var(--mm) * 1.3) calc(var(--mm) * 3); line-height: 1.25;
+}
+.bp-para { margin: 0; padding-bottom: calc(var(--mm) * 2); text-align: justify; white-space: pre-line; }
+.bp-para:last-child { padding-bottom: 0; }
+.bp-list { margin: 0; padding: 0 0 0 calc(var(--mm) * 6); }
+.bp-list li { padding-bottom: calc(var(--mm) * 0.9); }
+.bp-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: calc(var(--pt) * 10.5); }
+.bp-table .bp-num-col { width: calc(var(--mm) * 12); }
+.bp-table .bp-toc-page { width: calc(var(--mm) * 26); }
+.bp-table th {
+  background: var(--book-navy); color: #fff; font-family: var(--font-heading); font-weight: 700; font-size: calc(var(--pt) * 8.5);
+  border: calc(var(--mm) * 0.4) solid var(--book-gold); padding: calc(var(--mm) * 1.3) calc(var(--mm) * 2); text-transform: uppercase; text-align: center;
+}
+.bp-table td { border: calc(var(--mm) * 0.25) solid rgba(45,68,91,.45); padding: calc(var(--mm) * 1.2) calc(var(--mm) * 2); vertical-align: top; overflow-wrap: anywhere; }
+.bp-table tbody tr:nth-child(even) td { background: var(--book-row-alt); }
+.bp-table .bp-num { text-align: center; }
+.bp-toc td { font-family: var(--font-heading); font-weight: 600; font-size: calc(var(--pt) * 9.5); padding-top: calc(var(--mm) * 2.2); padding-bottom: calc(var(--mm) * 2.2); }
+.bp-kv { margin: 0; }
+.bp-kv > div {
+  display: grid; grid-template-columns: 34% 1fr; gap: calc(var(--mm) * 2);
+  padding: calc(var(--mm) * 1.1) 0; border-bottom: calc(var(--mm) * 0.25) dotted rgba(45,68,91,.5);
+}
+.bp-kv dt { font-weight: 700; }
+.bp-kv dd { margin: 0; display: flex; gap: calc(var(--mm) * 2); }
+.bp-kv-colon { flex: none; }
+.bp-figure { margin: 0; text-align: center; }
+.bp-figure img { width: 100%; height: calc(var(--mm) * 70); object-fit: contain; display: block; }
+.bp-figure figcaption { font-size: calc(var(--pt) * 9); color: #555; padding-top: calc(var(--mm) * 1); font-style: italic; }
+.bp-empty { color: #999; font-style: italic; margin: 0; }
+
+/* BPPS 03 - partition */
+.bp-divider-box {
+  position: absolute; left: calc(var(--mm) * 29); top: calc(var(--mm) * 123.5); width: calc(var(--mm) * 114); height: calc(var(--mm) * 41);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 calc(var(--mm) * 4);
+}
+.bp-divider-title { margin: 0; font-family: var(--font-heading); font-weight: 800; font-size: calc(var(--pt) * 25); line-height: 1.1; text-transform: uppercase; color: #000; }
+.bp-divider-md { font-size: calc(var(--pt) * 20); }
+.bp-divider-sm { font-size: calc(var(--pt) * 15); }
+.bp-divider-note { margin: calc(var(--mm) * 1.5) 0 0; font-family: var(--font-heading); font-weight: 600; font-size: calc(var(--pt) * 11); color: #000; }
+
+/* BPPS 01 - muka hadapan dijana (bila tiada imej reka bentuk) */
+.bp-cover-top { position: absolute; left: calc(var(--mm) * 15); right: calc(var(--mm) * 15); top: calc(var(--mm) * 14); text-align: center; color: var(--book-navy); }
+.bp-cover-logo { height: calc(var(--mm) * 28); width: auto; margin: 0 auto calc(var(--mm) * 3); display: block; }
+.bp-cover-school { margin: 0; font-family: var(--font-heading); font-weight: 800; font-size: calc(var(--pt) * 17); line-height: 1.15; }
+.bp-cover-address { margin: calc(var(--mm) * 1.5) 0 0; font-family: var(--font-heading); font-size: calc(var(--pt) * 9); color: #333; }
+.bp-cover-subtitle { margin: 0; font-family: var(--font-heading); font-weight: 700; font-size: calc(var(--pt) * 8.5); letter-spacing: .25em; color: var(--book-navy); }
+.bp-cover-title { margin: calc(var(--mm) * 1) 0 0; font-family: var(--font-heading); font-weight: 800; font-size: calc(var(--pt) * 17); line-height: 1.1; color: #000; }
+.bp-cover-motto {
+  position: absolute; left: 0; right: 0; top: calc(var(--mm) * 230); margin: 0; text-align: center;
+  font-family: var(--font-heading); font-weight: 700; font-size: calc(var(--pt) * 11); letter-spacing: .12em; color: var(--book-navy);
+}
 
 /* ---------- Cetak / Eksport PDF ---------- */
 #print-root { display: none; }
 @media print {
-  @page { size: A4 landscape; margin: 0; }
+  @page { size: A4 portrait; margin: 0; }
   html, body { height: auto; background: #fff; }
   #root { display: none !important; }
   #print-root { display: block; }
-  #print-root .book-page-wrap { width: 297mm; break-after: page; }
-  #print-root .book-page { box-shadow: none; border: none; min-height: 210mm; }
-  #print-root .bp-cover { min-height: 210mm; }
+  #print-root .book-page-wrap { width: 210mm; break-after: page; break-inside: avoid; }
+  #print-root .book-page-wrap:last-child { break-after: auto; }
+  #print-root .book-page { box-shadow: none; border: none; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }

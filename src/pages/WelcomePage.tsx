@@ -16,7 +16,7 @@ export default function WelcomePage() {
 
   const stats = bookSections.map((b) => {
     if (b.id === 'kulit') {
-      const filled = [cover.title, cover.subtitle, cover.address, cover.motto, cover.logo].filter((x) => x.trim() !== '').length;
+      const filled = cover.image ? 5 : [cover.title, cover.subtitle, cover.address, cover.motto, cover.logo].filter((x) => x.trim() !== '').length;
       return { ...b, pct: Math.round((filled / 5) * 100), edited: cover.updatedAt !== null, blocks: null as number | null };
     }
     const sec = sections[b.id];
