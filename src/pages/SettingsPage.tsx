@@ -12,7 +12,7 @@ export default function SettingsPage() {
         </span>
         <input type="checkbox" className="h-5 w-5" checked={compactMode} onChange={(e) => setCompactMode(e.target.checked)} />
       </label>
-      <p className="mt-6 text-xs text-muted">Tetapan lanjutan akan ditambah dalam phase seterusnya.</p>
+      <p className="mt-6 text-xs text-muted">Mod padat mengurangkan jarak ruang kerja supaya lebih banyak kandungan kelihatan.</p>
     </div>
   );
 }

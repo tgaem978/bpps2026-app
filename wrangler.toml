@@ -1,3 +1,8 @@
-name = "bpps2026"
-compatibility_date = "2024-10-01"
-pages_build_output_dir = "./dist"
+# Cloudflare Workers (static assets) - nama mesti sama dengan projek Workers Builds: bpps2026-app
+name = "bpps2026-app"
+compatibility_date = "2025-09-01"
+
+[assets]
+directory = "./dist"
+# Laluan SPA (/project, /settings, /preview) dihidangkan oleh index.html
+not_found_handling = "single-page-application"
