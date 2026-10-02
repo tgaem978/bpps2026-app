@@ -1,6 +1,9 @@
-import { ChevronLeft, ChevronRight, Eye, EyeOff, ImagePlus, Plus, RotateCcw, Trash2 } from 'lucide-react';
+import { BookOpen, ChevronLeft, ChevronRight, Eye, EyeOff, ImagePlus, Plus, RotateCcw, Settings2, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { bookSections } from '@/config/sections';
+import { iconFor } from '@/config/sections';
+import { flattenOutline, locate } from '@/lib/outline';
+import { layoutOptions } from '@/templates/master';
+import { navigate } from '@/lib/router';
 import { useBookStore } from '@/stores/bookStore';
 import { useNavigationStore } from '@/stores/navigationStore';
 import { useUiStore } from '@/stores/uiStore';
@@ -10,21 +13,29 @@ import BlockEditor, { field } from '@/components/editor/BlockEditor';
 import { SectionPages } from '@/components/book/BookPages';
 import { templateAssets } from '@/templates/bpps';
 
-const addable: BlockType[] = ['heading', 'paragraph', 'list', 'table', 'keyvalue', 'image'];
+const addable: BlockType[] = ['heading', 'paragraph', 'list', 'table', 'keyvalue', 'image', 'orgchart', 'committee', 'stafflist'];
 const btn = 'inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium hover:bg-surface-2';
 
 export default function SectionEditorPage({ id }: { id: string }) {
-  const meta = bookSections.find((s) => s.id === id);
   const [showPreview, setShowPreview] = useState(true);
   const resetSection = useBookStore((s) => s.resetSection);
+  const outline = useBookStore((s) => s.outline);
+  const sections = useBookStore((s) => s.sections);
   const setActive = useNavigationStore((s) => s.setActiveSection);
+  const setSettingsTab = useNavigationStore((s) => s.setSettingsTab);
   const toast = useUiStore((s) => s.toast);
-  if (!meta) return null;
 
-  const idx = bookSections.findIndex((s) => s.id === id);
-  const prev = bookSections[idx - 1];
-  const next = bookSections[idx + 1];
-  const Icon = meta.icon;
+  const order = ['kulit', ...flattenOutline(outline).map((e) => e.id)];
+  const idx = order.indexOf(id);
+  if (idx < 0) return null;
+  const loc = locate(outline, id);
+  const part = outline.find((p) => p.id === loc?.partId);
+  const parentTitle = loc?.parentId ? sections[loc.parentId]?.title : undefined;
+  const titleOf = (x: string) => (x === 'kulit' ? 'Muka Hadapan' : sections[x]?.title || 'Tanpa tajuk');
+  const meta = { label: titleOf(id) };
+  const prev = order[idx - 1] ? { id: order[idx - 1], label: titleOf(order[idx - 1]) } : undefined;
+  const next = order[idx + 1] ? { id: order[idx + 1], label: titleOf(order[idx + 1]) } : undefined;
+  const Icon = id === 'kulit' ? BookOpen : iconFor(id);
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -32,7 +43,9 @@ export default function SectionEditorPage({ id }: { id: string }) {
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <span className="rounded-md bg-primary p-2 text-primary-fg"><Icon size={20} aria-hidden /></span>
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-wider text-accent">Bahagian {idx + 1} / {bookSections.length}</p>
+            <p className="truncate text-xs font-semibold uppercase tracking-wider text-accent">
+              {part ? `${outline.indexOf(part) + 1}. ${part.title}` : 'Kulit buku'}{parentTitle ? ` › ${parentTitle}` : ''}
+            </p>
             <h2 className="truncate font-display text-xl font-bold md:text-2xl">{meta.label}</h2>
           </div>
         </div>
@@ -40,6 +53,11 @@ export default function SectionEditorPage({ id }: { id: string }) {
           {showPreview ? <EyeOff size={16} /> : <Eye size={16} />}
           <span className="hidden sm:inline">{showPreview ? 'Sembunyi pratonton' : 'Tunjuk pratonton'}</span>
         </button>
+        {id !== 'kulit' && (
+          <button className={btn} onClick={() => { setSettingsTab('kandungan'); navigate('/settings'); }} title="Susun bahagian, tajuk & subtajuk">
+            <Settings2 size={16} /> <span className="hidden sm:inline">Struktur</span>
+          </button>
+        )}
         <button
           className={btn}
           onClick={() => {
@@ -68,8 +86,8 @@ export default function SectionEditorPage({ id }: { id: string }) {
       </div>
 
       <div className="mt-8 flex items-center justify-between border-t border-border pt-4">
-        {prev ? <button className={btn} onClick={() => setActive(prev.id)}><ChevronLeft size={16} /> {prev.label}</button> : <span />}
-        {next ? <button className={btn} onClick={() => setActive(next.id)}>{next.label} <ChevronRight size={16} /></button> : <span />}
+        {prev ? <button className={btn} onClick={() => setActive(prev.id)}><ChevronLeft size={16} /> <span className="max-w-[34vw] truncate">{prev.label}</span></button> : <span />}
+        {next ? <button className={btn} onClick={() => setActive(next.id)}><span className="max-w-[34vw] truncate">{next.label}</span> <ChevronRight size={16} /></button> : <span />}
       </div>
     </div>
   );
@@ -84,23 +102,29 @@ function SectionForm({ id }: { id: string }) {
     <>
       <div className="grid gap-3 rounded-lg border border-border bg-surface p-4 shadow-card sm:grid-cols-2">
         <label className="text-sm font-medium">
-          Tajuk bahagian
+          Tajuk
           <input className={`${field} mt-1`} value={sec.title} onChange={(e) => updateSection(id, { title: e.target.value })} />
         </label>
         <label className="text-sm font-medium">
           Lencana tajuk <span className="font-normal text-muted">(pilihan, cth. SESI PAGI)</span>
           <input className={`${field} mt-1`} value={sec.subtitle} onChange={(e) => updateSection(id, { subtitle: e.target.value })} />
         </label>
-        <label className="flex items-center gap-2 text-sm font-medium sm:col-span-2">
-          <input type="checkbox" className="h-4 w-4" checked={sec.divider} onChange={(e) => updateSection(id, { divider: e.target.checked })} />
-          Halaman partition sebelum bahagian ini
-        </label>
-        {sec.divider && (
-          <label className="text-sm font-medium sm:col-span-2">
-            Catatan partition <span className="font-normal text-muted">(cth. nama penyelaras)</span>
-            <input className={`${field} mt-1`} value={sec.dividerNote} onChange={(e) => updateSection(id, { dividerNote: e.target.value })} />
-          </label>
-        )}
+        <div className="sm:col-span-2">
+          <p className="text-sm font-medium">Jenis halaman</p>
+          <div className="mt-1 grid gap-2 sm:grid-cols-4">
+            {layoutOptions.map((o) => (
+              <button
+                key={o.id}
+                onClick={() => updateSection(id, { layout: o.id })}
+                className={`rounded-md border p-2 text-left text-xs transition ${sec.layout === o.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-border hover:bg-surface-2'}`}
+                aria-pressed={sec.layout === o.id}
+              >
+                <span className="block text-sm font-semibold">{o.label}</span>
+                <span className="text-muted">{o.desc}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {sec.blocks.length === 0 && (

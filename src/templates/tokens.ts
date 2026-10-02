@@ -28,7 +28,7 @@ export const designTokens: DesignTokens = {
   book: { navy: '#004358', frame: 'rgba(45,68,91,.8)', gold: '#FFBA4B', sand: '#E5BE7B', cyan: '#00AED5', ink: '#1B1D1C', rowAlt: '#F2F5F7' },
   typography: {
     fontHeading: '"Poppins", "Segoe UI", Arial, sans-serif',
-    fontBody: '"Arial Narrow", "Roboto Condensed", "Liberation Sans Narrow", Arial, sans-serif',
+    fontBody: '"Inter", "Segoe UI", Arial, sans-serif',
     sizes: { xs: '0.75rem', sm: '0.875rem', base: '1rem', lg: '1.125rem', xl: '1.5rem', xxl: '2rem' },
   },
   spacing: { xs: '0.25rem', sm: '0.5rem', md: '1rem', lg: '1.5rem', xl: '2.5rem' },

@@ -9,6 +9,9 @@ interface NavigationState {
   toggleSidebar: () => void;
   setMobileOpen: (v: boolean) => void;
   toggleGroup: (id: string) => void;
+  setGroup: (id: string, collapsed: boolean) => void;
+  settingsTab: string;
+  setSettingsTab: (tab: string) => void;
 }
 
 export const useNavigationStore = create<NavigationState>((set) => ({
@@ -20,4 +23,7 @@ export const useNavigationStore = create<NavigationState>((set) => ({
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
   setMobileOpen: (mobileOpen) => set({ mobileOpen }),
   toggleGroup: (id) => set((s) => ({ collapsedGroups: { ...s.collapsedGroups, [id]: !s.collapsedGroups[id] } })),
+  setGroup: (id, collapsed) => set((s) => ({ collapsedGroups: { ...s.collapsedGroups, [id]: collapsed } })),
+  settingsTab: 'umum',
+  setSettingsTab: (settingsTab) => set({ settingsTab }),
 }));

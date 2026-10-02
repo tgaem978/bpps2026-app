@@ -1,72 +1,95 @@
 import type { ReactNode } from 'react';
 import { useBookStore } from '@/stores/bookStore';
 import { useProjectStore } from '@/stores/projectStore';
-import { templateAssets } from '@/templates/bpps';
-import { useBookPlan, type PagePlan, type Segment } from '@/lib/pagination';
+import { useMaster, useMasterStore, resolveMaster } from '@/stores/masterStore';
+import { applyMasterCss, type PageType } from '@/templates/master';
+import { useBookCtx, useBookPlan, type PagePlan, type Segment } from '@/lib/pagination';
+import { resolveTokens, type BookCtx } from '@/lib/resolve';
+import { locate } from '@/lib/outline';
+import type { Block } from '@/types/book';
 import BlockView from './BlockView';
 
-/** Halaman A4 potret. Saiz fon dan kedudukan dalam unit --mm (diskala ikut lebar halaman). */
-function Sheet({ children, className = '' }: { children: ReactNode; className?: string }) {
+/** Gaya master semua jenis halaman sebagai CSS variables dalam <head>. */
+export function MasterStyles() {
+  const overrides = useMasterStore((s) => s.overrides);
+  applyMasterCss((t) => resolveMaster(t, overrides));
+  return null;
+}
+
+/** Halaman A4 potret. Saiz dalam unit --mm/--pt (diskala ikut lebar halaman). */
+function Sheet({ pt, children, className = '' }: { pt: PageType; children: ReactNode; className?: string }) {
   return (
     <div className="book-page-wrap">
-      <article className={`book-page ${className}`}>{children}</article>
+      <article className={`book-page ${className}`} data-pt={pt}>{children}</article>
     </div>
   );
 }
 
-/** Templat BPPS 05: jalur tajuk, bingkai kandungan, jalur kaki dengan moto & nombor halaman. */
-export function ContentFrame({ title, badge, number, children }: { title: string; badge?: string; number?: number; children: ReactNode }) {
+function useFooterText(template: string, ctx: BookCtx) {
   const motto = useBookStore((s) => s.cover.motto);
+  return resolveTokens(template.replace(/\{\{\s*motto\s*\}\}/g, motto), ctx);
+}
+
+/** Templat halaman isi (BPPS 05 dan variasinya): jalur tajuk, bingkai, jalur kaki. */
+export function ContentFrame({ pt, title, badge, number, children }: { pt: PageType; title: string; badge?: string; number?: number; children: ReactNode }) {
+  const m = useMaster(pt);
+  const ctx = useBookCtx();
+  const footer = useFooterText(m.footerText, ctx);
   const len = title.length;
   return (
-    <Sheet className="bp-content-page">
-      <img className="bp-header-img" src={templateAssets.header} alt="" />
+    <Sheet pt={pt} className={`bp-content-page bp-pt-${pt}`}>
+      {m.showBg && m.bgImage && <img className="bp-bg-img" src={m.bgImage} alt="" />}
+      {m.headerImage && <img className="bp-header-img" src={m.headerImage} alt="" />}
       <div className="bp-title-box">
-        <h2 className={`bp-title ${len > 34 ? 'bp-title-sm' : len > 22 ? 'bp-title-md' : ''}`}>{title}</h2>
+        <h2 className={`bp-title ${len > 40 ? 'bp-title-sm' : len > 26 ? 'bp-title-md' : ''}`}>{title}</h2>
         {badge && <span className="bp-badge">{badge}</span>}
       </div>
       <div className="bp-frame">
         <div className="bp-content">{children}</div>
       </div>
-      <img className="bp-footer-img" src={templateAssets.footer} alt="" />
+      {m.footerImage && <img className="bp-footer-img" src={m.footerImage} alt="" />}
       <div className="bp-footer-text">
-        <span>{motto}</span>
-        {number !== undefined && <span className="bp-page-no">{number}</span>}
+        <span>{footer}</span>
+        {m.showPageNo && number !== undefined && <span className="bp-page-no">{number}</span>}
       </div>
     </Sheet>
   );
 }
 
-/** Templat BPPS 03: halaman partition. */
-export function DividerPage({ id }: { id: string }) {
-  const sec = useBookStore((s) => s.sections[id]);
-  if (!sec) return null;
-  const len = sec.title.length;
+/** Templat BPPS 03: halaman partition bagi bahagian utama. */
+export function DividerPage({ partId }: { partId: string }) {
+  const part = useBookStore((s) => s.outline.find((p) => p.id === partId));
+  const m = useMaster('divider');
+  const ctx = useBookCtx();
+  if (!part) return null;
+  const len = part.title.length;
+  const note = resolveTokens(part.note, ctx);
   return (
-    <Sheet className="bp-divider">
-      <img className="bp-full-img" src={templateAssets.divider} alt="" />
+    <Sheet pt="divider" className="bp-divider">
+      <img className="bp-full-img" src={m.bgImage} alt="" />
       <div className="bp-divider-box">
-        <h2 className={`bp-divider-title ${len > 28 ? 'bp-divider-sm' : len > 16 ? 'bp-divider-md' : ''}`}>{sec.title}</h2>
-        {sec.dividerNote && <p className="bp-divider-note">{sec.dividerNote}</p>}
+        <h2 className={`bp-divider-title ${len > 28 ? 'bp-divider-sm' : len > 16 ? 'bp-divider-md' : ''}`}>{part.title}</h2>
+        {note && <p className="bp-divider-note">{note}</p>}
       </div>
     </Sheet>
   );
 }
 
 /** Templat BPPS 01: muka hadapan - imej reka bentuk penuh, atau dijana daripada teks. */
-export function CoverPage() {
+export function CoverPage({ forceGenerated = false }: { forceGenerated?: boolean }) {
   const cover = useBookStore((s) => s.cover);
   const profile = useProjectStore((s) => s.profile);
-  if (cover.image) {
+  const m = useMaster('cover');
+  if (cover.image && !forceGenerated) {
     return (
-      <Sheet className="bp-cover">
+      <Sheet pt="cover" className="bp-cover">
         <img className="bp-full-img bp-cover-img" src={cover.image} alt="Muka hadapan" />
       </Sheet>
     );
   }
   return (
-    <Sheet className="bp-cover">
-      <img className="bp-full-img" src={templateAssets.divider} alt="" />
+    <Sheet pt="cover" className="bp-cover">
+      <img className="bp-full-img" src={m.bgImage} alt="" />
       <div className="bp-cover-top">
         {cover.logo && <img src={cover.logo} alt="Logo sekolah" className="bp-cover-logo" />}
         <p className="bp-cover-school">{profile.fullName.toUpperCase()}</p>
@@ -82,38 +105,45 @@ export function CoverPage() {
 }
 
 function TocPage({ page }: { page: Extract<PagePlan, { kind: 'toc' }> }) {
+  const m = useMaster('toc');
+  const ctx = useBookCtx();
   return (
-    <ContentFrame title="ISI KANDUNGAN" number={page.number}>
-      <div className="bp-block bp-table-wrap">
-        <table className="bp-table bp-toc">
-          <colgroup><col className="bp-num-col" /><col /><col className="bp-toc-page" /></colgroup>
-          <thead><tr><th className="bp-num">BIL.</th><th>PERKARA</th><th className="bp-num">MUKA SURAT</th></tr></thead>
-          <tbody>
-            {page.entries.map((e, i) => (
-              <tr key={e.id}>
-                <td className="bp-num">{i + 1}</td>
-                <td>{e.title}</td>
-                <td className="bp-num">{e.page}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <ContentFrame pt="toc" title={m.pageTitle || 'ISI KANDUNGAN'} number={page.number}>
+      <BlockView block={page.block} ctx={ctx} from={page.from} to={page.to} />
     </ContentFrame>
+  );
+}
+
+function Segments({ segments, byId, ctx }: { segments: Segment[]; byId: Map<string, Block>; ctx: BookCtx }) {
+  return (
+    <>
+      {segments.map((s) => {
+        const b = byId.get(s.blockId);
+        return b ? <BlockView key={`${s.blockId}-${s.from}`} block={b} ctx={ctx} from={s.from} to={s.to} /> : null;
+      })}
+    </>
   );
 }
 
 function SectionContentPage({ page }: { page: Extract<PagePlan, { kind: 'content' }> }) {
   const sec = useBookStore((s) => s.sections[page.sectionId]);
+  const m = useMaster(page.layout);
+  const ctx = useBookCtx();
   if (!sec) return null;
   const byId = new Map(sec.blocks.map((b) => [b.id, b]));
+  const empty = page.columns.every((c) => c.length === 0);
+  const title = sec.title || m.pageTitle;
   return (
-    <ContentFrame title={sec.title} badge={sec.subtitle || undefined} number={page.number}>
-      {page.segments.length === 0 && <p className="bp-empty">Tiada kandungan.</p>}
-      {page.segments.map((s: Segment) => {
-        const b = byId.get(s.blockId);
-        return b ? <BlockView key={`${s.blockId}-${s.from}`} block={b} from={s.from} to={s.to} /> : null;
-      })}
+    <ContentFrame pt={page.layout} title={title} badge={sec.subtitle || undefined} number={page.number}>
+      {page.layout === 'twocol' ? (
+        <div className="bp-cols">
+          {page.columns.map((c, i) => <div key={i} className="bp-col"><Segments segments={c} byId={byId} ctx={ctx} /></div>)}
+        </div>
+      ) : (
+        <Segments segments={page.columns[0]} byId={byId} ctx={ctx} />
+      )}
+      {page.layout === 'notes' && page.part === page.parts - 1 && <div className="bp-ruled" />}
+      {empty && page.layout !== 'notes' && <p className="bp-empty">Tiada kandungan.</p>}
     </ContentFrame>
   );
 }
@@ -122,24 +152,27 @@ export function PageView({ page }: { page: PagePlan }) {
   switch (page.kind) {
     case 'cover': return <CoverPage />;
     case 'toc': return <TocPage page={page} />;
-    case 'divider': return <DividerPage id={page.sectionId} />;
+    case 'divider': return <DividerPage partId={page.partId} />;
     case 'content': return <SectionContentPage page={page} />;
   }
 }
 
-const pageKey = (p: PagePlan) => (p.kind === 'content' ? `${p.sectionId}-${p.part}` : p.kind === 'divider' ? `d-${p.sectionId}` : p.kind);
-
-/** Halaman-halaman satu bahagian (pratonton dalam editor). */
+/** Halaman-halaman satu tajuk (pratonton dalam editor); partition disertakan untuk tajuk pertama bahagian. */
 export function SectionPages({ id }: { id: string }) {
   const plan = useBookPlan();
-  const pages = id === 'kulit' ? plan.filter((p) => p.kind === 'cover') : plan.filter((p) => 'sectionId' in p && p.sectionId === id);
-  return <>{pages.map((p) => <PageView key={pageKey(p)} page={p} />)}</>;
+  const outline = useBookStore((s) => s.outline);
+  if (id === 'kulit') return <>{plan.filter((p) => p.kind === 'cover').map((p) => <PageView key={p.key} page={p} />)}</>;
+  const loc = locate(outline, id);
+  const part = outline.find((p) => p.id === loc?.partId);
+  const isFirst = part?.topics[0]?.id === id;
+  const pages = plan.filter((p) => (p.kind === 'content' && p.sectionId === id) || (isFirst && p.kind === 'divider' && p.partId === part?.id));
+  return <>{pages.map((p) => <PageView key={p.key} page={p} />)}</>;
 }
 
 /** Keseluruhan buku mengikut pelan halaman. */
 export function FullBook() {
   const plan = useBookPlan();
-  return <>{plan.map((p) => <PageView key={pageKey(p)} page={p} />)}</>;
+  return <>{plan.map((p) => <PageView key={p.key} page={p} />)}</>;
 }
 
 export function usePageCount(): number {

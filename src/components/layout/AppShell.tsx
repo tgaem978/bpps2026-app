@@ -4,6 +4,7 @@ import Topbar from './Topbar';
 import Workspace from './Workspace';
 import StatusBar from './StatusBar';
 import { PrintRoot, Toaster } from './Overlays';
+import { MasterStyles } from '@/components/book/BookPages';
 import { saveNow } from '@/lib/exporter';
 
 export default function AppShell() {
@@ -27,6 +28,7 @@ export default function AppShell() {
         <Workspace />
         <StatusBar />
       </div>
+      <MasterStyles />
       <Toaster />
       <PrintRoot />
     </div>

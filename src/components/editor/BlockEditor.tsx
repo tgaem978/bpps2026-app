@@ -2,6 +2,8 @@ import { ArrowDown, ArrowUp, ImagePlus, Plus, Trash2, X } from 'lucide-react';
 import type { Block } from '@/types/book';
 import { blockLabels, readImageFile } from '@/lib/blocks';
 import { useUiStore } from '@/stores/uiStore';
+import { tokenHelp } from '@/lib/resolve';
+import { CommitteeEditor, OrgChartEditor, StaffListEditor } from './StaffBlockEditors';
 
 export const field = 'w-full rounded-md border border-border bg-surface px-3 py-2 text-sm';
 const iconBtn = 'rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-text disabled:opacity-30 disabled:hover:bg-transparent';
@@ -43,13 +45,28 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
 
     case 'paragraph':
       return (
-        <textarea
-          className={`${field} min-h-[96px] resize-y`}
-          value={block.text}
-          placeholder="Tulis perenggan di sini…"
-          onChange={(e) => onChange({ ...block, text: e.target.value })}
-          aria-label="Teks perenggan"
-        />
+        <div className="grid gap-1.5">
+          <textarea
+            className={`${field} min-h-[96px] resize-y`}
+            value={block.text}
+            placeholder="Tulis perenggan di sini… (baris kosong = perenggan baharu)"
+            onChange={(e) => onChange({ ...block, text: e.target.value })}
+            aria-label="Teks perenggan"
+          />
+          <div className="flex flex-wrap items-center gap-1 text-[11px] text-muted">
+            <span>Sisip automatik:</span>
+            {tokenHelp.map((tk) => (
+              <button
+                key={tk.token}
+                title={tk.token}
+                className="rounded-full border border-border px-2 py-0.5 hover:border-primary hover:text-primary"
+                onClick={() => onChange({ ...block, text: `${block.text}${block.text && !block.text.endsWith(' ') ? ' ' : ''}${tk.token}` })}
+              >
+                {tk.label}
+              </button>
+            ))}
+          </div>
+        </div>
       );
 
     case 'list':
@@ -181,5 +198,11 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
           <input className={field} placeholder="Kapsyen (pilihan)" value={block.caption} onChange={(e) => onChange({ ...block, caption: e.target.value })} aria-label="Kapsyen" />
         </div>
       );
+    case 'orgchart':
+      return <OrgChartEditor block={block} onChange={onChange} />;
+    case 'committee':
+      return <CommitteeEditor block={block} onChange={onChange} />;
+    case 'stafflist':
+      return <StaffListEditor block={block} onChange={onChange} />;
   }
 }

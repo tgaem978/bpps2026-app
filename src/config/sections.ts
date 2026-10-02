@@ -1,45 +1,36 @@
 import {
-  BookOpen, Building2, CalendarDays, FileStack, GraduationCap, HeartHandshake,
-  Users, Flag, Accessibility, Baby, FileText, Settings as SettingsIcon, FolderKanban, Eye,
+  BookOpen, Building2, CalendarDays, FileStack, GraduationCap, HeartHandshake, Network, UsersRound, ClipboardList,
+  Users, Flag, Accessibility, Baby, FileText, NotebookPen, Settings as SettingsIcon, FolderKanban, Eye,
   type LucideIcon,
 } from 'lucide-react';
 
-export interface NavItem {
-  id: string;
-  label: string;
-  icon: LucideIcon;
-  /** Bahagian buku kekal di '/' dengan activeSection */
-  path: '/' | '/project' | '/settings' | '/preview';
-}
-export interface NavGroup {
-  id: string;
-  label: string;
-  items: NavItem[];
-}
+export type AppPath = '/project' | '/settings' | '/preview';
 
-export const bookSections: NavItem[] = [
-  { id: 'kulit', label: 'KULIT', icon: BookOpen, path: '/' },
-  { id: 'kata-aluan', label: 'KATA ALUAN', icon: FileText, path: '/' },
-  { id: 'maklumat-sekolah', label: 'MAKLUMAT SEKOLAH', icon: Building2, path: '/' },
-  { id: 'pentadbiran', label: 'PENTADBIRAN', icon: Users, path: '/' },
-  { id: 'kurikulum', label: 'KURIKULUM', icon: GraduationCap, path: '/' },
-  { id: 'hem', label: 'HEM', icon: HeartHandshake, path: '/' },
-  { id: 'kokurikulum', label: 'KOKURIKULUM', icon: Flag, path: '/' },
-  { id: 'pendidikan-khas', label: 'PENDIDIKAN KHAS', icon: Accessibility, path: '/' },
-  { id: 'prasekolah', label: 'PRASEKOLAH', icon: Baby, path: '/' },
-  { id: 'takwim', label: 'TAKWIM SEKOLAH', icon: CalendarDays, path: '/' },
-  { id: 'lampiran', label: 'LAMPIRAN', icon: FileStack, path: '/' },
+export interface AppNavItem { id: string; label: string; icon: LucideIcon; path: AppPath }
+
+export const appNav: AppNavItem[] = [
+  { id: 'preview', label: 'Pratonton Buku', icon: Eye, path: '/preview' },
+  { id: 'project', label: 'Projek', icon: FolderKanban, path: '/project' },
+  { id: 'settings', label: 'Tetapan', icon: SettingsIcon, path: '/settings' },
 ];
 
-export const navGroups: NavGroup[] = [
-  { id: 'buku', label: 'Bahagian Buku', items: bookSections },
-  {
-    id: 'aplikasi',
-    label: 'Aplikasi',
-    items: [
-      { id: 'preview', label: 'PRATONTON BUKU', icon: Eye, path: '/preview' },
-      { id: 'project', label: 'PROJEK', icon: FolderKanban, path: '/project' },
-      { id: 'settings', label: 'TETAPAN', icon: SettingsIcon, path: '/settings' },
-    ],
-  },
-];
+/** Ikon untuk tajuk lalai; tajuk baharu menggunakan ikon dokumen. */
+const icons: Record<string, LucideIcon> = {
+  kulit: BookOpen,
+  'kata-aluan': FileText,
+  'maklumat-sekolah': Building2,
+  'carta-organisasi': Network,
+  pentadbiran: Users,
+  'senarai-guru': UsersRound,
+  'jk-pengurusan': ClipboardList,
+  kurikulum: GraduationCap,
+  hem: HeartHandshake,
+  kokurikulum: Flag,
+  'pendidikan-khas': Accessibility,
+  prasekolah: Baby,
+  takwim: CalendarDays,
+  lampiran: FileStack,
+  catatan: NotebookPen,
+};
+
+export const iconFor = (id: string): LucideIcon => icons[id] ?? (id.startsWith('jk-') ? ClipboardList : FileText);
