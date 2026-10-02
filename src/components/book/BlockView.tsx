@@ -1,11 +1,11 @@
-import type { AnyBlock, OrgChartBlock } from '@/types/book';
+import type { AnyBlock, CommitteeBlock, OrgChartBlock } from '@/types/book';
 import type { Teacher } from '@/types/staff';
 import { kvPairs, listItems, paragraphParts, unitCount } from '@/lib/units';
-import { byPosition, nameOf, resolveMembers, resolveTokens, staffRows, valueText, type BookCtx } from '@/lib/resolve';
+import { byPosition, committeeChartLines, nameOf, resolveMembers, resolveTokens, staffRows, valueText, type BookCtx } from '@/lib/resolve';
 
 /** Siluet potret elegan bila tiada gambar. */
 export function Avatar({ name }: { name: string }) {
-  const initials = name.replace(/\b(BIN|BINTI|BT|A\/L|A\/P)\b/gi, '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('');
+  const initials = name.replace(/\b(BIN|BINTI|BT|A\/L|A\/P)\b/gi, ' ').replace(/[^\p{L}\s]/gu, ' ').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('');
   return (
     <svg viewBox="0 0 80 100" className="bp-avatar" aria-hidden>
       <rect width="80" height="100" fill="#E6ECF0" />
@@ -23,6 +23,9 @@ export function Rich({ text }: { text: string }) {
 }
 
 const chunk = <T,>(arr: T[], n: number) => Array.from({ length: Math.ceil(arr.length / n) }, (_, i) => arr.slice(i * n, i * n + n));
+
+/** Kedudukan bas penyambung: dari tengah kad pertama ke tengah kad terakhir (kad selebar 100/slots %, berpusat). */
+const busInset = (n: number, slots: number) => `${(100 - (n * 100) / slots) / 2 + 50 / slots}%`;
 
 type OcPerson = { name: string; position: string; photo: string };
 type OcRow = { kind: 'person'; items: OcPerson[] } | { kind: 'group'; items: { position: string; people: Teacher[] }[] };
@@ -47,12 +50,12 @@ function OrgChart({ block, ctx }: { block: OrgChartBlock; ctx: BookCtx }) {
         return (
           <div key={ri} className={`bp-oc-row ${ri === 0 ? 'bp-oc-first' : ''} ${r.kind === 'person' && ri === 0 && n === 1 ? 'bp-oc-lead' : ''}`}>
             {ri > 0 && <span className="bp-oc-drop" />}
-            {ri > 0 && n > 1 && <span className="bp-oc-bus" style={{ left: `${50 / n}%`, right: `${50 / n}%` }} />}
+            {ri > 0 && n > 1 && <span className="bp-oc-bus" style={{ left: busInset(n, Math.max(n, 3)), right: busInset(n, Math.max(n, 3)) }} />}
             <div className="bp-oc-cards">
               {r.kind === 'person'
                 ? r.items.map((m, i) => (
                     <div key={i} className="bp-oc-card" style={{ width: `${100 / Math.max(n, 3)}%` }}>
-                      {ri > 0 && n > 1 && <span className="bp-oc-stub" />}
+                      {ri > 0 && <span className="bp-oc-stub" />}
                       <div className="bp-oc-photo">{m.photo ? <img src={m.photo} alt="" /> : <Avatar name={m.name} />}</div>
                       <p className="bp-oc-pos">{m.position}</p>
                       <p className="bp-oc-name">{m.name}</p>
@@ -60,7 +63,7 @@ function OrgChart({ block, ctx }: { block: OrgChartBlock; ctx: BookCtx }) {
                   ))
                 : r.items.map((g, i) => (
                     <div key={i} className="bp-oc-card bp-oc-group" style={{ width: `${100 / Math.max(n, 3)}%` }}>
-                      {ri > 0 && n > 1 && <span className="bp-oc-stub" />}
+                      {ri > 0 && <span className="bp-oc-stub" />}
                       <div className="bp-oc-gbox">
                         <p className="bp-oc-gtitle">{g.position}</p>
                         {g.people.length
@@ -73,6 +76,53 @@ function OrgChart({ block, ctx }: { block: OrgChartBlock; ctx: BookCtx }) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+/** Jawatankuasa sebagai carta bergambar: aras demi aras, maksimum 5 kad sebaris (setiap baris = satu unit). */
+function CommitteeChart({ block, ctx, from, to }: { block: CommitteeBlock; ctx: BookCtx; from: number; to: number }) {
+  const t = (s: string) => resolveTokens(s, ctx);
+  const lines = committeeChartLines(block, ctx).slice(from, to);
+  return (
+    <div className="bp-block">
+      {block.title && <h3 className="bp-heading bp-cm-title">{t(block.title)}{from > 0 ? ' (samb.)' : ''}</h3>}
+      <div className="bp-oc bp-cmc">
+        {lines.map((ln, li) => {
+          const n = ln.cards.length;
+          const slots = Math.max(n, 4);
+          // Penyambung hanya pada baris pertama setiap aras, dan bukan di atas halaman sambungan.
+          const linked = ln.tierStart && li > 0;
+          const cls = ['bp-oc-row', 'u', li === 0 ? 'bp-oc-first' : '', ln.lead ? 'bp-oc-lead' : '', ln.tierStart ? '' : 'bp-cmc-cont', ln.label ? 'bp-cmc-labelled' : ''];
+          return (
+            <div key={li} className={cls.filter(Boolean).join(' ')}>
+              {linked && <span className="bp-oc-drop" />}
+              {linked && n > 1 && <span className="bp-oc-bus" style={{ left: busInset(n, slots), right: busInset(n, slots) }} />}
+              {ln.label && <p className="bp-cmc-label"><span>{t(ln.label)}</span></p>}
+              <div className="bp-oc-cards">
+                {ln.cards.map((c, i) => (
+                  <div key={i} className="bp-oc-card" style={{ width: ln.lead ? '60%' : `${100 / slots}%` }}>
+                    {linked && <span className="bp-oc-stub" />}
+                    {c.person ? (
+                      <>
+                        <div className="bp-oc-photo">{c.photo ? <img src={c.photo} alt="" /> : <Avatar name={c.name} />}</div>
+                        <p className="bp-oc-pos">{t(c.role)}</p>
+                        <p className="bp-oc-name">{c.name}</p>
+                        {c.note && <p className="bp-cmc-note">{c.note}</p>}
+                      </>
+                    ) : (
+                      <div className="bp-cmc-box">
+                        <p className="bp-oc-pos">{t(c.role)}</p>
+                        <p className="bp-oc-name">{c.name}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -91,18 +141,22 @@ export default function BlockView({ block, ctx, from = 0, to }: { block: AnyBloc
       if (parts.length > 1) {
         return (
           <div className="bp-block">
-            <div className="bp-heading-split u">{parts.map((p, i) => <h3 key={i} className="bp-heading">{p}</h3>)}</div>
+            <div className="bp-heading-split u kn">{parts.map((p, i) => <h3 key={i} className="bp-heading">{p}</h3>)}</div>
           </div>
         );
       }
-      return <div className="bp-block"><h3 className="bp-heading u">{parts[0]}</h3></div>;
+      return <div className="bp-block"><h3 className="bp-heading u kn">{parts[0]}</h3></div>;
     }
-    case 'paragraph':
+    case 'paragraph': {
+      const parts = paragraphParts(block.text).slice(from, end);
+      // Baris tebal sahaja (bukan ayat) = subtajuk: rapat dengan kandungan selepasnya dan tidak tertinggal di hujung halaman.
+      const sub = parts.map((p) => /^\*\*[^*\n]{1,100}\*\*$/.test(p) && !/[.!?,;:]\*\*$/.test(p));
       return (
-        <div className="bp-block">
-          {paragraphParts(block.text).slice(from, end).map((s, i) => <p key={i} className="bp-para u"><Rich text={t(s)} /></p>)}
+        <div className={`bp-block ${sub[sub.length - 1] ? 'bp-block-tight' : ''}`}>
+          {parts.map((p, i) => <p key={i} className={`bp-para u ${sub[i] ? 'bp-subhead kn' : ''}`}><Rich text={t(p)} /></p>)}
         </div>
       );
+    }
     case 'list': {
       const Tag = block.ordered ? 'ol' : 'ul';
       return (
@@ -115,7 +169,9 @@ export default function BlockView({ block, ctx, from = 0, to }: { block: AnyBloc
     }
     case 'table': {
       const num = block.numbered ?? block.style !== 'gold';
-      const firstGold = !num && block.style !== 'gold';
+      const firstGold = block.firstCol === 'gold';
+      // Lajur pertama rata kiri bagi jadual biru gelap bernombor; selainnya di tengah.
+      const cellClass = (ci: number) => (firstGold && ci === 0 ? 'bp-num' : ci === 0 && num && block.style !== 'gold' ? 'bp-l' : 'bp-c');
       return (
         <div className="bp-block bp-table-wrap">
           <table className={`bp-table ${block.style === 'gold' ? 'bp-table-gold' : ''}`}>
@@ -133,7 +189,7 @@ export default function BlockView({ block, ctx, from = 0, to }: { block: AnyBloc
               {block.rows.slice(from, end).map((r, ri) => (
                 <tr key={ri} className="u">
                   {num && <td className="bp-num">{from + ri + 1}</td>}
-                  {block.columns.map((_, ci) => <td key={ci} className={firstGold && ci === 0 ? 'bp-num' : ci === 0 && block.style !== 'gold' ? 'bp-l' : 'bp-c'}><Rich text={t(r[ci] ?? '')} /></td>)}
+                  {block.columns.map((_, ci) => <td key={ci} className={cellClass(ci)}><Rich text={t(r[ci] ?? '')} /></td>)}
                 </tr>
               ))}
             </tbody>
@@ -172,24 +228,30 @@ export default function BlockView({ block, ctx, from = 0, to }: { block: AnyBloc
           </div>
         </div>
       );
-    case 'committee':
+    case 'committee': {
+      if (block.display === 'chart') return <CommitteeChart block={block} ctx={ctx} from={from} to={end} />;
+      const showPos = block.showPosition !== false;
       return (
         <div className="bp-block">
           {block.title && <h3 className="bp-heading bp-cm-title">{t(block.title)}{from > 0 ? ' (samb.)' : ''}</h3>}
           <div className="bp-cm">
             {block.rows.slice(from, end).map((r) => {
+              if (r.group) return <div key={r.id} className="bp-cm-group u kn"><span>{t(r.role)}</span></div>;
               const members = resolveMembers(ctx, r.members);
               return (
                 <div key={r.id} className="bp-cm-row u">
                   <div className="bp-cm-role">{t(r.role)}</div>
                   <div className="bp-cm-members">
                     {members.length === 0 && <span className="bp-muted">—</span>}
-                    {members.map((m, i) => (
-                      <div key={i} className="bp-cm-m">
-                        <span className="bp-cm-name">{m.name}</span>
-                        {m.position && <span className="bp-cm-pos">{m.position}</span>}
-                      </div>
-                    ))}
+                    {members.map((m, i) => {
+                      const side = m.note || (showPos ? m.position : '');
+                      return (
+                        <div key={i} className="bp-cm-m">
+                          <span className="bp-cm-name">{m.name}</span>
+                          {side && <span className="bp-cm-pos">{side}</span>}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );
@@ -197,6 +259,7 @@ export default function BlockView({ block, ctx, from = 0, to }: { block: AnyBloc
           </div>
         </div>
       );
+    }
     case 'stafflist': {
       const rows = staffRows(ctx, block);
       const cols = block.columns.map((id) => ctx.fields.find((f) => f.id === id)).filter((f): f is NonNullable<typeof f> => !!f);

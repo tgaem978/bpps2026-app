@@ -60,6 +60,7 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 /* Blok kandungan - jarak guna padding (bukan margin) supaya pengukur penomboran tepat */
 .bp-content { color: var(--m-text); }
 .bp-block { padding-bottom: calc(var(--mm) * 3.2); }
+.bp-block-tight { padding-bottom: calc(var(--mm) * 1.2); }
 .bp-heading {
   /* Bar dokumen: Poppins Bold 12pt putih atas #004358, garis #E5BE7B */
   margin: 0; background: var(--m-head-bg); color: var(--m-head-color); border: calc(var(--mm) * .4) solid var(--m-head-accent);
@@ -70,9 +71,11 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 .bp-heading-split { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: calc(var(--mm) * 2); }
 .bp-para { margin: 0; padding-bottom: calc(var(--m-body-size) * var(--m-line-height)); text-align: justify; white-space: pre-line; }
 .bp-para:last-child { padding-bottom: 0; }
+/* Subtajuk (baris tebal sahaja): rapat dengan kandungan di bawahnya */
+.bp-subhead { padding-bottom: calc(var(--mm) * 1.2); }
 .bp-para strong, .bp-list strong, .bp-table strong { font-weight: 700; }
 .bp-list { margin: 0; padding: 0 0 0 calc(var(--mm) * 5.5); text-align: justify; }
-.bp-list li { padding-bottom: calc(var(--mm) * .6); padding-left: calc(var(--mm) * .6); }
+.bp-list li { padding-bottom: calc(var(--mm) * .6); padding-left: calc(var(--mm) * .6); white-space: pre-line; }
 .bp-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: var(--m-table-size); line-height: 1.15; font-variant-numeric: tabular-nums; }
 .bp-table .bp-num-col { width: calc(var(--mm) * 11); }
 /* Jadual dokumen: kepala #004257 Arial Narrow Bold putih, garisan 1pt #D9D9D9, lajur BIL emas #CB8200 */
@@ -98,7 +101,7 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 }
 .bp-kv dt { font-weight: 700; }
 .bp-kv dt::after { content: ''; }
-.bp-kv dd { margin: 0; }
+.bp-kv dd { margin: 0; white-space: pre-line; }
 .bp-figure { margin: 0; text-align: center; }
 .bp-figure img { width: 100%; height: calc(var(--mm) * 70); object-fit: contain; display: block; }
 .bp-figure figcaption { font-size: .85em; color: #5D6B75; padding-top: calc(var(--mm) * 1.2); font-style: italic; }
@@ -171,15 +174,57 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
 
 /* Jawatankuasa */
 .bp-cm-title { margin-bottom: calc(var(--mm) * 1); }
-.bp-cm-row { display: grid; grid-template-columns: calc(var(--mm) * 46) 1fr; border-bottom: calc(var(--mm) * .25) solid rgba(45,68,91,.16); padding: calc(var(--mm) * 2.2) 0; }
+.bp-cm-row { display: grid; grid-template-columns: calc(var(--mm) * 48) 1fr; border-bottom: calc(var(--mm) * .25) solid rgba(45,68,91,.16); padding: calc(var(--mm) * 1.6) 0; }
 .bp-cm-role {
   font-weight: 700; text-transform: uppercase; color: var(--m-head-bg);
   padding: .15em calc(var(--mm) * 3) 0 calc(var(--mm) * 2.5); border-left: calc(var(--mm) * .8) solid var(--m-accent);
 }
-.bp-cm-members { display: grid; gap: calc(var(--mm) * 1); }
+.bp-cm-members { display: grid; gap: calc(var(--mm) * .8); }
 .bp-cm-m { display: flex; justify-content: space-between; align-items: baseline; gap: calc(var(--mm) * 3); }
 .bp-cm-name { font-weight: 600; }
 .bp-cm-pos { color: #5D6B75; font-size: .86em; text-align: right; }
+/* Label kumpulan dalam jawatankuasa (cth. KETUA GURU PENASIHAT) */
+.bp-cm-group { padding: calc(var(--mm) * 3) 0 calc(var(--mm) * .8); }
+.bp-cm-group > span {
+  display: block; padding: calc(var(--mm) * 1.2) calc(var(--mm) * 2.5); border-left: calc(var(--mm) * .8) solid var(--m-accent);
+  background: color-mix(in srgb, var(--m-accent) 13%, transparent); color: var(--m-head-bg);
+  font-family: var(--m-title-font); font-weight: 700; font-size: .9em; letter-spacing: .04em; text-transform: uppercase;
+}
+
+/* Jawatankuasa - paparan carta bergambar (guna gaya carta organisasi) */
+.bp-cmc .bp-oc-row { padding-top: calc(var(--mm) * 10); }
+.bp-cmc .bp-oc-row.bp-oc-first { padding-top: 0; }
+.bp-cmc .bp-oc-row.bp-cmc-cont { padding-top: calc(var(--mm) * 4); }
+.bp-cmc .bp-oc-drop { height: calc(var(--mm) * 5); }
+.bp-cmc .bp-oc-bus { top: calc(var(--mm) * 5); }
+.bp-cmc .bp-oc-stub { top: calc(var(--mm) * -5); height: calc(var(--mm) * 5); }
+.bp-cmc .bp-oc-photo { width: calc(var(--mm) * 17); }
+.bp-cmc .bp-oc-lead .bp-oc-photo { width: calc(var(--mm) * 27); }
+/* Label peranan dikhaskan 2 baris supaya nama dalam satu baris kad sentiasa sejajar */
+.bp-cmc .bp-oc-pos {
+  margin-top: calc(var(--mm) * 2.2); font-size: calc(var(--pt) * 6); letter-spacing: .05em;
+  min-height: 2.4em; display: flex; align-items: flex-end; justify-content: center;
+}
+.bp-cmc .bp-oc-name { font-size: calc(var(--pt) * 7.2); }
+.bp-cmc .bp-oc-lead .bp-oc-pos { font-size: calc(var(--pt) * 7); }
+.bp-cmc .bp-oc-lead .bp-oc-name { font-size: calc(var(--pt) * 9.5); }
+.bp-cmc-note { margin: calc(var(--mm) * .5) 0 0; font-size: calc(var(--pt) * 6.4); line-height: 1.2; color: #5D6B75; }
+.bp-cmc-box {
+  width: 100%; box-sizing: border-box; padding: calc(var(--mm) * 2) calc(var(--mm) * 1.5); background: #fff;
+  border: calc(var(--mm) * .3) solid color-mix(in srgb, var(--m-head-bg) 30%, transparent); border-radius: calc(var(--mm) * 1.5);
+}
+.bp-cmc-box .bp-oc-pos { margin-top: 0; }
+.bp-cmc .bp-cmc-labelled { padding-top: calc(var(--mm) * 19); }
+.bp-cmc .bp-cmc-labelled.bp-oc-first { padding-top: calc(var(--mm) * 9); }
+.bp-cmc .bp-cmc-labelled .bp-oc-drop { height: calc(var(--mm) * 14); }
+.bp-cmc .bp-cmc-labelled .bp-oc-bus { top: calc(var(--mm) * 14); }
+.bp-cmc-label { position: absolute; left: 0; right: 0; top: calc(var(--mm) * 3); margin: 0; text-align: center; }
+.bp-oc-first > .bp-cmc-label { top: 0; }
+.bp-cmc-label span {
+  display: inline-block; padding: calc(var(--mm) * 1) calc(var(--mm) * 4); background: var(--m-head-bg); color: var(--m-head-color);
+  border: calc(var(--mm) * .4) solid var(--m-head-accent); font-family: var(--m-title-font); font-weight: 700;
+  font-size: calc(var(--pt) * 7); letter-spacing: .05em; text-transform: uppercase;
+}
 
 /* Senarai guru */
 .bp-staff .bp-photo-col { width: calc(var(--mm) * 14); }

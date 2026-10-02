@@ -54,6 +54,43 @@ function normalize<T extends Data>(current: T, p: Partial<Data>): T {
   return { ...current, ...p, outline, cover: { ...defaultCover(), ...(p.cover ?? current.cover) }, sections };
 }
 
+/**
+ * v4: kandungan sebenar Kurikulum & Kokurikulum menggantikan tajuk contoh; lajur emas jadual menjadi pilihan tersurat.
+ * Tajuk contoh lama yang telah disunting dikekalkan dan diletakkan semula dalam bahagian yang sepadan.
+ */
+function migrateV4(p: Partial<BookState>) {
+  const defs = defaultOutline();
+  const kept = (id: string) => !!p.sections?.[id];
+  if (p.outline) {
+    const stale: Record<string, string[]> = { 'p-kurikulum': ['kurikulum', 'jk-kurikulum'], 'p-koku': ['kokurikulum', 'jk-koku'] };
+    p.outline = p.outline.map((part) => {
+      const ids = part.topics.flatMap((t) => [t.id, ...t.children]);
+      const old = stale[part.id];
+      const def = defs.find((d) => d.id === part.id);
+      if (!old || !def || !ids.every((id) => old.includes(id))) return part;
+      const edited = part.topics.filter((t) => kept(t.id)).map((t) => ({ ...t, children: t.children.filter(kept) }));
+      return { ...part, topics: [...def.topics.map((t) => ({ ...t, children: [...t.children] })), ...edited] };
+    });
+  }
+  const outline = p.outline ?? defs;
+  // Tajuk lama yang disunting tetapi tiada dalam struktur → letak semula (bukan hilang).
+  const home: Record<string, string> = { pentadbiran: 'p-pentadbiran', kurikulum: 'p-kurikulum', 'jk-kurikulum': 'p-kurikulum', kokurikulum: 'p-koku', 'jk-koku': 'p-koku' };
+  const present = new Set(allIds(outline));
+  const lost = Object.keys(p.sections ?? {}).filter((id) => id !== 'kulit' && !present.has(id));
+  if (lost.length) {
+    p.outline = outline.map((part, i) => {
+      const mine = lost.filter((id) => (home[id] && outline.some((x) => x.id === home[id]) ? home[id] === part.id : i === outline.length - 1));
+      return mine.length ? { ...part, topics: [...part.topics, ...mine.map((id) => ({ id, children: [] }))] } : part;
+    });
+  }
+  // Sebelum v4, jadual biru gelap tanpa lajur BIL sentiasa berlajur pertama emas.
+  for (const sec of Object.values(p.sections ?? {})) {
+    for (const b of sec.blocks ?? []) {
+      if (b.type === 'table' && b.numbered === false && b.style !== 'gold' && !b.firstCol) b.firstCol = 'gold';
+    }
+  }
+}
+
 export const useBookStore = create<BookState>()(
   persist(
     (set) => {
@@ -164,13 +201,14 @@ export const useBookStore = create<BookState>()(
     },
     {
       name: 'bpps2026-book',
-      version: 3,
-      // v<3: bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
+      version: 4,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
-        if (version < 3 && p.sections) {
+        // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
+        if (version < 4 && p.sections) {
           p.sections = Object.fromEntries(Object.entries(p.sections).filter(([, sec]) => sec.updatedAt !== null));
         }
+        if (version < 4) migrateV4(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

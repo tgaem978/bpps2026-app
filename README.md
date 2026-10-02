@@ -22,6 +22,14 @@ Aset dalam `public/template/`, geometri (mm) dalam `src/templates/bpps.ts`, warn
 `src/templates/tokens.ts`. Kandungan panjang dipecah ke halaman baharu secara automatik
 (`src/lib/pagination.ts`) — jadual mengulang baris tajuk pada setiap halaman.
 
+## Kandungan sebenar BPPS 2026 SKBTS
+Kandungan lalai diimport daripada dokumen sebenar sekolah (dijana, jangan sunting dengan tangan):
+- `src/config/partA.ts` — Bahagian A Pentadbiran (*v10 C-PENTADBIRAN SEKOLAH*) dan senarai 126 staf.
+- `src/config/partKK.ts` — Kurikulum (*FINAL KURIKULUM 7 JAN*), Kokurikulum (*v9 JK Kokurikulum*) dan Kata Pengantar Guru Besar.
+
+Ahli jawatankuasa dipautkan kepada Pangkalan Data Guru (ejaan nama berbeza dipadankan), dengan nota tugas
+pilihan seperti "SU Peperiksaan". Jawatankuasa boleh dipaparkan sebagai *senarai peranan* atau *carta bergambar*.
+
 ## Cloudflare Workers (Git)
 Projek Workers Builds: **bpps2026-app** (nama mesti sama dengan `name` dalam `wrangler.toml`).
 - Build command: `npm run build`

@@ -24,7 +24,8 @@ export type PagePlan =
   | { kind: 'divider'; key: string; number: number; partId: string }
   | { kind: 'content'; key: string; number: number; sectionId: string; layout: SectionLayout; columns: Segment[][]; part: number; parts: number };
 
-interface Measured { overhead: number; units: number[] }
+/** keep[i] = unit i mesti bersama unit seterusnya (tajuk, subtajuk, label kumpulan). */
+interface Measured { overhead: number; units: number[]; keep: boolean[] }
 
 const HOST_PX = 1000; // lebar halaman dalam bekas pengukur
 const pxPerMm = HOST_PX / pageGeometry.width;
@@ -76,9 +77,11 @@ function measure(block: AnyBlock, ctx: BookCtx, pt: PageType, widthMm: number, s
   const h = getHost(pt, widthMm);
   h.innerHTML = renderToStaticMarkup(createElement(BlockView, { block, ctx }));
   const root = h.firstElementChild as HTMLElement | null;
-  const units = Array.from(h.querySelectorAll<HTMLElement>('.u')).map((el) => el.getBoundingClientRect().height);
+  const els = Array.from(h.querySelectorAll<HTMLElement>('.u'));
+  const units = els.map((el) => el.getBoundingClientRect().height);
+  const keep = els.map((el) => el.classList.contains('kn'));
   const total = root ? root.getBoundingClientRect().height : 0;
-  const m = { overhead: Math.max(0, total - units.reduce((a, b) => a + b, 0)), units };
+  const m = { overhead: Math.max(0, total - units.reduce((a, b) => a + b, 0)), units, keep };
   h.innerHTML = '';
   cache.set(block, m);
   return m;
@@ -92,7 +95,8 @@ export function paginate(blocks: AnyBlock[], ctx: BookCtx, o: PaginateOpts): Seg
   const available = o.heightMm * pxPerMm * SAFETY;
   const slots: Segment[][] = [[]];
   let used = 0;
-  let lastHeading: { seg: Segment; h: number } | null = null;
+  // Unit terakhir yang diletakkan, jika ia mesti bersama unit seterusnya.
+  let lastKeep: { h: number; overhead: number } | null = null;
 
   for (const block of blocks) {
     const m = measure(block, ctx, o.pt, colW, o.sig);
@@ -101,24 +105,29 @@ export function paginate(blocks: AnyBlock[], ctx: BookCtx, o: PaginateOpts): Seg
       let last = slot[slot.length - 1];
       let extra = last?.blockId === block.id ? 0 : m.overhead;
       if (used + extra + h > available && slot.length > 0) {
-        // Tajuk tidak boleh tertinggal seorang di hujung lajur/halaman.
-        // (Jika tajuk ialah satu-satunya item, ia kekal supaya lajur tidak kosong.)
-        const carry = lastHeading && last === lastHeading.seg && slot.length > 1 ? lastHeading : null;
-        if (carry) slot.pop();
+        // Tajuk/subtajuk tidak boleh tertinggal seorang di hujung lajur/halaman: bawa bersama ke halaman baharu.
+        // (Jika ia satu-satunya unit dalam lajur, ia kekal supaya lajur tidak kosong.)
+        const only = slot.length === 1 && last.to - last.from === 1;
+        let carry: Segment | null = null;
+        if (lastKeep && !only) {
+          carry = { blockId: last.blockId, from: last.to - 1, to: last.to };
+          if (last.to - last.from > 1) last.to -= 1;
+          else slot.pop();
+        }
         slot = [];
         slots.push(slot);
         used = 0;
-        if (carry) {
-          slot.push(carry.seg);
-          used = carry.h;
+        if (carry && lastKeep) {
+          slot.push(carry);
+          used = lastKeep.overhead + lastKeep.h;
         }
         last = slot[slot.length - 1];
-        extra = m.overhead;
+        extra = last?.blockId === block.id ? 0 : m.overhead;
       }
-      if (last?.blockId === block.id) last.to = i + 1;
+      if (last?.blockId === block.id && last.to === i) last.to = i + 1;
       else slot.push({ blockId: block.id, from: i, to: i + 1 });
       used += extra + h;
-      lastHeading = block.type === 'heading' ? { seg: slot[slot.length - 1], h: extra + h } : null;
+      lastKeep = m.keep[i] ? { h, overhead: m.overhead } : null;
     });
   }
   const pages: Segment[][][] = [];

@@ -94,15 +94,28 @@ function MemberChips({ refs, onChange }: { refs: MemberRef[]; onChange: (r: Memb
     const t = teachers.find((x) => x.id === r.id);
     return t ? nameOf(t) : '(guru dibuang)';
   };
+  const editNote = (i: number) => {
+    const r = refs[i];
+    if (r.kind !== 'teacher') return;
+    const note = window.prompt('Nota tugas (cth. "SU Peperiksaan"). Kosongkan untuk buang:', r.note ?? '');
+    if (note === null) return;
+    onChange(refs.map((x, j) => (j === i ? { kind: 'teacher', id: r.id, ...(note.trim() ? { note: note.trim() } : {}) } : x)));
+  };
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       {refs.map((r, i) => (
         <span
           key={i}
           className={`${chip} ${r.kind === 'position' ? 'border-accent/50 bg-accent/10 text-text' : r.kind === 'text' ? 'border-border bg-surface-2' : 'border-primary/30 bg-primary/5 text-primary'}`}
-          title={r.kind === 'position' ? 'Dijana automatik daripada pangkalan data mengikut jawatan' : undefined}
+          title={r.kind === 'position' ? 'Dijana automatik daripada pangkalan data mengikut jawatan' : r.kind === 'teacher' ? 'Klik nama untuk tambah/ubah nota tugas' : undefined}
         >
-          {label(r)}
+          {r.kind === 'teacher'
+            ? (
+              <button className="text-left hover:underline" onClick={() => editNote(i)}>
+                {label(r)}{r.note && <span className="text-muted"> · {r.note}</span>}
+              </button>
+            )
+            : label(r)}
           <button onClick={() => onChange(refs.filter((_, j) => j !== i))} aria-label="Buang ahli"><X size={12} /></button>
         </span>
       ))}
@@ -142,11 +155,30 @@ export function CommitteeEditor({ block, onChange }: { block: CommitteeBlock; on
   return (
     <div className="grid gap-3">
       <input className={`${field} font-semibold`} placeholder="Tajuk jawatankuasa" value={block.title} onChange={(e) => onChange({ ...block, title: e.target.value })} aria-label="Tajuk jawatankuasa" />
+      <div className="flex flex-wrap items-center gap-3 text-xs text-muted">
+        <label className="flex items-center gap-2">
+          Paparan
+          <select className="rounded-md border border-border bg-surface px-2 py-1 text-xs" value={block.display ?? 'list'} onChange={(e) => onChange({ ...block, display: e.target.value as 'list' | 'chart' })}>
+            <option value="list">Senarai peranan</option>
+            <option value="chart">Carta bergambar</option>
+          </select>
+        </label>
+        <label className="flex items-center gap-1">
+          <input type="checkbox" checked={block.showPosition !== false} onChange={(e) => onChange({ ...block, showPosition: e.target.checked })} /> Papar kategori jawatan
+        </label>
+      </div>
       <datalist id="cm-roles">{roles.map((r) => <option key={r} value={r} />)}</datalist>
       {block.rows.map((r, i) => (
-        <div key={r.id} className="grid gap-2 rounded-md border border-border p-2.5 sm:grid-cols-[11rem_1fr_auto]">
-          <input className={`${field} py-1.5 font-medium`} list="cm-roles" value={r.role} onChange={(e) => setRow(i, { role: e.target.value })} aria-label="Peranan" />
-          <MemberChips refs={r.members} onChange={(members) => setRow(i, { members })} />
+        <div key={r.id} className={`grid gap-2 rounded-md border p-2.5 sm:grid-cols-[11rem_1fr_auto] ${r.group ? 'border-accent/50 bg-accent/5' : 'border-border'}`}>
+          <div className="grid gap-1">
+            <input className={`${field} py-1.5 font-medium`} list="cm-roles" value={r.role} onChange={(e) => setRow(i, { role: e.target.value })} aria-label="Peranan" />
+            <label className="flex items-center gap-1 text-[11px] text-muted">
+              <input type="checkbox" checked={!!r.group} onChange={(e) => setRow(i, { group: e.target.checked || undefined })} /> Label kumpulan
+            </label>
+          </div>
+          {r.group
+            ? <p className="self-center text-xs text-muted">Dipaparkan sebagai label bagi peranan di bawahnya.</p>
+            : <MemberChips refs={r.members} onChange={(members) => setRow(i, { members })} />}
           <div className="flex items-start">
             <button className={iconBtn} disabled={i === 0} onClick={() => onChange({ ...block, rows: swap(block.rows, i, i - 1) })} aria-label="Naik"><ArrowUp size={14} /></button>
             <button className={iconBtn} disabled={i === block.rows.length - 1} onClick={() => onChange({ ...block, rows: swap(block.rows, i, i + 1) })} aria-label="Turun"><ArrowDown size={14} /></button>
@@ -156,7 +188,7 @@ export function CommitteeEditor({ block, onChange }: { block: CommitteeBlock; on
       ))}
       <div className="flex flex-wrap items-center gap-2">
         <button className={smallBtn} onClick={() => onChange({ ...block, rows: [...block.rows, { id: uid(), role: 'Ahli Jawatankuasa', members: [] }] })}><Plus size={13} /> Peranan</button>
-        <span className="text-xs text-muted">Ahli "(auto)" dikemas kini sendiri bila Pangkalan Data Guru berubah.</span>
+        <span className="text-xs text-muted">Ahli "(auto)" dikemas kini sendiri bila Pangkalan Data Guru berubah. Klik nama guru untuk tambah nota tugas.</span>
       </div>
     </div>
   );

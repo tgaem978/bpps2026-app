@@ -2166,7 +2166,8 @@ const PART_A: Record<string, SectionContent> = {
      ]
     ],
     "style": "navy",
-    "numbered": false
+    "numbered": false,
+    "firstCol": "gold"
    }
   ],
   "updatedAt": null
@@ -2407,7 +2408,8 @@ const PART_A: Record<string, SectionContent> = {
      ]
     ],
     "style": "navy",
-    "numbered": false
+    "numbered": false,
+    "firstCol": "gold"
    }
   ],
   "updatedAt": null
@@ -2639,7 +2641,8 @@ const PART_A: Record<string, SectionContent> = {
      ]
     ],
     "style": "navy",
-    "numbered": false
+    "numbered": false,
+    "firstCol": "gold"
    }
   ],
   "updatedAt": null
@@ -2943,7 +2946,8 @@ const PART_A: Record<string, SectionContent> = {
      ]
     ],
     "style": "navy",
-    "numbered": false
+    "numbered": false,
+    "firstCol": "gold"
    }
   ],
   "updatedAt": null

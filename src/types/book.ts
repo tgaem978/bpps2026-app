@@ -12,8 +12,10 @@ export interface ListBlock extends BaseBlock { type: 'list'; ordered: boolean; i
 export type TableStyle = 'navy' | 'gold';
 export interface TableBlock extends BaseBlock {
   type: 'table'; columns: string[]; rows: string[][]; style?: TableStyle;
-  /** Lajur BIL automatik (lalai: ya untuk gaya biru gelap). Jika tiada, lajur pertama berwarna emas. */
+  /** Lajur BIL automatik (lalai: ya untuk gaya biru gelap). */
   numbered?: boolean;
+  /** Lajur pertama berlatar emas (cth. jadual kumpulan bertugas). */
+  firstCol?: 'gold';
 }
 export interface KeyValueBlock extends BaseBlock { type: 'keyvalue'; pairs: { key: string; value: string }[] }
 export interface ImageBlock extends BaseBlock { type: 'image'; src: string; caption: string }
@@ -34,13 +36,20 @@ export interface OrgChartBlock extends BaseBlock {
   session: string;
 }
 
-/** Ahli jawatankuasa: rujukan guru, rujukan jawatan (automatik) atau teks bebas. */
+/** Ahli jawatankuasa: rujukan guru (dengan nota tugas pilihan), rujukan jawatan (automatik) atau teks bebas. */
 export type MemberRef =
-  | { kind: 'teacher'; id: string }
+  | { kind: 'teacher'; id: string; note?: string }
   | { kind: 'position'; value: string }
   | { kind: 'text'; value: string };
-export interface CommitteeRow { id: string; role: string; members: MemberRef[] }
-export interface CommitteeBlock extends BaseBlock { type: 'committee'; title: string; rows: CommitteeRow[] }
+/** group = baris label kumpulan tanpa ahli (cth. "Ketua Guru Penasihat"). */
+export interface CommitteeRow { id: string; role: string; members: MemberRef[]; group?: boolean }
+export interface CommitteeBlock extends BaseBlock {
+  type: 'committee'; title: string; rows: CommitteeRow[];
+  /** 'list' = senarai peranan (lalai); 'chart' = carta bergambar mengikut aras */
+  display?: 'list' | 'chart';
+  /** Papar kategori jawatan di sebelah nama (lalai: ya) */
+  showPosition?: boolean;
+}
 
 export interface StaffListBlock extends BaseBlock {
   type: 'stafflist';

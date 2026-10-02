@@ -1,9 +1,10 @@
 import type { AnyBlock } from '@/types/book';
-import { staffRows, type BookCtx } from '@/lib/resolve';
+import { committeeChartLines, staffRows, type BookCtx } from '@/lib/resolve';
 
 /**
  * Setiap blok dipecah kepada "unit" yang boleh dipindah ke halaman seterusnya:
- * perenggan → per perenggan kecil, senarai → per item, jadual → per baris, jawatankuasa → per peranan.
+ * perenggan → per perenggan kecil, senarai → per item, jadual → per baris, jawatankuasa → per peranan
+ * (atau per baris kad bagi paparan carta).
  */
 export const paragraphParts = (text: string) => text.split(/\n\s*\n/).map((t) => t.trim()).filter(Boolean);
 export const listItems = (items: string[]) => items.filter((i) => i.trim() !== '');
@@ -18,7 +19,7 @@ export function unitCount(b: AnyBlock, ctx: BookCtx): number {
     case 'keyvalue': return kvPairs(b.pairs).length;
     case 'image': return b.src ? 1 : 0;
     case 'orgchart': return b.levels.length ? 1 : 0;
-    case 'committee': return b.rows.length;
+    case 'committee': return b.display === 'chart' ? committeeChartLines(b, ctx).length : b.rows.length;
     case 'stafflist': return staffRows(ctx, b).length || 1;
     case 'tocrows': return b.rows.length;
   }

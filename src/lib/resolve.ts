@@ -1,4 +1,4 @@
-import type { MemberRef, StaffListBlock } from '@/types/book';
+import type { CommitteeBlock, MemberRef, StaffListBlock } from '@/types/book';
 import type { FieldValue, StaffField, Teacher } from '@/types/staff';
 import { F_NAME, F_POSITION } from '@/types/staff';
 import type { SchoolProfile } from '@/types/school';
@@ -35,22 +35,59 @@ export const byPosition = (ctx: BookCtx, position: string, session = '') =>
     ctx.teachers.filter((t) => positionOf(t) === position && (!session || valueText(t.values.sesi) === session)),
   );
 
-export interface ResolvedMember { name: string; position: string; photo: string }
+export interface ResolvedMember { name: string; position: string; photo: string; note: string; person: boolean }
 
 export function resolveMembers(ctx: BookCtx, refs: MemberRef[]): ResolvedMember[] {
   const out: ResolvedMember[] = [];
+  const of = (t: Teacher, note = ''): ResolvedMember => ({ name: nameOf(t), position: positionOf(t), photo: t.photo, note, person: true });
   for (const r of refs) {
-    if (r.kind === 'text') out.push({ name: r.value, position: '', photo: '' });
+    if (r.kind === 'text') out.push({ name: r.value, position: '', photo: '', note: '', person: false });
     else if (r.kind === 'teacher') {
       const t = ctx.teachers.find((x) => x.id === r.id);
-      if (t) out.push({ name: nameOf(t), position: positionOf(t), photo: t.photo });
+      if (t) out.push(of(t, r.note ?? ''));
     } else {
       const list = byPosition(ctx, r.value);
-      if (list.length) list.forEach((t) => out.push({ name: nameOf(t), position: positionOf(t), photo: t.photo }));
-      else out.push({ name: `[ ${r.value.toUpperCase()} ]`, position: r.value, photo: '' });
+      if (list.length) list.forEach((t) => out.push(of(t)));
+      else out.push({ name: `[ ${r.value.toUpperCase()} ]`, position: r.value, photo: '', note: '', person: true });
     }
   }
   return out;
+}
+
+/** Kad carta jawatankuasa dan barisnya (satu baris = satu unit penomboran). */
+export interface ChartCard extends ResolvedMember { role: string }
+export interface ChartLine { cards: ChartCard[]; label: string; tierStart: boolean; lead: boolean }
+
+/** Aras carta: peranan berawalan sama berada pada aras yang sama (cth. semua "Ketua Panitia ..."). */
+const tierKey = (role: string) => {
+  const w = role.toLowerCase().replace(/[^a-z0-9@&.\s]/g, ' ').split(/\s+/).filter(Boolean);
+  return ['naib', 'ketua', 'penolong', 'pen.', 'timbalan', 'ahli'].includes(w[0] ?? '') ? w.slice(0, 2).join(' ') : w[0] ?? '';
+};
+
+export function committeeChartLines(b: CommitteeBlock, ctx: BookCtx, perLine = 5): ChartLine[] {
+  const tiers: { label: string; key: string; cards: ChartCard[] }[] = [];
+  for (const r of b.rows) {
+    if (r.group) {
+      tiers.push({ label: r.role, key: '#group', cards: [] });
+      continue;
+    }
+    const cards = resolveMembers(ctx, r.members).map((m) => ({ ...m, role: r.role }));
+    if (!cards.length) continue;
+    const k = tierKey(r.role);
+    const cur = tiers[tiers.length - 1];
+    if (cur && (cur.key === '#group' || cur.key === k)) cur.cards.push(...cards);
+    else tiers.push({ label: '', key: k, cards });
+  }
+  const lines: ChartLine[] = [];
+  tiers.forEach((tier, ti) => {
+    const n = tier.cards.length;
+    const count = Math.max(1, Math.ceil(n / perLine));
+    const size = Math.max(1, Math.ceil(n / count));
+    for (let i = 0; i < count; i++) {
+      lines.push({ cards: tier.cards.slice(i * size, i * size + size), label: i === 0 ? tier.label : '', tierStart: i === 0, lead: ti === 0 && n === 1 });
+    }
+  });
+  return lines;
 }
 
 export function staffRows(ctx: BookCtx, b: StaffListBlock): Teacher[] {
@@ -102,6 +139,7 @@ export function resolveTokens(text: string, ctx: BookCtx): string {
 /** Token yang dicadangkan dalam penyunting. */
 export const tokenHelp: { token: string; label: string }[] = [
   { token: '{{nama_sekolah}}', label: 'Nama sekolah' },
+  { token: '{{nama_pendek}}', label: 'Nama pendek sekolah' },
   { token: '{{tahun}}', label: 'Tahun' },
   { token: '{{jawatan:Guru Besar}}', label: 'Nama Guru Besar' },
   { token: '{{jawatan:GPK Pentadbiran}}', label: 'Nama GPK Pentadbiran' },
