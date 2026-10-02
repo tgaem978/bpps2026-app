@@ -22,10 +22,11 @@ Aset dalam `public/template/`, geometri (mm) dalam `src/templates/bpps.ts`, warn
 `src/templates/tokens.ts`. Kandungan panjang dipecah ke halaman baharu secara automatik
 (`src/lib/pagination.ts`) — jadual mengulang baris tajuk pada setiap halaman.
 
-## Cloudflare Pages (Git)
+## Cloudflare Workers (Git)
+Projek Workers Builds: **bpps2026-app** (nama mesti sama dengan `name` dalam `wrangler.toml`).
 - Build command: `npm run build`
-- Build output directory: `dist`
-- Framework preset: None (atau Vite)
+- Deploy command: `npx wrangler deploy` (lalai)
+- Aset statik daripada `dist/`; laluan SPA dihidangkan oleh `index.html` (`not_found_handling`).
 - Node version: 20 atau lebih (tetapkan env `NODE_VERSION=20` jika perlu)
 
 ## Tempatan
