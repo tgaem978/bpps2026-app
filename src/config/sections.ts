@@ -1,6 +1,6 @@
 import {
   BookOpen, Building2, CalendarDays, FileStack, GraduationCap, HeartHandshake,
-  Users, Flag, Accessibility, Baby, FileText, Settings as SettingsIcon, FolderKanban,
+  Users, Flag, Accessibility, Baby, FileText, Settings as SettingsIcon, FolderKanban, Eye,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -9,7 +9,7 @@ export interface NavItem {
   label: string;
   icon: LucideIcon;
   /** Bahagian buku kekal di '/' dengan activeSection */
-  path: '/' | '/project' | '/settings';
+  path: '/' | '/project' | '/settings' | '/preview';
 }
 export interface NavGroup {
   id: string;
@@ -37,6 +37,7 @@ export const navGroups: NavGroup[] = [
     id: 'aplikasi',
     label: 'Aplikasi',
     items: [
+      { id: 'preview', label: 'PRATONTON BUKU', icon: Eye, path: '/preview' },
       { id: 'project', label: 'PROJEK', icon: FolderKanban, path: '/project' },
       { id: 'settings', label: 'TETAPAN', icon: SettingsIcon, path: '/settings' },
     ],

@@ -1,11 +1,22 @@
+import { useRef } from 'react';
+import { Download, RotateCcw, Upload } from 'lucide-react';
 import { useProjectStore } from '@/stores/projectStore';
+import { useBookStore } from '@/stores/bookStore';
+import { useUiStore } from '@/stores/uiStore';
+import { exportJson, importJson } from '@/lib/exporter';
+
+const btn = 'inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-surface-2';
 
 export default function ProjectPage() {
   const { profile, updateProfile, resetProfile } = useProjectStore();
+  const resetAll = useBookStore((s) => s.resetAll);
+  const toast = useUiStore((s) => s.toast);
+  const fileRef = useRef<HTMLInputElement>(null);
   const field = 'mt-1 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm';
 
   return (
-    <div className="mx-auto max-w-2xl rounded-lg border border-border bg-surface p-6 shadow-card">
+    <div className="mx-auto grid max-w-2xl gap-6">
+    <div className="rounded-lg border border-border bg-surface p-6 shadow-card">
       <h2 className="font-display text-2xl font-bold">Projek</h2>
       <p className="mt-1 text-sm text-muted">Profil sekolah untuk BPPS 2026.</p>
       <div className="mt-6 grid gap-4">
@@ -39,6 +50,46 @@ export default function ProjectPage() {
       <button onClick={resetProfile} className="mt-6 rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-surface-2">
         Set semula ke default
       </button>
+    </div>
+
+    <div className="rounded-lg border border-border bg-surface p-6 shadow-card">
+      <h3 className="font-display text-lg font-bold">Fail Projek</h3>
+      <p className="mt-1 text-sm text-muted">
+        Kandungan disimpan automatik dalam pelayar ini. Muat turun fail .json untuk sandaran atau untuk diteruskan di komputer lain.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button className={btn} onClick={exportJson}><Download size={16} /> Muat turun (.json)</button>
+        <button className={btn} onClick={() => fileRef.current?.click()}><Upload size={16} /> Import (.json)</button>
+        <button
+          className={`${btn} text-red-600`}
+          onClick={() => {
+            if (window.confirm('Padam semua kandungan buku dan kembali ke kandungan asal?')) {
+              resetAll();
+              toast('Semua kandungan buku telah diset semula.', 'info');
+            }
+          }}
+        >
+          <RotateCcw size={16} /> Set semula semua kandungan
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="application/json,.json"
+          className="sr-only"
+          onChange={async (e) => {
+            const f = e.target.files?.[0];
+            e.target.value = '';
+            if (!f) return;
+            try {
+              await importJson(f);
+              toast('Projek berjaya diimport.');
+            } catch (err) {
+              toast(err instanceof SyntaxError ? 'Fail JSON tidak sah.' : (err as Error).message, 'error');
+            }
+          }}
+        />
+      </div>
+    </div>
     </div>
   );
 }

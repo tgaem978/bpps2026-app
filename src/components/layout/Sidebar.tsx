@@ -2,11 +2,15 @@ import { ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { navGroups, type NavItem } from '@/config/sections';
 import { useNavigationStore } from '@/stores/navigationStore';
 import { useRoute, navigate } from '@/lib/router';
+import { useBookStore } from '@/stores/bookStore';
 
 export default function Sidebar() {
   const { sidebarCollapsed, mobileOpen, collapsedGroups, activeSectionId, toggleSidebar, setMobileOpen, toggleGroup, setActiveSection } =
     useNavigationStore();
   const route = useRoute();
+  const sections = useBookStore((s) => s.sections);
+  const coverEdited = useBookStore((s) => s.cover.updatedAt !== null);
+  const edited = (id: string) => (id === 'kulit' ? coverEdited : !!sections[id]?.updatedAt);
 
   const isActive = (item: NavItem) =>
     item.path === '/' ? route === '/' && activeSectionId === item.id : route === item.path;
@@ -34,7 +38,14 @@ export default function Sidebar() {
         ].join(' ')}
       >
         <div className="flex h-14 items-center justify-between border-b border-white/10 px-3">
-          {!slim && <span className="font-display text-lg font-bold tracking-wide">BPPS 2026</span>}
+          {!slim && (
+            <button
+              onClick={() => { setActiveSection(null); navigate('/'); setMobileOpen(false); }}
+              className="font-display text-lg font-bold tracking-wide hover:text-white"
+            >
+              BPPS 2026
+            </button>
+          )}
           <button
             onClick={toggleSidebar}
             aria-label={slim ? 'Kembangkan sidebar' : 'Kecilkan sidebar'}
@@ -80,7 +91,10 @@ export default function Sidebar() {
                             ].join(' ')}
                           >
                             <Icon size={18} className="shrink-0" aria-hidden />
-                            {!slim && <span className="truncate">{item.label}</span>}
+                            {!slim && <span className="flex-1 truncate">{item.label}</span>}
+                            {!slim && item.path === '/' && edited(item.id) && (
+                              <span className="h-2 w-2 shrink-0 rounded-full bg-accent" title="Telah disunting" aria-label="Telah disunting" />
+                            )}
                             {slim && <span className="sr-only">{item.label}</span>}
                           </button>
                         </li>

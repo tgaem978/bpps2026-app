@@ -44,5 +44,6 @@ export function applyTokens(t: DesignTokens, root: HTMLElement = document.docume
   set('--font-heading', t.typography.fontHeading); set('--font-body', t.typography.fontBody);
   set('--radius-sm', t.radius.sm); set('--radius-md', t.radius.md); set('--radius-lg', t.radius.lg);
   set('--shadow-card', t.shadows.card); set('--shadow-overlay', t.shadows.overlay);
+  set('--page-ratio', String(t.page.heightMm / t.page.widthMm));
   (Object.keys(t.spacing) as (keyof DesignTokens['spacing'])[]).forEach((k) => set(`--space-${k}`, t.spacing[k]));
 }

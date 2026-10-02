@@ -5,3 +5,70 @@
 html, body, #root { height: 100%; }
 body { margin: 0; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); }
 :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+/* ---------- Halaman buku (skrin + cetak) ----------
+   Unit cqw membuatkan tipografi diskala ikut lebar halaman, jadi pratonton kecil
+   dan cetakan A4 kelihatan sama. */
+.book-page-wrap { container-type: inline-size; width: 100%; }
+.book-page {
+  position: relative; display: flex; flex-direction: column; overflow: hidden;
+  min-height: calc(100cqw * var(--page-ratio, 0.7071));
+  background: #fff; color: var(--color-text); font-size: 1.35cqw; line-height: 1.5;
+  box-shadow: var(--shadow-card); border: 1px solid var(--color-border);
+}
+.bp-header, .bp-footer {
+  display: flex; justify-content: space-between; padding: 1.2em 3em; font-size: .75em;
+  color: var(--color-muted); letter-spacing: .05em; text-transform: uppercase;
+}
+.bp-header { border-bottom: .25em solid var(--color-primary); }
+.bp-footer { margin-top: auto; border-top: 1px solid var(--color-border); }
+.bp-body { padding: 1.6em 3em; flex: 1; }
+.bp-section-head { margin-bottom: 1.2em; border-left: .4em solid var(--color-accent); padding-left: .8em; }
+.bp-section-head h2 { font-family: var(--font-heading); font-size: 2em; font-weight: 800; color: var(--color-primary); line-height: 1.1; margin: 0; }
+.bp-section-head p { margin: .2em 0 0; color: var(--color-muted); }
+.bp-heading { font-family: var(--font-heading); font-size: 1.2em; font-weight: 700; color: var(--color-primary); margin: 1em 0 .4em; }
+.bp-para { margin: 0 0 .7em; text-align: justify; white-space: pre-line; }
+.bp-list { margin: 0 0 .8em; padding-left: 1.6em; }
+.bp-list li { margin: .15em 0; }
+.bp-table { width: 100%; border-collapse: collapse; margin: 0 0 1em; font-size: .92em; break-inside: avoid; }
+.bp-table th { background: var(--color-primary); color: var(--color-primary-fg); text-align: left; }
+.bp-table th, .bp-table td { border: 1px solid var(--color-border); padding: .35em .6em; }
+.bp-table tbody tr:nth-child(even) td { background: var(--color-surface-2); }
+.bp-table .bp-num { width: 3.5em; text-align: center; }
+.bp-kv { margin: 0 0 1em; display: grid; gap: .25em; }
+.bp-kv > div { display: grid; grid-template-columns: 30% 1fr; gap: 1em; border-bottom: 1px dotted var(--color-border); padding: .2em 0; }
+.bp-kv dt { font-weight: 600; }
+.bp-kv dd { margin: 0; }
+.bp-figure { margin: 0 0 1em; text-align: center; break-inside: avoid; }
+.bp-figure img { max-width: 100%; max-height: 25em; display: inline-block; }
+.bp-figure figcaption { font-size: .85em; color: var(--color-muted); margin-top: .3em; }
+.bp-toc { list-style: none; margin: 0; padding: 0; }
+.bp-toc li { display: flex; align-items: baseline; gap: .5em; padding: .35em 0; font-weight: 600; }
+.bp-toc-dots { flex: 1; border-bottom: 2px dotted var(--color-border); }
+
+.bp-cover {
+  position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 3em; min-height: calc(100cqw * var(--page-ratio, 0.7071));
+  background: linear-gradient(160deg, var(--color-primary) 0%, var(--color-sidebar) 100%); color: var(--color-primary-fg);
+}
+.bp-cover-band { position: absolute; left: 0; right: 0; bottom: 0; height: 1.2em; background: var(--color-accent); }
+.bp-cover-logo { width: 9em; height: 9em; object-fit: contain; margin-bottom: 1.4em; }
+.bp-cover-logo-empty { display: grid; place-items: center; border: .15em dashed rgba(255,255,255,.5); border-radius: 50%; font-size: 1em; opacity: .7; }
+.bp-cover-subtitle { letter-spacing: .3em; font-size: 1em; color: var(--color-accent); font-weight: 700; margin: 0; }
+.bp-cover-title { font-family: var(--font-heading); font-size: 2.8em; font-weight: 800; line-height: 1.1; margin: .3em 0; max-width: 80%; }
+.bp-cover-school { font-size: 1.4em; font-weight: 600; margin: .4em 0 0; }
+.bp-cover-address { opacity: .8; margin: .3em 0 0; }
+.bp-cover-motto { font-style: italic; margin-top: 2em; opacity: .9; }
+
+/* ---------- Cetak / Eksport PDF ---------- */
+#print-root { display: none; }
+@media print {
+  @page { size: A4 landscape; margin: 0; }
+  html, body { height: auto; background: #fff; }
+  #root { display: none !important; }
+  #print-root { display: block; }
+  #print-root .book-page-wrap { width: 297mm; break-after: page; }
+  #print-root .book-page { box-shadow: none; border: none; min-height: 210mm; }
+  #print-root .bp-cover { min-height: 210mm; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
