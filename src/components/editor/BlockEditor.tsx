@@ -2,6 +2,8 @@ import { ArrowDown, ArrowUp, ImagePlus, Plus, Trash2, X } from 'lucide-react';
 import type { Block } from '@/types/book';
 import { blockLabels, readImageFile } from '@/lib/blocks';
 import { useUiStore } from '@/stores/uiStore';
+import { tokenHelp } from '@/lib/resolve';
+import { CommitteeEditor, OrgChartEditor, StaffListEditor } from './StaffBlockEditors';
 
 export const field = 'w-full rounded-md border border-border bg-surface px-3 py-2 text-sm';
 const iconBtn = 'rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-text disabled:opacity-30 disabled:hover:bg-transparent';
@@ -43,13 +45,28 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
 
     case 'paragraph':
       return (
-        <textarea
-          className={`${field} min-h-[96px] resize-y`}
-          value={block.text}
-          placeholder="Tulis perenggan di sini…"
-          onChange={(e) => onChange({ ...block, text: e.target.value })}
-          aria-label="Teks perenggan"
-        />
+        <div className="grid gap-1.5">
+          <textarea
+            className={`${field} min-h-[96px] resize-y`}
+            value={block.text}
+            placeholder="Tulis perenggan di sini… (baris kosong = perenggan baharu)"
+            onChange={(e) => onChange({ ...block, text: e.target.value })}
+            aria-label="Teks perenggan"
+          />
+          <div className="flex flex-wrap items-center gap-1 text-[11px] text-muted">
+            <span>Sisip automatik:</span>
+            {tokenHelp.map((tk) => (
+              <button
+                key={tk.token}
+                title={tk.token}
+                className="rounded-full border border-border px-2 py-0.5 hover:border-primary hover:text-primary"
+                onClick={() => onChange({ ...block, text: `${block.text}${block.text && !block.text.endsWith(' ') ? ' ' : ''}${tk.token}` })}
+              >
+                {tk.label}
+              </button>
+            ))}
+          </div>
+        </div>
       );
 
     case 'list':
@@ -60,19 +77,22 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
             Senarai bernombor
           </label>
           {block.items.map((it, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <span className="w-5 text-right text-xs text-muted">{block.ordered ? `${i + 1}.` : '•'}</span>
-              <input
-                className={field}
+            <div key={i} className="flex items-start gap-2">
+              <span className="w-5 pt-2.5 text-right text-xs text-muted">{block.ordered ? `${i + 1}.` : '•'}</span>
+              {/* textarea supaya baris kecil (a), b)…) dalam item tidak hilang; Enter = item baharu, Shift+Enter = baris baharu */}
+              <textarea
+                className={`${field} resize-none`}
+                rows={Math.max(1, it.split('\n').length)}
                 value={it}
                 onChange={(e) => onChange({ ...block, items: block.items.map((x, j) => (j === i ? e.target.value : x)) })}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     const items = [...block.items];
                     items.splice(i + 1, 0, '');
                     onChange({ ...block, items });
-                    requestAnimationFrame(() => (e.currentTarget.parentElement?.nextElementSibling?.querySelector('input') as HTMLInputElement | null)?.focus());
+                    const row = e.currentTarget.parentElement;
+                    requestAnimationFrame(() => (row?.nextElementSibling?.querySelector('textarea') as HTMLTextAreaElement | null)?.focus());
                   }
                 }}
                 aria-label={`Item ${i + 1}`}
@@ -89,6 +109,20 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
         onChange({ ...block, rows: block.rows.map((row, ri) => (ri === r ? block.columns.map((_, ci) => (ci === c ? v : row[ci] ?? '')) : row)) });
       return (
         <div className="grid gap-2">
+          <label className="flex flex-wrap items-center gap-2 text-xs text-muted">
+            Gaya jadual
+            <select className="rounded-md border border-border bg-surface px-2 py-1 text-xs" value={block.style ?? 'navy'} onChange={(e) => onChange({ ...block, style: e.target.value as 'navy' | 'gold' })}>
+              <option value="navy">Biru gelap + lajur BIL emas</option>
+              <option value="gold">Kepala emas</option>
+            </select>
+            <label className="flex items-center gap-1">
+              <input type="checkbox" checked={block.numbered ?? block.style !== 'gold'} onChange={(e) => onChange({ ...block, numbered: e.target.checked })} /> Lajur BIL
+            </label>
+            <label className="flex items-center gap-1">
+              <input type="checkbox" checked={block.firstCol === 'gold'} onChange={(e) => onChange({ ...block, firstCol: e.target.checked ? 'gold' : undefined })} /> Lajur pertama emas
+            </label>
+            <span className="hidden sm:inline">· Guna **teks** untuk huruf tebal · Enter = baris baharu dalam sel</span>
+          </label>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
@@ -120,7 +154,13 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
                   <tr key={ri}>
                     {block.columns.map((_, ci) => (
                       <td key={ci} className="border border-border p-0">
-                        <input className="w-full min-w-[90px] bg-transparent px-2 py-1.5" value={row[ci] ?? ''} onChange={(e) => setCell(ri, ci, e.target.value)} aria-label={`Baris ${ri + 1} lajur ${ci + 1}`} />
+                        <textarea
+                          className="block w-full min-w-[90px] resize-none bg-transparent px-2 py-1.5"
+                          rows={Math.max(1, (row[ci] ?? '').split('\n').length)}
+                          value={row[ci] ?? ''}
+                          onChange={(e) => setCell(ri, ci, e.target.value)}
+                          aria-label={`Baris ${ri + 1} lajur ${ci + 1}`}
+                        />
                       </td>
                     ))}
                     <td className="pl-1">
@@ -143,9 +183,9 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
       return (
         <div className="grid gap-2">
           {block.pairs.map((pair, i) => (
-            <div key={i} className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto] items-center gap-2">
+            <div key={i} className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto] items-start gap-2">
               <input className={`${field} font-medium`} placeholder="Perkara" value={pair.key} onChange={(e) => onChange({ ...block, pairs: block.pairs.map((p, j) => (j === i ? { ...p, key: e.target.value } : p)) })} aria-label={`Perkara ${i + 1}`} />
-              <input className={field} placeholder="Butiran" value={pair.value} onChange={(e) => onChange({ ...block, pairs: block.pairs.map((p, j) => (j === i ? { ...p, value: e.target.value } : p)) })} aria-label={`Butiran ${i + 1}`} />
+              <textarea className={`${field} resize-y`} rows={Math.max(1, pair.value.split('\n').length)} placeholder="Butiran" value={pair.value} onChange={(e) => onChange({ ...block, pairs: block.pairs.map((p, j) => (j === i ? { ...p, value: e.target.value } : p)) })} aria-label={`Butiran ${i + 1}`} />
               <button className={iconBtn} onClick={() => onChange({ ...block, pairs: block.pairs.filter((_, j) => j !== i) })} aria-label="Buang baris"><X size={15} /></button>
             </div>
           ))}
@@ -181,5 +221,11 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
           <input className={field} placeholder="Kapsyen (pilihan)" value={block.caption} onChange={(e) => onChange({ ...block, caption: e.target.value })} aria-label="Kapsyen" />
         </div>
       );
+    case 'orgchart':
+      return <OrgChartEditor block={block} onChange={onChange} />;
+    case 'committee':
+      return <CommitteeEditor block={block} onChange={onChange} />;
+    case 'stafflist':
+      return <StaffListEditor block={block} onChange={onChange} />;
   }
 }

@@ -16,8 +16,8 @@ export const templateAssets = {
 export const pageGeometry = {
   width: 210,
   height: 297,
-  /** Kotak bingkai kandungan (Group 3 dalam template): border 4.5pt #2D445B */
-  frame: { left: 6, top: 40, right: 5, bottom: 21, border: 1.6, padding: 6 },
+  /** Kotak bingkai kandungan (Group 3 dalam dokumen: 7-206 x 38-277mm): border 4.5pt #2D445B */
+  frame: { left: 7, top: 38, right: 4, bottom: 20, border: 1.6, padding: 3.5 },
 };
 
 /** Tinggi ruang kandungan (mm) di dalam bingkai. */

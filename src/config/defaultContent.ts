@@ -1,6 +1,10 @@
-import type { Block, CoverContent, SectionContent } from '@/types/book';
+import type { Block, CommitteeRow, CoverContent, MemberRef, OrgLevel, OutlinePart, SectionContent, SectionLayout } from '@/types/book';
 import { uid } from '@/lib/blocks';
 import { templateAssets } from '@/templates/bpps';
+import { ADMIN_POSITIONS, AKP_POSITIONS } from '@/config/defaultStaff';
+import { F_NAME, F_POSITION, F_SESSION, F_TASK } from '@/types/staff';
+import { partASections } from '@/config/partA';
+import { partKKSections } from '@/config/partKK';
 
 const h = (text: string): Block => ({ id: uid(), type: 'heading', text });
 const p = (text: string): Block => ({ id: uid(), type: 'paragraph', text });
@@ -8,9 +12,16 @@ const ul = (items: string[], ordered = false): Block => ({ id: uid(), type: 'lis
 const tbl = (columns: string[], rows: string[][]): Block => ({ id: uid(), type: 'table', columns, rows });
 const kv = (pairs: [string, string][]): Block => ({ id: uid(), type: 'keyvalue', pairs: pairs.map(([key, value]) => ({ key, value })) });
 
-const section = (title: string, subtitle: string, blocks: Block[], divider = true, dividerNote = ''): SectionContent => ({
-  title, subtitle, divider, dividerNote, blocks, updatedAt: null,
+const pos = (...values: string[]): MemberRef[] => values.map((value) => ({ kind: 'position', value }));
+const row = (role: string, members: MemberRef[]): CommitteeRow => ({ id: uid(), role, members });
+const committee = (title: string, rows: CommitteeRow[]): Block => ({ id: uid(), type: 'committee', title, rows });
+const level = (label: string, positions: string[], display: OrgLevel['display'] = 'person'): OrgLevel => ({ id: uid(), label, positions, display });
+
+const section = (title: string, subtitle: string, blocks: Block[], layout: SectionLayout = 'standard'): SectionContent => ({
+  title, subtitle, layout, blocks, updatedAt: null,
 });
+
+const [GB, PKP, PKHEM, PKKO, PKPTG, PKPK] = ADMIN_POSITIONS;
 
 export const defaultCover = (): CoverContent => ({
   image: templateAssets.cover,
@@ -22,24 +33,70 @@ export const defaultCover = (): CoverContent => ({
   updatedAt: null,
 });
 
-/** Kandungan contoh untuk setiap bahagian buku (kecuali KULIT). Boleh disunting sepenuhnya. */
+/** Struktur kandungan lalai: bahagian utama → tajuk → subtajuk (ID tajuk = ID kandungan). */
+export const defaultOutline = (): OutlinePart[] => [
+  { id: 'p-maklumat', title: 'MAKLUMAT AM', note: '', divider: true, topics: [{ id: 'kata-aluan', children: [] }, { id: 'maklumat-sekolah', children: [] }] },
+  {
+    id: 'p-pentadbiran', title: 'PENTADBIRAN SEKOLAH', note: '{{jawatan:Guru Besar}}', divider: true,
+    topics: [
+      { id: 'carta-organisasi', children: [] },
+      { id: 'senarai-pagi', children: [] },
+      { id: 'senarai-petang', children: [] },
+      { id: 'senarai-akp', children: [] },
+      { id: 'jk-pengurusan', children: [] },
+      { id: 'panduan-am', children: [] },
+      { id: 'akuan', children: [] },
+      { id: 'bidang-tugas-guru', children: [] },
+      { id: 'bidang-tugas-akp', children: [] },
+      { id: 'guru-kelas', children: [] },
+      { id: 'kumpulan-bertugas', children: ['jadual-bertugas-1', 'jadual-bertugas-2', 'jadual-bertugas-ppki'] },
+    ],
+  },
+  {
+    id: 'p-kurikulum', title: 'PENGURUSAN KURIKULUM', note: '{{jawatan:GPK Pentadbiran}}', divider: true,
+    topics: [
+      { id: 'k-visi', children: [] },
+      { id: 'k-objektif', children: [] },
+      { id: 'k-pengenalan', children: [] },
+      { id: 'k-panitia', children: [] },
+      { id: 'k-bidang-tugas', children: [] },
+      { id: 'k-jk-induk', children: ['k-ketua-panitia', 'k-jk-unit', 'k-bilik-khas'] },
+      { id: 'k-takwim', children: [] },
+    ],
+  },
+  { id: 'p-hem', title: 'PENGURUSAN HAL EHWAL MURID', note: '{{jawatan:GPK Hal Ehwal Murid}}', divider: true, topics: [{ id: 'hem', children: ['jk-hem'] }] },
+  {
+    id: 'p-koku', title: 'PENGURUSAN KOKURIKULUM', note: '{{jawatan:GPK Kokurikulum}}', divider: true,
+    topics: [
+      { id: 'ko-beruniform', children: ['ko-unit-beruniform'] },
+      { id: 'ko-kelab', children: ['ko-unit-kelab'] },
+      { id: 'ko-sukan', children: ['ko-unit-sukan'] },
+    ],
+  },
+  { id: 'p-pkhas', title: 'PENDIDIKAN KHAS (PPKI)', note: '{{jawatan:GPK Pendidikan Khas}}', divider: true, topics: [{ id: 'pendidikan-khas', children: [] }] },
+  { id: 'p-prasekolah', title: 'PRASEKOLAH', note: '', divider: true, topics: [{ id: 'prasekolah', children: [] }] },
+  { id: 'p-takwim', title: 'KALENDAR & TAKWIM SEKOLAH', note: '', divider: true, topics: [{ id: 'takwim', children: [] }] },
+  { id: 'p-lampiran', title: 'LAMPIRAN', note: '', divider: true, topics: [{ id: 'lampiran', children: [] }, { id: 'catatan', children: [] }] },
+];
+
+/** Kandungan contoh (BPPS 2026 SKBTS). Semua boleh disunting; nama dijana daripada Pangkalan Data Guru. */
+const staffList = (filterField: string, filterValues: string[], sort: 'hierarki' | 'pentadbir' | 'abjad', withOption = true): Block => ({
+  id: uid(), type: 'stafflist', title: '', showPhoto: false, filterField, filterValues, sort,
+  columns: withOption ? [F_NAME, F_TASK, 'gred', 'opsyen', 'telefon'] : [F_NAME, F_TASK, 'gred', 'telefon'],
+});
+
 export const defaultSections = (): Record<string, SectionContent> => ({
-  'kata-aluan': section('KATA ALUAN', 'GURU BESAR', [
-    p('Assalamualaikum warahmatullahi wabarakatuh dan Salam Sejahtera.'),
-    p('Syukur ke hadrat Ilahi kerana dengan izin-Nya Buku Panduan Pengurusan Sekolah 2026 ini berjaya diterbitkan. Buku ini menjadi rujukan utama warga sekolah dalam melaksanakan tugas dengan cekap, teratur dan berkesan.'),
-    p('Saya menyeru semua warga sekolah agar menghayati visi dan misi sekolah serta bersama-sama memacu kecemerlangan murid.'),
-    kv([['Nama', ''], ['Jawatan', 'Guru Besar']]),
-  ], false),
+  ...partASections(),
+  ...partKKSections(),
   'maklumat-sekolah': section('MAKLUMAT SEKOLAH', '', [
     h('Profil Sekolah'),
     kv([
-      ['Kod Sekolah', ''],
-      ['Alamat', ''],
-      ['No. Telefon', ''],
-      ['E-mel', ''],
-      ['Gred Sekolah', ''],
-      ['Bilangan Murid', ''],
-      ['Bilangan Guru', ''],
+      ['Nama Sekolah', '{{nama_sekolah}}'],
+      ['Kod Sekolah', 'WBA0080'],
+      ['Alamat', 'Jalan Bandar Tasik Selatan, 57000 Kuala Lumpur'],
+      ['E-mel', 'wba0080@moe-dl.edu.my'],
+      ['Sesi Persekolahan', 'Pagi dan Petang'],
+      ['Bilangan Guru', '{{jumlah_guru}}'],
     ]),
     h('Visi'),
     p('Pendidikan Berkualiti Insan Terdidik Negara Sejahtera.'),
@@ -48,45 +105,50 @@ export const defaultSections = (): Record<string, SectionContent> => ({
     h('Piagam Pelanggan'),
     ul(['Memberi layanan mesra dan profesional.', 'Menyediakan persekitaran pembelajaran yang selamat dan kondusif.']),
   ]),
-  pentadbiran: section('PENGURUSAN PENTADBIRAN', '', [
-    h('Barisan Pentadbir'),
-    tbl(['Jawatan', 'Nama'], [
-      ['Guru Besar', ''],
-      ['Penolong Kanan Pentadbiran', ''],
-      ['Penolong Kanan HEM', ''],
-      ['Penolong Kanan Kokurikulum', ''],
-      ['Penolong Kanan Pendidikan Khas', ''],
+  'carta-organisasi': section('CARTA ORGANISASI INDUK PENTADBIRAN', 'PENTADBIRAN SEKOLAH', [
+    {
+      id: uid(), type: 'orgchart', title: 'CARTA ORGANISASI INDUK PENTADBIRAN SEKOLAH', session: '',
+      levels: [
+        level('Guru Besar', [GB]),
+        level('Guru Penolong Kanan', [PKP, PKHEM, PKKO, PKPTG, PKPK]),
+        level('Penyelaras', ['Guru Penyelaras Bestari', 'Guru Perpustakaan dan Media', 'Guru Data', 'Guru Bimbingan dan Kaunseling', 'Guru Prasekolah'], 'group'),
+      ],
+    },
+  ], 'open'),
+  'senarai-pagi': section('SENARAI NAMA GURU & AKP', 'GURU SESI PAGI', [staffList(F_SESSION, ['Pagi'], 'pentadbir')]),
+  'senarai-petang': section('SENARAI NAMA GURU & AKP', 'GURU SESI PETANG', [staffList(F_SESSION, ['Petang'], 'pentadbir')]),
+  'senarai-akp': section('SENARAI NAMA GURU & AKP', 'AKP', [staffList(F_POSITION, [...AKP_POSITIONS], 'hierarki', false)]),
+  'jk-pengurusan': section('JAWATANKUASA PENGURUSAN SEKOLAH', '', [
+    committee('JAWATANKUASA PENGURUSAN SEKOLAH', [
+      row('Pengerusi', pos(GB)),
+      row('Naib Pengerusi', pos(PKP)),
+      row('Penolong Naib Pengerusi', pos(PKHEM, PKKO, PKPTG, PKPK)),
+      row('Setiausaha', []),
+      row('Ahli Jawatankuasa', pos('Guru Penyelaras Bestari', 'Guru Data', 'Guru Perpustakaan dan Media')),
     ]),
-    h('Jawatankuasa Utama'),
-    ul(['Jawatankuasa Pengurusan Sekolah', 'Jawatankuasa Kewangan', 'Jawatankuasa Keselamatan']),
-  ], true, '[ NAMA PK PENTADBIRAN ]'),
-  kurikulum: section('PENGURUSAN KURIKULUM', '', [
-    h('Objektif'),
-    ul(['Meningkatkan pencapaian akademik murid.', 'Memastikan PdP berkualiti mengikut DSKP.'], true),
-    h('Ketua Panitia'),
-    tbl(['Mata Pelajaran', 'Ketua Panitia'], [['Bahasa Melayu', ''], ['Bahasa Inggeris', ''], ['Matematik', ''], ['Sains', '']]),
-  ], true, '[ NAMA PK PENTADBIRAN ]'),
+  ]),
   hem: section('PENGURUSAN HAL EHWAL MURID', '', [
     h('Fokus Utama'),
     ul(['Disiplin murid', 'Kebajikan dan biasiswa', 'Kesihatan dan keselamatan', 'Bimbingan dan kaunseling']),
     h('Peraturan Am Murid'),
     ul(['Hadir ke sekolah sebelum 7.30 pagi.', 'Memakai pakaian seragam yang lengkap dan kemas.', 'Menghormati guru dan rakan.'], true),
-  ], true, '[ NAMA PKHEM ]'),
-  kokurikulum: section('PENGURUSAN KOKURIKULUM', '', [
-    tbl(['Kategori', 'Aktiviti', 'Guru Penasihat'], [
-      ['Unit Beruniform', 'Pengakap', ''],
-      ['Kelab & Persatuan', 'Kelab Sains', ''],
-      ['Sukan & Permainan', 'Bola Sepak', ''],
+  ]),
+  'jk-hem': section('JAWATANKUASA INDUK HEM', '', [
+    committee('JAWATANKUASA INDUK UNIT HAL EHWAL MURID', [
+      row('Pengerusi', pos(GB)),
+      row('Timbalan Pengerusi', pos(PKHEM)),
+      row('Naib Pengerusi', pos(PKP, PKKO, PKPTG, PKPK)),
+      row('Setiausaha HEM', []),
+      row('Unit Bimbingan dan Kaunseling', pos('Guru Bimbingan dan Kaunseling')),
     ]),
-    p('Hari kokurikulum: setiap Rabu, 2.00 petang hingga 3.30 petang.'),
-  ], true, '[ NAMA PKKO ]'),
+  ]),
   'pendidikan-khas': section('PENDIDIKAN KHAS', 'PPKI', [
-    p('Program ini menyediakan pendidikan yang inklusif dan bersesuaian dengan keperluan murid berkeperluan pendidikan khas (MBPK).'),
-    kv([['Bilangan Murid', ''], ['Bilangan Guru', ''], ['Bilangan Kelas', '']]),
-  ], true, '[ NAMA PKPPKI ]'),
+    p('Program ini menyediakan pendidikan yang inklusif dan bersesuaian dengan keperluan murid berkeperluan pendidikan khas (MBPK), ke arah kemenjadian murid dan kehidupan berdikari.'),
+    kv([['Penyelaras', '{{jawatan:GPK Pendidikan Khas}}'], ['Bilangan Murid', ''], ['Bilangan Kelas', '']]),
+  ]),
   prasekolah: section('PRASEKOLAH', '', [
     p('Kelas prasekolah dikendalikan berdasarkan Kurikulum Standard Prasekolah Kebangsaan (KSPK).'),
-    kv([['Bilangan Kelas', ''], ['Guru Prasekolah', ''], ['Pembantu Pengurusan Murid', '']]),
+    kv([['Guru Prasekolah', '{{jawatan:Guru Prasekolah}}'], ['Bilangan Kelas', ''], ['Pembantu Pengurusan Murid', '']]),
   ]),
   takwim: section('KALENDAR & TAKWIM SEKOLAH', '', [
     tbl(['Tarikh', 'Aktiviti', 'Unit'], [
@@ -99,4 +161,8 @@ export const defaultSections = (): Record<string, SectionContent> => ({
   lampiran: section('LAMPIRAN', '', [
     ul(['Lampiran A: Borang Cuti Guru', 'Lampiran B: Borang Kebenaran Keluar Murid'], false),
   ]),
+  catatan: section('CATATAN', '', [], 'notes'),
 });
+
+/** Kandungan kosong untuk tajuk/subtajuk baharu. */
+export const newSection = (title: string): SectionContent => section(title, '', []);

@@ -1,6 +1,9 @@
 import { useBookStore } from '@/stores/bookStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { useUiStore } from '@/stores/uiStore';
+import { useStaffStore } from '@/stores/staffStore';
+import { useMasterStore } from '@/stores/masterStore';
+import type { StaffField, Teacher } from '@/types/staff';
 import type { BookExport } from '@/types/book';
 import type { SchoolProfile } from '@/types/school';
 
@@ -16,9 +19,13 @@ function download(filename: string, content: string, mime: string) {
 }
 
 export function exportJson(): void {
-  const { cover, sections } = useBookStore.getState();
+  const { cover, sections, outline } = useBookStore.getState();
   const profile = useProjectStore.getState().profile;
-  const data: BookExport = { app: 'bpps2026', version: 1, exportedAt: new Date().toISOString(), profile, cover, sections };
+  const { fields, teachers } = useStaffStore.getState();
+  const master = useMasterStore.getState().overrides;
+  const data: BookExport = {
+    app: 'bpps2026', version: 2, exportedAt: new Date().toISOString(), profile, cover, sections, outline, staff: { fields, teachers }, master,
+  };
   download(`${profile.projectCode || 'bpps2026'}.json`, JSON.stringify(data, null, 2), 'application/json');
   useUiStore.getState().toast('Fail projek (.json) dimuat turun.');
 }
@@ -26,7 +33,10 @@ export function exportJson(): void {
 export async function importJson(file: File): Promise<void> {
   const data = JSON.parse(await file.text()) as Partial<BookExport>;
   if (data.app !== 'bpps2026' || !data.cover || !data.sections) throw new Error('Fail ini bukan fail projek BPPS 2026 yang sah.');
-  useBookStore.getState().replaceAll(data.cover, data.sections);
+  useBookStore.getState().replaceAll(data.cover, data.sections, data.outline);
+  const staff = data.staff as { fields?: StaffField[]; teachers?: Teacher[] } | undefined;
+  if (staff?.fields && staff.teachers) useStaffStore.getState().replaceAll(staff.fields, staff.teachers);
+  if (data.master && typeof data.master === 'object') useMasterStore.getState().replaceAll(data.master as never);
   if (data.profile && typeof data.profile === 'object') useProjectStore.getState().updateProfile(data.profile as Partial<SchoolProfile>);
 }
 
