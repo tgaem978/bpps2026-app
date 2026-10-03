@@ -9,6 +9,9 @@ export interface Toast {
 interface UiState {
   toasts: Toast[];
   printing: boolean;
+  /** Dialog muat turun PowerPoint */
+  pptOpen: boolean;
+  setPptOpen: (v: boolean) => void;
   /** Dinaikkan untuk memaksa ukuran semula halaman (cth. selepas fon dimuatkan) */
   layoutVersion: number;
   bumpLayout: () => void;
@@ -22,6 +25,8 @@ let seq = 0;
 export const useUiStore = create<UiState>((set, get) => ({
   toasts: [],
   printing: false,
+  pptOpen: false,
+  setPptOpen: (pptOpen) => set({ pptOpen }),
   layoutVersion: 0,
   bumpLayout: () => set((s) => ({ layoutVersion: s.layoutVersion + 1 })),
   toast: (message, kind = 'success') => {
