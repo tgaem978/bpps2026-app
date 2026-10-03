@@ -8,7 +8,7 @@ Aplikasi interaktif untuk membina **Buku Panduan Pengurusan Sekolah 2026** dan m
 - **Kulit buku** — tajuk, subtajuk, alamat, moto dan logo sekolah.
 - **Pratonton langsung** di sebelah editor, dan **Pratonton Buku** penuh (kulit, kandungan auto, semua bahagian).
 - **Eksport PDF** — dialog cetak pelayar (pilih *Simpan sebagai PDF*), A4 potret.
-- **Muat turun PowerPoint (.pptx)** — keseluruhan buku, satu bahagian utama, satu tajuk (bersama subtajuk) atau halaman tertentu; satu halaman A4 = satu slaid potret, teks halaman dalam nota penceramah.
+- **Muat turun PowerPoint (.pptx)** — keseluruhan buku, satu bahagian utama, satu tajuk (bersama subtajuk) atau halaman tertentu; satu halaman A4 = satu slaid potret. Format *boleh disunting* (teks, jadual, bentuk dan gambar sebagai objek PowerPoint; jalur kepala/kaki, bingkai dan placeholder tajuk dalam Slide Master) atau *gambar* (rupa tepat).
 - **Simpan automatik** dalam pelayar (localStorage); `Ctrl+S` untuk mengesahkan simpanan.
 - **Fail projek .json** — muat turun untuk sandaran dan import semula di halaman Projek.
 

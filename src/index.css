@@ -27,22 +27,36 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 .bp-bg-img { position: absolute; left: 0; top: calc(var(--mm) * 7); width: 100%; height: calc(var(--mm) * 290); object-fit: cover; }
 .bp-header-img { position: absolute; left: 0; top: 0; width: 100%; height: calc(var(--mm) * 37); }
 .bp-title-box {
-  /* Kotak tajuk dokumen: 6-122mm, tajuk berpusat (64mm). Dengan lencana: 30-98mm. */
-  position: absolute; left: calc(var(--mm) * 6); top: calc(var(--mm) * 4.8); width: calc(var(--mm) * 116); height: calc(var(--mm) * 25.9);
-  display: flex; align-items: center; justify-content: center;
+  /* Tajuk rata kiri: huruf pertama selari dengan garis kiri bingkai (7mm). Dengan lencana: 7-97mm. */
+  position: absolute; left: calc(var(--mm) * 7); top: calc(var(--mm) * 4.8); width: calc(var(--mm) * 114); height: calc(var(--mm) * 25.9);
+  display: flex; align-items: center; justify-content: flex-start;
 }
-.bp-title-box:not(.bp-has-badge) { left: calc(var(--mm) * 2); width: calc(var(--mm) * 120); }
-.bp-title-box.bp-has-badge { left: calc(var(--mm) * 29); width: calc(var(--mm) * 70); }
+.bp-title-box.bp-has-badge { width: calc(var(--mm) * 90); }
 .bp-title {
-  margin: 0; font-family: var(--m-title-font); font-weight: 700; font-size: var(--m-title-size); line-height: .98; letter-spacing: 0; text-align: center;
+  margin: 0; font-family: var(--m-title-font); font-weight: 800; font-size: var(--m-title-size); line-height: .98; letter-spacing: 0; text-align: left;
   text-transform: var(--m-title-case); color: var(--m-title-color);
+  /* Hitam berkilat: kilauan cahaya merentasi huruf, bayang lembut dan sinar keemasan halus */
+  background: linear-gradient(105deg, var(--m-title-color) 0%, var(--m-title-color) 40%,
+    color-mix(in srgb, var(--m-title-color), #fff 42%) 50%, var(--m-title-color) 60%, var(--m-title-color) 100%);
+  background-size: 260% 100%; background-position: 100% 0;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 calc(var(--mm) * .35) calc(var(--mm) * .35) rgba(0,0,0,.38)) drop-shadow(0 0 calc(var(--mm) * 1.1) rgba(229,190,123,.55));
 }
+@media screen and (prefers-reduced-motion: no-preference) {
+  .book-page:not(.bp-measure) .bp-title { animation: bp-title-sheen 7s ease-in-out infinite; }
+}
+@keyframes bp-title-sheen { 0%, 55% { background-position: 100% 0; } 85%, 100% { background-position: 0 0; } }
 .bp-badge {
-  /* Lencana dokumen: 99-161mm x 10-21mm, Poppins Bold, bingkai putih */
-  position: absolute; left: calc(var(--mm) * 99); top: calc(var(--mm) * 10); width: calc(var(--mm) * 62); height: calc(var(--mm) * 11);
-  display: flex; align-items: center; justify-content: center; box-sizing: border-box; padding: 0 calc(var(--mm) * 2);
-  background: var(--m-badge-bg); color: var(--m-badge-color); font-family: var(--m-title-font); font-weight: 700; font-size: var(--m-badge-size);
-  border: calc(var(--mm) * .6) solid #fff; outline: calc(var(--mm) * .35) solid var(--m-badge-bg); text-transform: uppercase; text-align: center; line-height: 1;
+  /* Lencana dokumen asal: segi empat selari condong (99-161mm x 10-21mm), isi #004358, garis putih 3pt */
+  position: absolute; left: calc(var(--mm) * 99.3); top: calc(var(--mm) * 9.7); width: calc(var(--mm) * 62); height: calc(var(--mm) * 10.9);
+  display: flex; align-items: center; justify-content: center; box-sizing: border-box; padding: 0 calc(var(--mm) * 9);
+  background: #fff; clip-path: polygon(0 0, 86.38% 0, 100% 100%, 13.62% 100%); isolation: isolate;
+  color: var(--m-badge-color); font-family: var(--m-title-font); font-weight: 700; font-size: var(--m-badge-size);
+  text-transform: uppercase; text-align: center; line-height: 1;
+}
+.bp-badge::before {
+  content: ''; position: absolute; inset: calc(var(--mm) * 1.06); z-index: -1;
+  background: var(--m-badge-bg); clip-path: polygon(0 0, 86.38% 0, 100% 100%, 13.62% 100%);
 }
 .bp-frame {
   position: absolute; left: calc(var(--mm) * 7); top: calc(var(--mm) * 38); right: calc(var(--mm) * 4); bottom: calc(var(--mm) * 20);

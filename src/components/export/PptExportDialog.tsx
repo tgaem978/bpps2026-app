@@ -7,7 +7,7 @@ import { useNavigationStore } from '@/stores/navigationStore';
 import { useBookPlan, type PagePlan } from '@/lib/pagination';
 import { locate } from '@/lib/outline';
 import { PageView } from '@/components/book/BookPages';
-import { exportPagesToPptx } from '@/lib/pptx';
+import { exportPagesToPptx, type PptMode } from '@/lib/pptx';
 
 type Scope = 'all' | 'part' | 'topic' | 'pages';
 
@@ -40,6 +40,7 @@ export default function PptExportDialog() {
   const [partId, setPartId] = useState('');
   const [topicId, setTopicId] = useState('');
   const [pages, setPages] = useState('');
+  const [mode, setMode] = useState<PptMode>('native');
   const [busy, setBusy] = useState<{ done: number; total: number } | null>(null);
   const [rendering, setRendering] = useState<PagePlan[] | null>(null);
   const hostRef = useRef<HTMLDivElement>(null);
@@ -86,7 +87,7 @@ export default function PptExportDialog() {
         const label = scope === 'all' ? 'Penuh'
           : scope === 'part' ? outline.find((p) => p.id === partId)?.title ?? 'Bahagian'
             : scope === 'topic' ? sections[topicId]?.title ?? 'Tajuk' : `Halaman ${pages}`;
-        await exportPagesToPptx(wraps, label, (done, total) => !cancelled && setBusy({ done, total }));
+        await exportPagesToPptx(wraps, label, (done, total) => !cancelled && setBusy({ done, total }), mode);
         if (!cancelled) {
           toast(`Fail PowerPoint dimuat turun (${wraps.length} slaid).`);
           setOpen(false);
@@ -120,7 +121,7 @@ export default function PptExportDialog() {
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
               <h2 id="ppt-title" className="font-display text-lg font-bold">Muat turun PowerPoint</h2>
-              <p className="text-xs text-muted">Satu halaman A4 = satu slaid (potret), sama seperti pratonton.</p>
+              <p className="text-xs text-muted">Satu halaman A4 = satu slaid potret, mengikut reka letak pratonton.</p>
             </div>
             <button className="rounded-md p-1.5 text-muted hover:bg-surface-2" onClick={close} aria-label="Tutup"><X size={18} /></button>
           </div>
@@ -154,6 +155,18 @@ export default function PptExportDialog() {
                 <span className="text-xs text-muted">Nombor seperti di kaki halaman (0 = kulit). Jumlah halaman: {plan.length - 1}.</span>
               </div>
             )}
+          </fieldset>
+
+          <fieldset className="mt-4 grid gap-1.5 text-sm" disabled={!!busy}>
+            <legend className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted">Format slaid</legend>
+            <label className="flex items-start gap-2">
+              <input type="radio" name="ppt-mode" className="mt-1" checked={mode === 'native'} onChange={() => setMode('native')} />
+              <span><b>Boleh disunting</b> - teks, jadual, bentuk dan gambar sebagai objek PowerPoint; tajuk dalam placeholder Slide Master.</span>
+            </label>
+            <label className="flex items-start gap-2">
+              <input type="radio" name="ppt-mode" className="mt-1" checked={mode === 'image'} onChange={() => setMode('image')} />
+              <span><b>Gambar</b> - rupa tepat seperti pratonton (tidak boleh disunting).</span>
+            </label>
           </fieldset>
 
           <div className="mt-5 flex items-center justify-between gap-3">

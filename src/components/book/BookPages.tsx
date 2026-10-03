@@ -36,10 +36,10 @@ export function ContentFrame({ pt, title, badge, number, children }: { pt: PageT
   const m = useMaster(pt);
   const ctx = useBookCtx();
   const footer = useFooterText(m.footerText, ctx);
-  // Geometri dokumen: kotak tajuk 6-122mm (berpusat 64mm); lencana 99-161mm.
-  const titleW = badge ? 68 : 118;
-  const titlePt = fitPt(m.titleUpper ? title.toUpperCase() : title, fonts[m.titleFont], titleW, 18, m.titleSize);
-  const badgePt = badge ? fitPt(badge.toUpperCase(), fonts[m.titleFont], 58, 9.5, m.badgeSize, 1.05, 6, 1) : 0;
+  // Geometri dokumen: tajuk rata kiri dari garis bingkai (7mm) hingga 97mm (ada lencana) / 121mm; lencana 99-161mm.
+  const titleW = badge ? 89 : 113;
+  const titlePt = fitPt(m.titleUpper ? title.toUpperCase() : title, fonts[m.titleFont], titleW, 18, m.titleSize, 1.08, 7, 2, 800);
+  const badgePt = badge ? fitPt(badge.toUpperCase(), fonts[m.titleFont], 42, 8.5, m.badgeSize, 1.05, 6, 1) : 0;
   return (
     <Sheet pt={pt} className={`bp-content-page bp-pt-${pt}`}>
       {m.showBg && m.bgImage && <img className="bp-bg-img" src={m.bgImage} alt="" />}
