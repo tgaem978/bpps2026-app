@@ -26,6 +26,7 @@ Aset dalam `public/template/`, geometri (mm) dalam `src/templates/bpps.ts`, warn
 ## Kandungan sebenar BPPS 2026 SKBTS
 Kandungan lalai diimport daripada dokumen sebenar sekolah (dijana, jangan sunting dengan tangan):
 - `src/config/partA.ts` — Bahagian A Pentadbiran (*v10 C-PENTADBIRAN SEKOLAH*) dan senarai 126 staf.
+- `src/config/partB.ts` — Bahagian B Pengenalan & Maklumat Sekolah (*v3 B-PENGENALAN SEKOLAH*), Kalendar 2026, Cuti Perayaan, Kalendar Akademik dan Takwim Induk 12 bulan (*DRAF2 TAKWIM 2026*); imej dalam `public/content/`.
 - `src/config/partKK.ts` — Kurikulum (*FINAL KURIKULUM 7 JAN*), Kokurikulum (*v9 JK Kokurikulum*) dan Kata Pengantar Guru Besar.
 
 Ahli jawatankuasa dipautkan kepada Pangkalan Data Guru (ejaan nama berbeza dipadankan), dengan nota tugas

@@ -466,7 +466,7 @@ async function ensureMaster(pptx: Pptx, page: HTMLElement, made: Map<string, str
     const box = page.querySelector<HTMLElement>('.bp-title-box') ?? title;
     const r = box.getBoundingClientRect();
     const cs = getComputedStyle(title);
-    const c = color(cs.color.includes('rgba(0, 0, 0, 0)') ? 'rgb(0,0,0)' : cs.color);
+    const c = color(cs.color);
     objects.push({ placeholder: {
       options: {
         name: 'title', type: 'title', x: (r.left - o.left) * k, y: (r.top - o.top) * k, w: (r.width + 4) * k, h: r.height * k,
@@ -493,13 +493,13 @@ export async function buildNativePptx(pptx: Pptx, wraps: HTMLElement[], onProgre
       const cs = getComputedStyle(title);
       const k = SLIDE_W / innerRect(page).width;
       const text = cs.textTransform === 'uppercase' ? title.innerText.toUpperCase() : title.innerText;
-      // Tajuk hitam tebal "bersinar": bayang lembut + sinar keemasan halus
+      // Tajuk: warna & saiz seperti halaman, bayang sangat lembut
       const size = +(parseFloat(cs.fontSize) * k * 72).toFixed(1);
-      slide.addText([{ text, options: { fontSize: size, bold: true, color: '000000', glow: { size: 4, opacity: 0.45, color: 'E5BE7B' } } }] as never, {
-        placeholder: 'title', fontSize: size, bold: true, color: '000000',
-        lineSpacingMultiple: 0.95,
-        glow: { size: 4, opacity: 0.45, color: 'E5BE7B' },
-        shadow: { type: 'outer', angle: 90, blur: 3, offset: 1.5, color: '000000', opacity: 0.4 },
+      const ink = color(cs.color)?.hex ?? '102A36';
+      slide.addText([{ text, options: { fontSize: size, bold: true, color: ink, charSpacing: +(size * 0.015).toFixed(2) } }] as never, {
+        placeholder: 'title', fontSize: size, bold: true, color: ink,
+        lineSpacingMultiple: 1.0,
+        shadow: { type: 'outer', angle: 90, blur: 1.5, offset: 0.6, color: '102A36', opacity: 0.2 },
       } as never);
     }
     await new PageConverter(page, slide, new Set(m.skip), new Set(m.noDecor)).run();

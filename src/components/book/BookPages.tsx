@@ -36,9 +36,9 @@ export function ContentFrame({ pt, title, badge, number, children }: { pt: PageT
   const m = useMaster(pt);
   const ctx = useBookCtx();
   const footer = useFooterText(m.footerText, ctx);
-  // Geometri dokumen: tajuk rata kiri dari garis bingkai (7mm) hingga 97mm (ada lencana) / 121mm; lencana 99-161mm.
+  // Tajuk rata kiri dari garis bingkai (7mm) hingga 97mm (ada lencana) / 121mm, berpusat menegak dalam jalur putih; lencana 99-161mm.
   const titleW = badge ? 89 : 113;
-  const titlePt = fitPt(m.titleUpper ? title.toUpperCase() : title, fonts[m.titleFont], titleW, 18, m.titleSize, 1.08, 7, 2, 800);
+  const titlePt = fitPt(m.titleUpper ? title.toUpperCase() : title, fonts[m.titleFont], titleW, 17, m.titleSize, 1.08, 7, 2, 700);
   const badgePt = badge ? fitPt(badge.toUpperCase(), fonts[m.titleFont], 42, 8.5, m.badgeSize, 1.05, 6, 1) : 0;
   return (
     <Sheet pt={pt} className={`bp-content-page bp-pt-${pt}`}>
@@ -123,7 +123,7 @@ function Segments({ segments, byId, ctx }: { segments: Segment[]; byId: Map<stri
     <>
       {segments.map((s) => {
         const b = byId.get(s.blockId);
-        return b ? <BlockView key={`${s.blockId}-${s.from}`} block={b} ctx={ctx} from={s.from} to={s.to} /> : null;
+        return b ? <BlockView key={`${s.blockId}-${s.from}`} block={b} ctx={ctx} from={s.from} to={s.to} density={s.density} /> : null;
       })}
     </>
   );

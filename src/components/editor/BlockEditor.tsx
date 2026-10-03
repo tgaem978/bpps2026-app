@@ -4,6 +4,7 @@ import { blockLabels, readImageFile } from '@/lib/blocks';
 import { useUiStore } from '@/stores/uiStore';
 import { tokenHelp } from '@/lib/resolve';
 import { CommitteeEditor, OrgChartEditor, StaffListEditor } from './StaffBlockEditors';
+import { TakwimEditor } from './TakwimEditor';
 
 export const field = 'w-full rounded-md border border-border bg-surface px-3 py-2 text-sm';
 const iconBtn = 'rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-text disabled:opacity-30 disabled:hover:bg-transparent';
@@ -54,6 +55,11 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
             aria-label="Teks perenggan"
           />
           <div className="flex flex-wrap items-center gap-1 text-[11px] text-muted">
+            <select className="mr-1 rounded-md border border-border bg-surface px-1.5 py-0.5 text-[11px]" value={block.align ?? 'justify'} onChange={(e) => onChange({ ...block, align: e.target.value === 'justify' ? undefined : (e.target.value as 'left' | 'center') })} aria-label="Penjajaran">
+              <option value="justify">Rata kiri-kanan</option>
+              <option value="left">Rata kiri</option>
+              <option value="center">Tengah</option>
+            </select>
             <span>Sisip automatik:</span>
             {tokenHelp.map((tk) => (
               <button
@@ -218,7 +224,18 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
               />
             </label>
           )}
-          <input className={field} placeholder="Kapsyen (pilihan)" value={block.caption} onChange={(e) => onChange({ ...block, caption: e.target.value })} aria-label="Kapsyen" />
+          <div className="flex flex-wrap items-center gap-2">
+            <input className={`${field} flex-1`} placeholder="Kapsyen (pilihan)" value={block.caption} onChange={(e) => onChange({ ...block, caption: e.target.value })} aria-label="Kapsyen" />
+            <label className="flex items-center gap-1 text-xs text-muted">
+              Saiz
+              <select className="rounded-md border border-border bg-surface px-2 py-1 text-xs" value={block.height ?? 70} onChange={(e) => onChange({ ...block, height: Number(e.target.value) })}>
+                <option value={45}>Kecil</option>
+                <option value={70}>Sederhana</option>
+                <option value={120}>Besar</option>
+                <option value={200}>Satu halaman</option>
+              </select>
+            </label>
+          </div>
         </div>
       );
     case 'orgchart':
@@ -227,5 +244,7 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
       return <CommitteeEditor block={block} onChange={onChange} />;
     case 'stafflist':
       return <StaffListEditor block={block} onChange={onChange} />;
+    case 'takwim':
+      return <TakwimEditor block={block} onChange={onChange} />;
   }
 }

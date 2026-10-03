@@ -131,7 +131,39 @@ function CommitteeChart({ block, ctx, from, to }: { block: CommitteeBlock; ctx: 
  * Papar blok (atau julat unit [from, to) bagi blok yang dipecah merentas halaman).
  * Setiap unit diberi kelas `u` - pengukur halaman membaca tingginya.
  */
-export default function BlockView({ block, ctx, from = 0, to }: { block: AnyBlock; ctx: BookCtx; from?: number; to?: number }) {
+/** Lebar lajur jadual ikut kandungan (baris terpanjang setiap lajur), supaya jadual kemas dan seimbang. */
+const plain = (t: string) => t.replace(/\*\*/g, '');
+const longestLine = (t: string) => Math.max(0, ...plain(t).split('\n').map((l) => l.trim().length));
+const longestWord = (t: string) => Math.max(0, ...plain(t).split(/\s+/).map((w) => w.length));
+
+/** Panjang baris terpanjang setiap lajur (untuk lebar & penjajaran). */
+export function columnStats(columns: string[], rows: string[][]) {
+  return columns.map((c, ci) => ({
+    line: Math.max(0, ...rows.map((r) => longestLine(r[ci] ?? ''))),
+    word: Math.max(longestWord(c) * 0.9, ...rows.map((r) => longestWord(r[ci] ?? ''))),
+  }));
+}
+
+/** Lebar lajur jadual ikut kandungan, supaya jadual kemas dan seimbang; perkataan/tarikh tidak dipecah. */
+export function columnShares(columns: string[], rows: string[][]): number[] {
+  const stats = columnStats(columns, rows);
+  const w = stats.map(({ line, word }) => Math.pow(Math.max(5, Math.min(46, line), word * 1.2), 0.8));
+  const sum = w.reduce((a, b) => a + b, 0) || 1;
+  const share = w.map((x) => x / sum);
+  // Lebar minimum supaya perkataan terpanjang (cth. tarikh 15.02.2026) tidak dipecah: ~1.9mm/aksara + ruang sel, daripada ~180mm.
+  const min = stats.map(({ word }) => Math.min(0.4, (word * 1.9 + 3) / 180));
+  const short = share.map((v, i) => Math.max(0, min[i] - v));
+  const need = short.reduce((a, b) => a + b, 0);
+  if (!need) return share;
+  const spare = share.reduce((a, v, i) => a + (short[i] ? 0 : Math.max(0, v - min[i])), 0) || 1;
+  return share.map((v, i) => (short[i] ? min[i] : v - (Math.max(0, v - min[i]) / spare) * need));
+}
+
+/**
+ * density: 0 = biasa, 1-2 = jadual dipadatkan (fon & ruang sel lebih kecil) supaya muat satu halaman.
+ */
+export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { block: AnyBlock; ctx: BookCtx; from?: number; to?: number; density?: number }) {
+  const dense = density ? ` bp-dense-${density}` : '';
   const end = to ?? unitCount(block, ctx);
   const t = (s: string) => resolveTokens(s, ctx);
   switch (block.type) {
@@ -153,7 +185,7 @@ export default function BlockView({ block, ctx, from = 0, to }: { block: AnyBloc
       const sub = parts.map((p) => /^\*\*[^*\n]{1,100}\*\*$/.test(p) && !/[.!?,;:]\*\*$/.test(p));
       return (
         <div className={`bp-block ${sub[sub.length - 1] ? 'bp-block-tight' : ''}`}>
-          {parts.map((p, i) => <p key={i} className={`bp-para u ${sub[i] ? 'bp-subhead kn' : ''}`}><Rich text={t(p)} /></p>)}
+          {parts.map((p, i) => <p key={i} className={`bp-para u ${sub[i] ? 'bp-subhead kn' : ''}`} style={block.align ? { textAlign: block.align } : undefined}><Rich text={t(p)} /></p>)}
         </div>
       );
     }
@@ -170,14 +202,15 @@ export default function BlockView({ block, ctx, from = 0, to }: { block: AnyBloc
     case 'table': {
       const num = block.numbered ?? block.style !== 'gold';
       const firstGold = block.firstCol === 'gold';
-      // Lajur pertama rata kiri bagi jadual biru gelap bernombor; selainnya di tengah.
-      const cellClass = (ci: number) => (firstGold && ci === 0 ? 'bp-num' : ci === 0 && num && block.style !== 'gold' ? 'bp-l' : 'bp-c');
+      // Lajur pertama rata kiri bagi jadual biru gelap bernombor; lajur berayat panjang rata kiri; selainnya di tengah.
+      const stats = columnStats(block.columns, block.rows);
+      const cellClass = (ci: number) => (firstGold && ci === 0 ? 'bp-num' : (ci === 0 && num && block.style !== 'gold') || stats[ci].line > 34 ? 'bp-l' : 'bp-c');
       return (
-        <div className="bp-block bp-table-wrap">
+        <div className={`bp-block bp-table-wrap${dense}`}>
           <table className={`bp-table ${block.style === 'gold' ? 'bp-table-gold' : ''}`}>
             <colgroup>
               {num && <col className="bp-num-col" />}
-              {block.columns.map((_, i) => <col key={i} />)}
+              {columnShares(block.columns, block.rows).map((f, i) => <col key={i} style={{ width: `${(f * (num ? 94 : 100)).toFixed(2)}%` }} />)}
             </colgroup>
             <thead>
               <tr>
@@ -214,7 +247,7 @@ export default function BlockView({ block, ctx, from = 0, to }: { block: AnyBloc
       return (
         <div className="bp-block">
           <figure className="bp-figure u">
-            <img src={block.src} alt={block.caption || 'Gambar'} />
+            <img src={block.src} alt={block.caption || 'Gambar'} style={block.height ? { height: `calc(var(--mm) * ${block.height})` } : undefined} />
             {block.caption && <figcaption>{t(block.caption)}</figcaption>}
           </figure>
         </div>
@@ -257,6 +290,43 @@ export default function BlockView({ block, ctx, from = 0, to }: { block: AnyBloc
               );
             })}
           </div>
+        </div>
+      );
+    }
+    case 'takwim': {
+      const rows = block.rows.slice(from, end);
+      // lajur MINGGU bergabung (rowspan) bagi baris berturutan minggu yang sama dalam halaman ini
+      const span = rows.map((r, i) => {
+        if (!r.week || (i > 0 && rows[i - 1].week === r.week)) return 0;
+        let n = 1;
+        while (i + n < rows.length && rows[i + n].week === r.week) n++;
+        return n;
+      });
+      const short = (d: string) => d.replace(/\s+20\d\d$/, '');
+      return (
+        <div className={`bp-block bp-table-wrap bp-takwim-wrap${dense}`}>
+          <table className="bp-table bp-takwim">
+            <colgroup>
+              <col style={{ width: '6%' }} /><col style={{ width: '9%' }} /><col style={{ width: '9%' }} />
+              {block.columns.map((_, i) => <col key={i} style={{ width: `${76 / Math.max(1, block.columns.length)}%` }} />)}
+            </colgroup>
+            <thead>
+              <tr><th className="bp-tk-month" colSpan={3 + block.columns.length}>{t(block.title)}{from > 0 ? ' (samb.)' : ''}</th></tr>
+              <tr className="bp-tk-head"><th>Minggu</th><th>Tarikh</th><th>Hari</th>{block.columns.map((c, i) => <th key={i}>{t(c)}</th>)}</tr>
+            </thead>
+            <tbody>
+              {rows.map((r, i) => (
+                <tr key={i} className={`u ${r.kind ? `bp-tk-${r.kind}` : ''}`}>
+                  {(span[i] > 0 || !r.week) && <td className="bp-tk-week" rowSpan={span[i] || 1}>{r.week}</td>}
+                  <td className="bp-tk-date">{short(r.date)}</td>
+                  <td className="bp-tk-day">{r.day}</td>
+                  {r.span !== undefined
+                    ? <td className="bp-tk-span" colSpan={block.columns.length}><Rich text={t(r.span)} /></td>
+                    : block.columns.map((_, ci) => <td key={ci}><Rich text={t(r.cells[ci] ?? '')} /></td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       );
     }

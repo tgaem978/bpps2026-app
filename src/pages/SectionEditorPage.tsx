@@ -13,7 +13,7 @@ import BlockEditor, { field } from '@/components/editor/BlockEditor';
 import { SectionPages } from '@/components/book/BookPages';
 import { templateAssets } from '@/templates/bpps';
 
-const addable: BlockType[] = ['heading', 'paragraph', 'list', 'table', 'keyvalue', 'image', 'orgchart', 'committee', 'stafflist'];
+const addable: BlockType[] = ['heading', 'paragraph', 'list', 'table', 'keyvalue', 'image', 'orgchart', 'committee', 'stafflist', 'takwim'];
 const btn = 'inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium hover:bg-surface-2';
 
 export default function SectionEditorPage({ id }: { id: string }) {

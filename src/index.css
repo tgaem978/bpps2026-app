@@ -27,25 +27,17 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 .bp-bg-img { position: absolute; left: 0; top: calc(var(--mm) * 7); width: 100%; height: calc(var(--mm) * 290); object-fit: cover; }
 .bp-header-img { position: absolute; left: 0; top: 0; width: 100%; height: calc(var(--mm) * 37); }
 .bp-title-box {
-  /* Tajuk rata kiri: huruf pertama selari dengan garis kiri bingkai (7mm). Dengan lencana: 7-97mm. */
-  position: absolute; left: calc(var(--mm) * 7); top: calc(var(--mm) * 4.8); width: calc(var(--mm) * 114); height: calc(var(--mm) * 25.9);
+  /* Tajuk rata kiri dari garis kiri bingkai (7mm), berpusat menegak dalam jalur putih kepala (4.3-26.1mm). */
+  position: absolute; left: calc(var(--mm) * 7); top: calc(var(--mm) * 4.3); width: calc(var(--mm) * 114); height: calc(var(--mm) * 21.8);
   display: flex; align-items: center; justify-content: flex-start;
 }
 .bp-title-box.bp-has-badge { width: calc(var(--mm) * 90); }
 .bp-title {
-  margin: 0; font-family: var(--m-title-font); font-weight: 800; font-size: var(--m-title-size); line-height: .98; letter-spacing: 0; text-align: left;
+  /* Poppins Bold, dakwat biru-hitam: kemas, tegas dan mudah dibaca; bayang sangat lembut untuk kedalaman */
+  margin: 0; font-family: var(--m-title-font); font-weight: 700; font-size: var(--m-title-size); line-height: 1.06; letter-spacing: .015em; text-align: left;
   text-transform: var(--m-title-case); color: var(--m-title-color);
-  /* Hitam berkilat: kilauan cahaya merentasi huruf, bayang lembut dan sinar keemasan halus */
-  background: linear-gradient(105deg, var(--m-title-color) 0%, var(--m-title-color) 40%,
-    color-mix(in srgb, var(--m-title-color), #fff 42%) 50%, var(--m-title-color) 60%, var(--m-title-color) 100%);
-  background-size: 260% 100%; background-position: 100% 0;
-  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 calc(var(--mm) * .35) calc(var(--mm) * .35) rgba(0,0,0,.38)) drop-shadow(0 0 calc(var(--mm) * 1.1) rgba(229,190,123,.55));
+  text-shadow: 0 calc(var(--mm) * .2) calc(var(--mm) * .45) rgba(16, 42, 54, .2);
 }
-@media screen and (prefers-reduced-motion: no-preference) {
-  .book-page:not(.bp-measure) .bp-title { animation: bp-title-sheen 7s ease-in-out infinite; }
-}
-@keyframes bp-title-sheen { 0%, 55% { background-position: 100% 0; } 85%, 100% { background-position: 0 0; } }
 .bp-badge {
   /* Lencana dokumen asal: segi empat selari condong (99-161mm x 10-21mm), isi #004358, garis putih 3pt */
   position: absolute; left: calc(var(--mm) * 99.3); top: calc(var(--mm) * 9.7); width: calc(var(--mm) * 62); height: calc(var(--mm) * 10.9);
@@ -107,6 +99,35 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 .bp-table td.bp-small { font-size: .82em; }
 .bp-table-gold th { background: var(--m-th-accent); color: #000; }
 .bp-staff .bp-name-col { width: 34%; }
+/* Jadual dipadatkan supaya satu jadual muat satu halaman */
+.bp-dense-1 .bp-table, .bp-dense-1 .bp-table th { font-size: calc(var(--m-table-size) * .9); }
+.bp-dense-1 .bp-table td { padding: calc(var(--mm) * .35) calc(var(--mm) * 1.1); }
+.bp-dense-1 .bp-table th { padding: calc(var(--mm) * 1.1) calc(var(--mm) * 1.1); }
+.bp-dense-2 .bp-table, .bp-dense-2 .bp-table th { font-size: calc(var(--m-table-size) * .8); line-height: 1.1; }
+.bp-dense-2 .bp-table td { padding: calc(var(--mm) * .2) calc(var(--mm) * .9); }
+.bp-dense-2 .bp-table th { padding: calc(var(--mm) * .8) calc(var(--mm) * .9); }
+
+/* Takwim bulanan: teks 8pt jelas, hujung minggu kuning lembut, cuti kelabu, acara seluruh sekolah merentas lajur */
+.bp-takwim { font-size: calc(var(--pt) * 8.2); line-height: 1.18; }
+.bp-takwim th { font-size: calc(var(--pt) * 7.6); padding: calc(var(--mm) * 1) calc(var(--mm) * .8); letter-spacing: .02em; }
+.bp-takwim th.bp-tk-month { font-size: calc(var(--pt) * 10.5); letter-spacing: .14em; padding: calc(var(--mm) * 1.5); }
+.bp-takwim tr.bp-tk-head th { background: var(--m-th-accent); color: #1B1B1B; }
+.bp-takwim td { text-align: center; padding: calc(var(--mm) * .6) calc(var(--mm) * .8); font-size: inherit; }
+.bp-takwim tbody tr:nth-child(even) td { background: transparent; }
+.bp-takwim td.bp-tk-week { background: #EEF3F6 !important; color: var(--m-head-bg); font-weight: 700; font-size: calc(var(--pt) * 9); }
+.bp-takwim td.bp-tk-date { font-weight: 700; color: #1E2D36; white-space: nowrap; }
+.bp-takwim td.bp-tk-day { color: #4A5A64; }
+.bp-takwim tr.bp-tk-weekend td:not(.bp-tk-week) { background: #FFF4D9; }
+.bp-takwim tr.bp-tk-weekend td.bp-tk-date, .bp-takwim tr.bp-tk-weekend td.bp-tk-day { color: #8A5A00; }
+.bp-takwim tr.bp-tk-holiday td:not(.bp-tk-week) { background: #E6EBEE; }
+.bp-takwim td.bp-tk-span { font-weight: 700; color: var(--m-head-bg); letter-spacing: .01em; }
+.bp-takwim tr.bp-tk-holiday td.bp-tk-span { color: #7A1E1E; }
+.bp-dense-1 .bp-takwim { font-size: calc(var(--pt) * 7.6); }
+.bp-dense-1 .bp-takwim td { padding: calc(var(--mm) * .4) calc(var(--mm) * .6); }
+.bp-dense-2 .bp-takwim { font-size: calc(var(--pt) * 7); line-height: 1.12; }
+.bp-dense-2 .bp-takwim td { padding: calc(var(--mm) * .25) calc(var(--mm) * .5); }
+.bp-dense-1 .bp-takwim th, .bp-dense-2 .bp-takwim th { font-size: calc(var(--pt) * 7.2); padding: calc(var(--mm) * .7) calc(var(--mm) * .6); }
+.bp-dense-1 .bp-takwim th.bp-tk-month, .bp-dense-2 .bp-takwim th.bp-tk-month { font-size: calc(var(--pt) * 9.5); padding: calc(var(--mm) * 1); }
 .bp-strong { font-weight: 700; }
 .bp-kv { margin: 0; }
 .bp-kv > div {
