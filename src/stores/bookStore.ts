@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Block, BlockType, CoverContent, OutlinePart, SectionContent } from '@/types/book';
+import { kokuTopics, ppkiChildren } from '@/config/partKoku';
 import { defaultCover, defaultOutline, defaultSections, newSection } from '@/config/defaultContent';
 import { createBlock, uid } from '@/lib/blocks';
 import { allIds } from '@/lib/outline';
@@ -89,6 +90,22 @@ function migrateV4(p: Partial<BookState>) {
       if (b.type === 'table' && b.numbered === false && b.style !== 'gold' && !b.firstCol) b.firstCol = 'gold';
     }
   }
+}
+
+/** v7: Pengurusan Kokurikulum baharu (maklumat asas + halaman jawatankuasa PDF) dan carta PPKI di bawah Pendidikan Khas. */
+function migrateV7(p: Partial<BookState>) {
+  const part = p.outline?.find((x) => x.id === 'p-koku');
+  if (part) {
+    const old = ['ko-beruniform', 'ko-unit-beruniform', 'ko-kelab', 'ko-unit-kelab', 'ko-sukan', 'ko-unit-sukan'];
+    const ids = part.topics.flatMap((t) => [t.id, ...t.children]);
+    if (!ids.some((id) => id.startsWith('kk-'))) {
+      const untouched = old.every((id) => !p.sections?.[id] || p.sections[id].updatedAt === null);
+      part.topics = untouched ? kokuTopics() : [...kokuTopics(), ...part.topics];
+    }
+  }
+  const khas = p.outline?.find((x) => x.id === 'p-pkhas')?.topics.find((t) => t.id === 'pendidikan-khas');
+  if (khas) for (const id of ppkiChildren) if (!khas.children.includes(id)) khas.children.push(id);
+  if (p.sections) for (const id of Object.keys(p.sections)) if ((id.startsWith('kk-') || id.startsWith('pk-')) && p.sections[id].updatedAt === null) delete p.sections[id];
 }
 
 /**
@@ -259,7 +276,7 @@ export const useBookStore = create<BookState>()(
     },
     {
       name: 'bpps2026-book',
-      version: 6,
+      version: 7,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -269,6 +286,7 @@ export const useBookStore = create<BookState>()(
         if (version < 4) migrateV4(p);
         if (version < 5) migrateV5(p);
         if (version < 6) migrateV6(p);
+        if (version < 7) migrateV7(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

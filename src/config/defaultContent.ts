@@ -7,6 +7,7 @@ import { partASections } from '@/config/partA';
 import { partKKSections } from '@/config/partKK';
 import { partBSections } from '@/config/partB';
 import { partPengenalanSections } from '@/config/partPengenalan';
+import { kokuTopics, partKokuSections, ppkiChildren } from '@/config/partKoku';
 
 const h = (text: string): Block => ({ id: uid(), type: 'heading', text });
 const p = (text: string): Block => ({ id: uid(), type: 'paragraph', text });
@@ -16,6 +17,7 @@ const kv = (pairs: [string, string][]): Block => ({ id: uid(), type: 'keyvalue',
 const pos = (...values: string[]): MemberRef[] => values.map((value) => ({ kind: 'position', value }));
 const row = (role: string, members: MemberRef[]): CommitteeRow => ({ id: uid(), role, members });
 const committee = (title: string, rows: CommitteeRow[]): Block => ({ id: uid(), type: 'committee', title, rows });
+const chartCommittee = (title: string, focus: string, rows: CommitteeRow[]): Block => ({ id: uid(), type: 'committee', title, rows, display: 'chart', focus });
 const level = (label: string, positions: string[], display: OrgLevel['display'] = 'person'): OrgLevel => ({ id: uid(), label, positions, display });
 
 const section = (title: string, subtitle: string, blocks: Block[], layout: SectionLayout = 'standard'): SectionContent => ({
@@ -86,13 +88,9 @@ export const defaultOutline = (): OutlinePart[] => [
   { id: 'p-hem', title: 'PENGURUSAN HAL EHWAL MURID', note: '{{jawatan:GPK Hal Ehwal Murid}}', divider: true, topics: [{ id: 'hem', children: ['jk-hem'] }] },
   {
     id: 'p-koku', title: 'PENGURUSAN KOKURIKULUM', note: '{{jawatan:GPK Kokurikulum}}', divider: true,
-    topics: [
-      { id: 'ko-beruniform', children: ['ko-unit-beruniform'] },
-      { id: 'ko-kelab', children: ['ko-unit-kelab'] },
-      { id: 'ko-sukan', children: ['ko-unit-sukan'] },
-    ],
+    topics: kokuTopics(),
   },
-  { id: 'p-pkhas', title: 'PENDIDIKAN KHAS (PPKI)', note: '{{jawatan:GPK Pendidikan Khas}}', divider: true, topics: [{ id: 'pendidikan-khas', children: [] }] },
+  { id: 'p-pkhas', title: 'PENDIDIKAN KHAS (PPKI)', note: '{{jawatan:GPK Pendidikan Khas}}', divider: true, topics: [{ id: 'pendidikan-khas', children: ppkiChildren }] },
   { id: 'p-prasekolah', title: 'PRASEKOLAH', note: '', divider: true, topics: [{ id: 'prasekolah', children: [] }] },
   { id: 'p-lampiran', title: 'LAMPIRAN', note: '', divider: true, topics: [{ id: 'lampiran', children: [] }, { id: 'catatan', children: [] }] },
 ];
@@ -108,6 +106,7 @@ export const defaultSections = (): Record<string, SectionContent> => ({
   ...partKKSections(),
   ...partBSections(),
   ...partPengenalanSections(),
+  ...partKokuSections(),
   'maklumat-sekolah': section('PROFIL SEKOLAH', 'MAKLUMAT SEKOLAH', [
     kv([
       ['Nama Sekolah', '{{nama_sekolah}}'],
@@ -147,10 +146,9 @@ export const defaultSections = (): Record<string, SectionContent> => ({
     ul(['Hadir ke sekolah sebelum 7.30 pagi.', 'Memakai pakaian seragam yang lengkap dan kemas.', 'Menghormati guru dan rakan.'], true),
   ]),
   'jk-hem': section('JAWATANKUASA INDUK HEM', '', [
-    committee('JAWATANKUASA INDUK UNIT HAL EHWAL MURID', [
+    chartCommittee('JAWATANKUASA INDUK UNIT HAL EHWAL MURID', PKHEM, [
       row('Pengerusi', pos(GB)),
-      row('Timbalan Pengerusi', pos(PKHEM)),
-      row('Naib Pengerusi', pos(PKP, PKKO, PKPTG, PKPK)),
+      row('Naib Pengerusi', pos(PKP, PKHEM, PKKO, PKPTG, PKPK)),
       row('Setiausaha HEM', []),
       row('Unit Bimbingan dan Kaunseling', pos('Guru Bimbingan dan Kaunseling')),
     ]),

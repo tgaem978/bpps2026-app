@@ -163,6 +163,15 @@ export function CommitteeEditor({ block, onChange }: { block: CommitteeBlock; on
             <option value="chart">Carta bergambar</option>
           </select>
         </label>
+        {block.display === 'chart' && (
+          <label className="flex items-center gap-2">
+            Pentadbir di tengah
+            <select className="rounded-md border border-border bg-surface px-2 py-1 text-xs" value={block.focus ?? ''} onChange={(e) => onChange({ ...block, focus: e.target.value || undefined })}>
+              <option value="">Tiada</option>
+              {['GPK Kokurikulum', 'GPK Pentadbiran', 'GPK Hal Ehwal Murid', 'GPK Petang', 'GPK Pendidikan Khas'].map((x) => <option key={x} value={x}>{x}</option>)}
+            </select>
+          </label>
+        )}
         <label className="flex items-center gap-1">
           <input type="checkbox" checked={block.showPosition !== false} onChange={(e) => onChange({ ...block, showPosition: e.target.checked })} /> Papar kategori jawatan
         </label>

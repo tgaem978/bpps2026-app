@@ -40,6 +40,8 @@ export interface OrgChartBlock extends BaseBlock {
   levels: OrgLevel[];
   /** Tapis ikut sesi ('' = semua) */
   session: string;
+  /** Jawatan pentadbir yang diletakkan di tengah (templat carta PPKI), cth. 'GPK Hal Ehwal Murid'. */
+  focus?: string;
 }
 
 /** Ahli jawatankuasa: rujukan guru (dengan nota tugas pilihan), rujukan jawatan (automatik) atau teks bebas. */
@@ -55,6 +57,8 @@ export interface CommitteeBlock extends BaseBlock {
   display?: 'list' | 'chart';
   /** Papar kategori jawatan di sebelah nama (lalai: ya) */
   showPosition?: boolean;
+  /** Carta bergambar: jawatan pentadbir yang diletakkan di tengah aras pentadbir, cth. 'GPK Kokurikulum'. */
+  focus?: string;
 }
 
 export interface StaffListBlock extends BaseBlock {

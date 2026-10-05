@@ -299,3 +299,26 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
   #print-root .book-page { box-shadow: none; border: none; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+
+/* ===== Templat carta organisasi (gaya PPKI): bingkai bulat merah berganda, label merah jambu, garis hitam ===== */
+.bp-oc { --oc-line: calc(var(--mm) * .45) solid #1a1a1a; --oc-red: #B5121B; --oc-pill: #FFCDC8; }
+.bp-oc .bp-oc-photo {
+  border-radius: 50%; aspect-ratio: 1; background: #fff; overflow: visible; margin-top: calc(var(--mm) * 2.8);
+  box-shadow: 0 0 0 calc(var(--mm) * .7) #fff, 0 0 0 calc(var(--mm) * 1.5) var(--oc-red), 0 0 0 calc(var(--mm) * 2.1) #fff, 0 0 0 calc(var(--mm) * 2.5) var(--oc-red);
+}
+.bp-oc .bp-oc-photo > img, .bp-oc .bp-oc-photo > svg { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: center top; display: block; }
+.bp-oc .bp-oc-pill {
+  margin: calc(var(--mm) * 3.4) auto 0; width: 94%; padding: calc(var(--mm) * 1) calc(var(--mm) * 1.6);
+  background: var(--oc-pill); border-radius: calc(var(--mm) * 3.2); box-shadow: 0 calc(var(--mm) * .5) calc(var(--mm) * .9) rgba(0,0,0,.28);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.bp-oc .bp-oc-pill .bp-oc-name, .bp-oc .bp-oc-pill .bp-oc-pos {
+  margin: 0; min-height: 0; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0; text-align: center; line-height: 1.15;
+}
+.bp-oc .bp-oc-pill .bp-oc-name { font-weight: 800; font-size: calc(var(--pt) * 7); }
+.bp-oc .bp-oc-pill .bp-oc-pos { font-weight: 700; font-size: calc(var(--pt) * 6); margin-top: calc(var(--mm) * .3); }
+.bp-oc .bp-oc-lead .bp-oc-pill .bp-oc-name { font-size: calc(var(--pt) * 9); }
+.bp-oc .bp-oc-lead .bp-oc-pill .bp-oc-pos { font-size: calc(var(--pt) * 7.5); }
+.bp-oc .bp-oc-focus .bp-oc-photo { width: calc(100% * 1.0); transform: scale(1.18); transform-origin: 50% 100%; }
+.bp-oc .bp-oc-focus .bp-oc-pill { margin-top: calc(var(--mm) * 3.4); }

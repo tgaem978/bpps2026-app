@@ -2,6 +2,7 @@ import type { AnyBlock, CommitteeBlock, OrgChartBlock } from '@/types/book';
 import type { Teacher } from '@/types/staff';
 import { kvPairs, listItems, paragraphParts, unitCount } from '@/lib/units';
 import { byPosition, committeeChartLines, nameOf, resolveMembers, resolveTokens, staffRows, valueText, type BookCtx } from '@/lib/resolve';
+import { arrangeFocus } from '@/lib/orgLayout';
 
 /** Siluet potret elegan bila tiada gambar. */
 export function Avatar({ name }: { name: string }) {
@@ -41,7 +42,7 @@ function OrgChart({ block, ctx }: { block: OrgChartBlock; ctx: BookCtx }) {
       return list.length ? list.map((t) => ({ name: nameOf(t), position: p, photo: t.photo })) : [{ name: `[ ${p.toUpperCase()} ]`, position: p, photo: '' }];
     });
     return chunk(people, 5).map((g) => ({ kind: 'person', items: g }));
-  });
+  }).map((r): OcRow => (r.kind === 'person' ? { ...r, items: arrangeFocus(r.items, block.focus).items } : r));
 
   return (
     <div className="bp-oc">
@@ -54,11 +55,13 @@ function OrgChart({ block, ctx }: { block: OrgChartBlock; ctx: BookCtx }) {
             <div className="bp-oc-cards">
               {r.kind === 'person'
                 ? r.items.map((m, i) => (
-                    <div key={i} className="bp-oc-card" style={{ width: `${100 / Math.max(n, 3)}%` }}>
-                      {ri > 0 && <span className="bp-oc-stub" />}
+                    <div key={i} className={`bp-oc-card ${block.focus && m.position === block.focus && ri > 0 && n >= 3 ? 'bp-oc-focus' : ''}`} style={{ width: `${100 / Math.max(n, 3)}%` }}>
+                      {ri > 0 && !(block.focus && m.position === block.focus && n >= 3) && <span className="bp-oc-stub" />}
                       <div className="bp-oc-photo">{m.photo ? <img src={m.photo} alt="" /> : <Avatar name={m.name} />}</div>
-                      <p className="bp-oc-pos">{m.position}</p>
-                      <p className="bp-oc-name">{m.name}</p>
+                      <div className="bp-oc-pill">
+                        <p className="bp-oc-name">{m.name}</p>
+                        <p className="bp-oc-pos">{m.position}</p>
+                      </div>
                     </div>
                   ))
                 : r.items.map((g, i) => (
@@ -88,7 +91,9 @@ function CommitteeChart({ block, ctx, from, to }: { block: CommitteeBlock; ctx: 
     <div className="bp-block">
       {block.title && <h3 className="bp-heading bp-cm-title">{t(block.title)}{from > 0 ? ' (samb.)' : ''}</h3>}
       <div className="bp-oc bp-cmc">
-        {lines.map((ln, li) => {
+        {lines.map((ln0, li) => {
+          const arr = arrangeFocus(ln0.cards, block.focus);
+          const ln = arr.focusIndex >= 0 ? { ...ln0, cards: arr.items } : ln0;
           const n = ln.cards.length;
           const slots = Math.max(n, 4);
           // Penyambung hanya pada baris pertama setiap aras, dan bukan di atas halaman sambungan.
@@ -101,13 +106,15 @@ function CommitteeChart({ block, ctx, from, to }: { block: CommitteeBlock; ctx: 
               {ln.label && <p className="bp-cmc-label"><span>{t(ln.label)}</span></p>}
               <div className="bp-oc-cards">
                 {ln.cards.map((c, i) => (
-                  <div key={i} className="bp-oc-card" style={{ width: ln.lead ? '60%' : `${100 / slots}%` }}>
-                    {linked && <span className="bp-oc-stub" />}
+                  <div key={i} className={`bp-oc-card ${arr.focusIndex === i ? 'bp-oc-focus' : ''}`} style={{ width: ln.lead ? '60%' : `${100 / slots}%` }}>
+                    {linked && arr.focusIndex !== i && <span className="bp-oc-stub" />}
                     {c.person ? (
                       <>
                         <div className="bp-oc-photo">{c.photo ? <img src={c.photo} alt="" /> : <Avatar name={c.name} />}</div>
-                        <p className="bp-oc-pos">{t(c.role)}</p>
-                        <p className="bp-oc-name">{c.name}</p>
+                        <div className="bp-oc-pill">
+                          <p className="bp-oc-name">{c.name}</p>
+                          <p className="bp-oc-pos">{arr.focusIndex >= 0 ? c.position : t(c.role)}</p>
+                        </div>
                         {c.note && <p className="bp-cmc-note">{c.note}</p>}
                       </>
                     ) : (
