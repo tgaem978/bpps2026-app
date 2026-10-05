@@ -5,11 +5,11 @@ import { ADMIN_POSITIONS, AKP_POSITIONS } from '@/config/defaultStaff';
 import { F_NAME, F_POSITION, F_SESSION, F_TASK } from '@/types/staff';
 import { partASections } from '@/config/partA';
 import { partKKSections } from '@/config/partKK';
+import { partBSections } from '@/config/partB';
 
 const h = (text: string): Block => ({ id: uid(), type: 'heading', text });
 const p = (text: string): Block => ({ id: uid(), type: 'paragraph', text });
 const ul = (items: string[], ordered = false): Block => ({ id: uid(), type: 'list', ordered, items });
-const tbl = (columns: string[], rows: string[][]): Block => ({ id: uid(), type: 'table', columns, rows });
 const kv = (pairs: [string, string][]): Block => ({ id: uid(), type: 'keyvalue', pairs: pairs.map(([key, value]) => ({ key, value })) });
 
 const pos = (...values: string[]): MemberRef[] => values.map((value) => ({ kind: 'position', value }));
@@ -35,7 +35,25 @@ export const defaultCover = (): CoverContent => ({
 
 /** Struktur kandungan lalai: bahagian utama → tajuk → subtajuk (ID tajuk = ID kandungan). */
 export const defaultOutline = (): OutlinePart[] => [
-  { id: 'p-maklumat', title: 'MAKLUMAT AM', note: '', divider: true, topics: [{ id: 'kata-aluan', children: [] }, { id: 'maklumat-sekolah', children: [] }] },
+  {
+    id: 'p-maklumat', title: 'PENGENALAN', note: '', divider: true,
+    topics: ['kata-aluan', 'b-rukun-negara', 'b-aku-janji', 'b-ikrar', 'b-fokus', 'b-ithink', 'b-5c', 'b-aspirasi', 'b-dpd', 'b-ts25', 'b-spi', 'b-visi-kpm']
+      .map((id) => ({ id, children: [] })),
+  },
+  {
+    id: 'p-sekolah', title: 'MAKLUMAT SEKOLAH', note: '{{nama_pendek}}', divider: true,
+    topics: ['b-sejarah', 'b-latar', 'maklumat-sekolah', 'b-logo', 'b-visi-sekolah', 'b-matlamat', 'b-lagu', 'b-pelan', 'b-pelan-kecemasan']
+      .map((id) => ({ id, children: [] })),
+  },
+  {
+    id: 'p-takwim', title: 'KALENDAR & TAKWIM SEKOLAH', note: '', divider: true,
+    topics: [
+      { id: 't-kalendar', children: [] },
+      { id: 't-cuti', children: [] },
+      { id: 't-akademik', children: [] },
+      { id: 'takwim-01', children: ['takwim-02', 'takwim-03', 'takwim-04', 'takwim-05', 'takwim-06', 'takwim-07', 'takwim-08', 'takwim-09', 'takwim-10', 'takwim-11', 'takwim-12'] },
+    ],
+  },
   {
     id: 'p-pentadbiran', title: 'PENTADBIRAN SEKOLAH', note: '{{jawatan:Guru Besar}}', divider: true,
     topics: [
@@ -75,7 +93,6 @@ export const defaultOutline = (): OutlinePart[] => [
   },
   { id: 'p-pkhas', title: 'PENDIDIKAN KHAS (PPKI)', note: '{{jawatan:GPK Pendidikan Khas}}', divider: true, topics: [{ id: 'pendidikan-khas', children: [] }] },
   { id: 'p-prasekolah', title: 'PRASEKOLAH', note: '', divider: true, topics: [{ id: 'prasekolah', children: [] }] },
-  { id: 'p-takwim', title: 'KALENDAR & TAKWIM SEKOLAH', note: '', divider: true, topics: [{ id: 'takwim', children: [] }] },
   { id: 'p-lampiran', title: 'LAMPIRAN', note: '', divider: true, topics: [{ id: 'lampiran', children: [] }, { id: 'catatan', children: [] }] },
 ];
 
@@ -88,8 +105,8 @@ const staffList = (filterField: string, filterValues: string[], sort: 'hierarki'
 export const defaultSections = (): Record<string, SectionContent> => ({
   ...partASections(),
   ...partKKSections(),
-  'maklumat-sekolah': section('MAKLUMAT SEKOLAH', '', [
-    h('Profil Sekolah'),
+  ...partBSections(),
+  'maklumat-sekolah': section('PROFIL SEKOLAH', 'MAKLUMAT SEKOLAH', [
     kv([
       ['Nama Sekolah', '{{nama_sekolah}}'],
       ['Kod Sekolah', 'WBA0080'],
@@ -98,12 +115,6 @@ export const defaultSections = (): Record<string, SectionContent> => ({
       ['Sesi Persekolahan', 'Pagi dan Petang'],
       ['Bilangan Guru', '{{jumlah_guru}}'],
     ]),
-    h('Visi'),
-    p('Pendidikan Berkualiti Insan Terdidik Negara Sejahtera.'),
-    h('Misi'),
-    p('Melestarikan Sistem Pendidikan yang Berkualiti untuk Membangunkan Potensi Individu bagi Memenuhi Aspirasi Negara.'),
-    h('Piagam Pelanggan'),
-    ul(['Memberi layanan mesra dan profesional.', 'Menyediakan persekitaran pembelajaran yang selamat dan kondusif.']),
   ]),
   'carta-organisasi': section('CARTA ORGANISASI INDUK PENTADBIRAN', 'PENTADBIRAN SEKOLAH', [
     {
@@ -149,14 +160,6 @@ export const defaultSections = (): Record<string, SectionContent> => ({
   prasekolah: section('PRASEKOLAH', '', [
     p('Kelas prasekolah dikendalikan berdasarkan Kurikulum Standard Prasekolah Kebangsaan (KSPK).'),
     kv([['Guru Prasekolah', '{{jawatan:Guru Prasekolah}}'], ['Bilangan Kelas', ''], ['Pembantu Pengurusan Murid', '']]),
-  ]),
-  takwim: section('KALENDAR & TAKWIM SEKOLAH', '', [
-    tbl(['Tarikh', 'Aktiviti', 'Unit'], [
-      ['12 Jan 2026', 'Hari Pertama Persekolahan', 'Pentadbiran'],
-      ['', 'Mesyuarat Agung PIBG', 'Pentadbiran'],
-      ['', 'Kejohanan Olahraga Tahunan', 'Kokurikulum'],
-      ['', 'Hari Anugerah Cemerlang', 'Kurikulum'],
-    ]),
   ]),
   lampiran: section('LAMPIRAN', '', [
     ul(['Lampiran A: Borang Cuti Guru', 'Lampiran B: Borang Kebenaran Keluar Murid'], false),

@@ -17,6 +17,7 @@ export const blockLabels: Record<BlockType, string> = {
   orgchart: 'Carta Organisasi',
   committee: 'Jawatankuasa',
   stafflist: 'Senarai Guru',
+  takwim: 'Takwim Bulanan',
 };
 
 export function createBlock(type: BlockType): Block {
@@ -47,6 +48,10 @@ export function createBlock(type: BlockType): Block {
     case 'stafflist': return {
       id, type, title: '', columns: [F_NAME, F_POSITION, F_SESSION], showPhoto: false, filterField: '', filterValues: [],
     };
+    case 'takwim': return {
+      id, type, title: 'BULAN', columns: ['PENTADBIRAN', 'KURIKULUM', 'HAL EHWAL MURID', 'KOKURIKULUM', 'PPKI'],
+      rows: [{ week: '1', date: '', day: 'Isnin', cells: ['', '', '', '', ''] }],
+    };
   }
 }
 
@@ -62,6 +67,7 @@ export function blockHasContent(b: Block): boolean {
     case 'orgchart': return b.levels.some((l) => l.positions.length > 0);
     case 'committee': return b.rows.some((r) => r.members.length > 0);
     case 'stafflist': return b.columns.length > 0;
+    case 'takwim': return b.rows.some((r) => (r.span ?? '').trim() !== '' || r.cells.some((c) => c.trim() !== ''));
   }
 }
 

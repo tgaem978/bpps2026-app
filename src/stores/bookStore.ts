@@ -91,6 +91,46 @@ function migrateV4(p: Partial<BookState>) {
   }
 }
 
+/**
+ * v5: Bahagian B (Pengenalan & Maklumat Sekolah) dan Takwim Induk sebenar. Bahagian lama yang belum diubah
+ * strukturnya digantikan; bahagian Maklumat Sekolah ditambah selepas Pengenalan.
+ */
+function migrateV5(p: Partial<BookState>) {
+  if (!p.outline) return; // tiada struktur tersimpan → struktur lalai baharu digunakan
+  const defs = defaultOutline();
+  const def = (id: string) => defs.find((d) => d.id === id)!;
+  const kept = (id: string) => !!p.sections?.[id];
+  const swapIfUntouched = (partId: string, old: string[]) => {
+    const part = p.outline!.find((x) => x.id === partId);
+    if (!part) return false;
+    const ids = part.topics.flatMap((t) => [t.id, ...t.children]);
+    if (!ids.every((id) => old.includes(id))) return false;
+    const fresh = new Set(def(partId).topics.flatMap((t) => [t.id, ...t.children]));
+    const extra = part.topics.filter((t) => kept(t.id) && !fresh.has(t.id) && t.id !== 'maklumat-sekolah');
+    part.topics = [...def(partId).topics.map((t) => ({ ...t, children: [...t.children] })), ...extra];
+    part.title = def(partId).title;
+    return true;
+  };
+  swapIfUntouched('p-maklumat', ['kata-aluan', 'maklumat-sekolah']);
+  const takwimSwapped = swapIfUntouched('p-takwim', ['takwim']);
+  if (!p.outline.some((x) => x.id === 'p-sekolah')) {
+    const present = new Set(p.outline.flatMap((x) => x.topics.flatMap((t) => [t.id, ...t.children])));
+    // Profil sekolah dipindah ke bahagian Maklumat Sekolah
+    p.outline = p.outline.map((x) => ({ ...x, topics: x.topics.filter((t) => t.id !== 'maklumat-sekolah') }));
+    present.delete('maklumat-sekolah');
+    const sekolah = { ...def('p-sekolah'), topics: def('p-sekolah').topics.filter((t) => !present.has(t.id)).map((t) => ({ ...t, children: [] })) };
+    const at = p.outline.findIndex((x) => x.id === 'p-maklumat');
+    p.outline.splice(at >= 0 ? at + 1 : 0, 0, sekolah);
+  }
+  if (takwimSwapped) {
+    // susunan dokumen: Pengenalan → Maklumat Sekolah → Kalendar & Takwim → Pentadbiran ...
+    const i = p.outline.findIndex((x) => x.id === 'p-takwim');
+    const [t] = p.outline.splice(i, 1);
+    const at = p.outline.findIndex((x) => x.id === 'p-sekolah');
+    p.outline.splice(at + 1, 0, t);
+  }
+}
+
 export const useBookStore = create<BookState>()(
   persist(
     (set) => {
@@ -201,14 +241,15 @@ export const useBookStore = create<BookState>()(
     },
     {
       name: 'bpps2026-book',
-      version: 4,
+      version: 5,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
-        if (version < 4 && p.sections) {
+        if (version < 5 && p.sections) {
           p.sections = Object.fromEntries(Object.entries(p.sections).filter(([, sec]) => sec.updatedAt !== null));
         }
         if (version < 4) migrateV4(p);
+        if (version < 5) migrateV5(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

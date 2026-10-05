@@ -4,6 +4,7 @@ import Topbar from './Topbar';
 import Workspace from './Workspace';
 import StatusBar from './StatusBar';
 import { PrintRoot, Toaster } from './Overlays';
+import PptExportDialog from '@/components/export/PptExportDialog';
 import { MasterStyles } from '@/components/book/BookPages';
 import { saveNow } from '@/lib/exporter';
 
@@ -31,6 +32,7 @@ export default function AppShell() {
       <MasterStyles />
       <Toaster />
       <PrintRoot />
+      <PptExportDialog />
     </div>
   );
 }

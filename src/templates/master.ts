@@ -58,7 +58,7 @@ export const fonts: Record<string, string> = {
 const contentBase: MasterProps = {
   headerImage: templateAssets.header, footerImage: templateAssets.footer, bgImage: templateAssets.pageBg, showBg: true,
   // Tajuk: Poppins Bold 24pt, berpusat, hitam
-  titleFont: 'Poppins', titleSize: 24, titleColor: '#000000', titleUpper: true,
+  titleFont: 'Poppins', titleSize: 22, titleColor: '#102A36', titleUpper: true,
   // Lencana: Poppins Bold 12.8pt, teks #F6F6F4 atas #004358, bingkai putih
   badgeBg: '#004358', badgeColor: '#F6F6F4', badgeSize: 12.8,
   // Bingkai: 4.5pt #2D445B (80%)

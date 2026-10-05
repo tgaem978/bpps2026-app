@@ -1,12 +1,12 @@
 export type BlockType =
   | 'heading' | 'paragraph' | 'list' | 'table' | 'keyvalue' | 'image'
-  | 'orgchart' | 'committee' | 'stafflist';
+  | 'orgchart' | 'committee' | 'stafflist' | 'takwim';
 
 interface BaseBlock {
   id: string;
 }
 export interface HeadingBlock extends BaseBlock { type: 'heading'; text: string }
-export interface ParagraphBlock extends BaseBlock { type: 'paragraph'; text: string }
+export interface ParagraphBlock extends BaseBlock { type: 'paragraph'; text: string; align?: 'left' | 'center' | 'justify' }
 export interface ListBlock extends BaseBlock { type: 'list'; ordered: boolean; items: string[] }
 /** Gaya jadual dokumen BPPS: 'navy' (kepala biru gelap, lajur BIL emas) atau 'gold' (kepala emas). */
 export type TableStyle = 'navy' | 'gold';
@@ -18,7 +18,11 @@ export interface TableBlock extends BaseBlock {
   firstCol?: 'gold';
 }
 export interface KeyValueBlock extends BaseBlock { type: 'keyvalue'; pairs: { key: string; value: string }[] }
-export interface ImageBlock extends BaseBlock { type: 'image'; src: string; caption: string }
+export interface ImageBlock extends BaseBlock {
+  type: 'image'; src: string; caption: string;
+  /** Tinggi maksimum gambar (mm); lalai 70. */
+  height?: number;
+}
 
 /** Satu aras carta organisasi: diisi automatik daripada guru yang memegang jawatan tersebut. */
 export interface OrgLevel {
@@ -63,6 +67,19 @@ export interface StaffListBlock extends BaseBlock {
   sort?: 'hierarki' | 'pentadbir' | 'abjad';
 }
 
+/** Takwim bulanan: baris harian dengan lajur unit; baris cuti/acara sekolah boleh merentas semua unit. */
+export interface TakwimRow {
+  week: string;
+  date: string;
+  day: string;
+  /** 'weekend' = Sabtu/Ahad, 'holiday' = cuti umum/sekolah */
+  kind?: 'weekend' | 'holiday';
+  /** Teks merentas semua lajur unit (cuti / aktiviti seluruh sekolah) */
+  span?: string;
+  cells: string[];
+}
+export interface TakwimBlock extends BaseBlock { type: 'takwim'; title: string; columns: string[]; rows: TakwimRow[] }
+
 /** Blok dalaman (tidak boleh ditambah pengguna): baris isi kandungan. */
 export interface TocRowsBlock extends BaseBlock {
   type: 'tocrows';
@@ -71,7 +88,7 @@ export interface TocRowsBlock extends BaseBlock {
 
 export type Block =
   | HeadingBlock | ParagraphBlock | ListBlock | TableBlock | KeyValueBlock | ImageBlock
-  | OrgChartBlock | CommitteeBlock | StaffListBlock;
+  | OrgChartBlock | CommitteeBlock | StaffListBlock | TakwimBlock;
 export type AnyBlock = Block | TocRowsBlock;
 
 /** Jenis paparan halaman isi (layout). */

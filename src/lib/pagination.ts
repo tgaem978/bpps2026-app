@@ -17,7 +17,7 @@ import type { BookCtx } from '@/lib/resolve';
  * Semua saiz menggunakan unit halaman (cqw), jadi nisbah sama pada skrin dan cetakan.
  */
 
-export interface Segment { blockId: string; from: number; to: number }
+export interface Segment { blockId: string; from: number; to: number; density?: number }
 export type PagePlan =
   | { kind: 'cover'; key: string; number: null }
   | { kind: 'toc'; key: string; number: number; block: TocRowsBlock; from: number; to: number }
@@ -68,14 +68,14 @@ function getHost(pt: PageType, widthMm: number): HTMLDivElement {
   return host;
 }
 
-function measure(block: AnyBlock, ctx: BookCtx, pt: PageType, widthMm: number, sig: string): Measured {
-  const ckey = `${pt}|${widthMm.toFixed(2)}|${sig}`;
+function measure(block: AnyBlock, ctx: BookCtx, pt: PageType, widthMm: number, sig: string, density = 0): Measured {
+  const ckey = `${pt}|${widthMm.toFixed(2)}|${sig}|d${density}`;
   let cache = caches.get(ckey);
   if (!cache) caches.set(ckey, (cache = new WeakMap()));
   const hit = cache.get(block);
   if (hit) return hit;
   const h = getHost(pt, widthMm);
-  h.innerHTML = renderToStaticMarkup(createElement(BlockView, { block, ctx }));
+  h.innerHTML = renderToStaticMarkup(createElement(BlockView, { block, ctx, density }));
   const root = h.firstElementChild as HTMLElement | null;
   const els = Array.from(h.querySelectorAll<HTMLElement>('.u'));
   const units = els.map((el) => el.getBoundingClientRect().height);
@@ -98,8 +98,47 @@ export function paginate(blocks: AnyBlock[], ctx: BookCtx, o: PaginateOpts): Seg
   // Unit terakhir yang diletakkan, jika ia mesti bersama unit seterusnya.
   let lastKeep: { h: number; overhead: number } | null = null;
 
+  /** Mula lajur/halaman baharu; unit "kekal bersama" terakhir (tajuk/subtajuk) dibawa sekali. */
+  const newSlot = () => {
+    let slot = slots[slots.length - 1];
+    const last = slot[slot.length - 1];
+    const only = slot.length === 1 && last.to - last.from === 1;
+    let carry: Segment | null = null;
+    if (lastKeep && last && !only) {
+      carry = { blockId: last.blockId, from: last.to - 1, to: last.to, density: last.density };
+      if (last.to - last.from > 1) last.to -= 1;
+      else slot.pop();
+    }
+    slot = [];
+    slots.push(slot);
+    used = 0;
+    if (carry && lastKeep) {
+      slot.push(carry);
+      used = lastKeep.overhead + lastKeep.h;
+    }
+  };
+  const total = (m: Measured) => m.overhead + m.units.reduce((a, b) => a + b, 0);
+
   for (const block of blocks) {
-    const m = measure(block, ctx, o.pt, colW, o.sig);
+    let m = measure(block, ctx, o.pt, colW, o.sig);
+    let density = 0;
+    if (block.type === 'table' || block.type === 'takwim') {
+      // Satu jadual satu halaman jika boleh: padatkan sedikit jika perlu, dan mula di halaman baharu
+      // jika ia muat sepenuhnya di sana tetapi tidak dalam baki ruang halaman semasa.
+      if (total(m) > available) {
+        for (const d of [1, 2]) {
+          const md = measure(block, ctx, o.pt, colW, o.sig, d);
+          if (total(md) <= available) { m = md; density = d; break; }
+        }
+      }
+      const slot = slots[slots.length - 1];
+      if (total(m) <= available && used + total(m) > available && slot.length > 0) {
+        // Cuba padatkan supaya muat dalam baki ruang (kurang ruang kosong); jika tidak, mula halaman baharu.
+        const room = available - used;
+        const fit = [1, 2].filter((d) => d > density).map((d) => ({ d, md: measure(block, ctx, o.pt, colW, o.sig, d) })).find((x) => total(x.md) <= room);
+        if (fit) { m = fit.md; density = fit.d; } else newSlot();
+      }
+    }
     m.units.forEach((h, i) => {
       let slot = slots[slots.length - 1];
       let last = slot[slot.length - 1];
@@ -107,25 +146,13 @@ export function paginate(blocks: AnyBlock[], ctx: BookCtx, o: PaginateOpts): Seg
       if (used + extra + h > available && slot.length > 0) {
         // Tajuk/subtajuk tidak boleh tertinggal seorang di hujung lajur/halaman: bawa bersama ke halaman baharu.
         // (Jika ia satu-satunya unit dalam lajur, ia kekal supaya lajur tidak kosong.)
-        const only = slot.length === 1 && last.to - last.from === 1;
-        let carry: Segment | null = null;
-        if (lastKeep && !only) {
-          carry = { blockId: last.blockId, from: last.to - 1, to: last.to };
-          if (last.to - last.from > 1) last.to -= 1;
-          else slot.pop();
-        }
-        slot = [];
-        slots.push(slot);
-        used = 0;
-        if (carry && lastKeep) {
-          slot.push(carry);
-          used = lastKeep.overhead + lastKeep.h;
-        }
+        newSlot();
+        slot = slots[slots.length - 1];
         last = slot[slot.length - 1];
         extra = last?.blockId === block.id ? 0 : m.overhead;
       }
       if (last?.blockId === block.id && last.to === i) last.to = i + 1;
-      else slot.push({ blockId: block.id, from: i, to: i + 1 });
+      else slot.push({ blockId: block.id, from: i, to: i + 1, density: density || undefined });
       used += extra + h;
       lastKeep = m.keep[i] ? { h, overhead: m.overhead } : null;
     });
