@@ -134,6 +134,14 @@ function SectionContentPage({ page }: { page: Extract<PagePlan, { kind: 'content
   const m = useMaster(page.layout);
   const ctx = useBookCtx();
   if (!sec) return null;
+  const lead = sec.blocks[0];
+  if (lead && lead.type === 'image' && lead.fullPage) {
+    return (
+      <Sheet pt={page.layout} className="bp-fullpage">
+        <img className="bp-full-img" src={lead.src} alt={sec.title} />
+      </Sheet>
+    );
+  }
   const byId = new Map(sec.blocks.map((b) => [b.id, b]));
   const empty = page.columns.every((c) => c.length === 0);
   const title = sec.title || m.pageTitle;

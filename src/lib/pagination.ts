@@ -219,7 +219,11 @@ export function useBookPlan(): PagePlan[] {
       tocRows.push({ level, title: sec.subtitle ? `${sec.title} — ${sec.subtitle}` : sec.title, page: 0 });
       tocIndex.push({ row: tocRows.length - 1, at: body.length });
       const layout = sec.layout ?? 'standard';
-      const pages = paginate(sec.blocks, ctx, optsOf(layout, layout === 'twocol' ? 2 : 1));
+      const first = sec.blocks[0];
+      const fullImg = first && first.type === 'image' && first.fullPage ? first : null;
+      const pages: Segment[][][] = fullImg
+        ? [[[{ blockId: fullImg.id, from: 0, to: 1 }]]]
+        : paginate(sec.blocks, ctx, optsOf(layout, layout === 'twocol' ? 2 : 1));
       pages.forEach((columns, part) =>
         body.push({ kind: 'content', key: `${id}-${part}`, sectionId: id, layout, columns, part, parts: pages.length }),
       );

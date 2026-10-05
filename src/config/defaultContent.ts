@@ -6,6 +6,7 @@ import { F_NAME, F_POSITION, F_SESSION, F_TASK } from '@/types/staff';
 import { partASections } from '@/config/partA';
 import { partKKSections } from '@/config/partKK';
 import { partBSections } from '@/config/partB';
+import { partPengenalanSections } from '@/config/partPengenalan';
 
 const h = (text: string): Block => ({ id: uid(), type: 'heading', text });
 const p = (text: string): Block => ({ id: uid(), type: 'paragraph', text });
@@ -37,7 +38,7 @@ export const defaultCover = (): CoverContent => ({
 export const defaultOutline = (): OutlinePart[] => [
   {
     id: 'p-maklumat', title: 'PENGENALAN', note: '', divider: true,
-    topics: ['kata-aluan', 'b-rukun-negara', 'b-aku-janji', 'b-ikrar', 'b-fokus', 'b-ithink', 'b-5c', 'b-aspirasi', 'b-dpd', 'b-ts25', 'b-spi', 'b-visi-kpm']
+    topics: ['kata-aluan', 'b-rukun-negara', 'b-aku-janji', 'b-teras', 'b-ikrar', 'b-fokus', 'b-ithink', 'b-5c', 'b-aspirasi', 'b-dpd', 'b-ts25', 'b-spi', 'b-visi-kpm']
       .map((id) => ({ id, children: [] })),
   },
   {
@@ -106,6 +107,7 @@ export const defaultSections = (): Record<string, SectionContent> => ({
   ...partASections(),
   ...partKKSections(),
   ...partBSections(),
+  ...partPengenalanSections(),
   'maklumat-sekolah': section('PROFIL SEKOLAH', 'MAKLUMAT SEKOLAH', [
     kv([
       ['Nama Sekolah', '{{nama_sekolah}}'],

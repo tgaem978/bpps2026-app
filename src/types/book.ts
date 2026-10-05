@@ -22,6 +22,8 @@ export interface ImageBlock extends BaseBlock {
   type: 'image'; src: string; caption: string;
   /** Tinggi maksimum gambar (mm); lalai 70. */
   height?: number;
+  /** Gambar mengisi satu halaman A4 penuh tanpa bingkai/tajuk BPPS (cth. halaman Pengenalan daripada PDF). */
+  fullPage?: boolean;
 }
 
 /** Satu aras carta organisasi: diisi automatik daripada guru yang memegang jawatan tersebut. */
