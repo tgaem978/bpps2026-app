@@ -27,53 +27,49 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 .bp-bg-img { position: absolute; left: 0; top: calc(var(--mm) * 7); width: 100%; height: calc(var(--mm) * 290); object-fit: cover; }
 /* Reka bentuk header/footer baharu (biru gelap + emas). Imej tanpa teks; teks tajuk/lencana/kaki ialah teks hidup di atasnya.
    Header 2172x396 → 210 x 38.3mm; footer 2576x194 → 210 x 15.8mm (281.2-297mm). */
-.bp-header-img { position: absolute; left: 0; top: 0; width: 100%; height: calc(var(--mm) * 38.3); }
+.bp-header-img { position: absolute; left: 0; top: 0; width: 100%; height: calc(var(--mm) * 37); }
 .bp-title-box {
-  /* Tajuk di tengah kanvas putih kiri (16.8-105mm), berpusat menegak dalam jalur putih (6-30.2mm) */
-  position: absolute; left: calc(var(--mm) * 16.8); top: calc(var(--mm) * 6); width: calc(var(--mm) * 88.2); height: calc(var(--mm) * 24.2);
+  /* Tajuk berpusat dalam kanvas putih kiri (15.5-106mm), berpusat menegak dalam jalur putih (6-29mm) */
+  position: absolute; left: calc(var(--mm) * 15.5); top: calc(var(--mm) * 6); width: calc(var(--mm) * 90.5); height: calc(var(--mm) * 23);
   display: flex; align-items: center; justify-content: center;
 }
 .bp-title {
-  /* Montserrat ExtraBold, biru gelap #0C2B5E, lejang putih + bayang jatuh lembut (kesan timbul) */
-  margin: 0; font-family: var(--m-title-font); font-weight: 800; font-size: var(--m-title-size); line-height: 1.05; letter-spacing: 0; text-align: center;
+  /* Montserrat Black, biru gelap #0C2B5E, lejang putih rata + bayang jatuh lembut (kesan timbul) */
+  margin: 0; font-family: var(--m-title-font); font-weight: 900; font-size: var(--m-title-size); line-height: 1.02; letter-spacing: -.03em; text-align: center; text-wrap: balance;
   text-transform: var(--m-title-case); color: var(--m-title-color);
-  text-shadow:
-    calc(var(--mm) * .3) 0 0 #fff, calc(var(--mm) * -.3) 0 0 #fff, 0 calc(var(--mm) * .3) 0 #fff, 0 calc(var(--mm) * -.3) 0 #fff,
-    calc(var(--mm) * .22) calc(var(--mm) * .22) 0 #fff, calc(var(--mm) * -.22) calc(var(--mm) * .22) 0 #fff,
-    calc(var(--mm) * .22) calc(var(--mm) * -.22) 0 #fff, calc(var(--mm) * -.22) calc(var(--mm) * -.22) 0 #fff,
-    calc(var(--mm) * .35) calc(var(--mm) * .55) calc(var(--mm) * .55) rgba(0, 0, 0, .38);
+  text-shadow: calc(var(--mm) * 0.340) calc(var(--mm) * 0.000) 0 #fff, calc(var(--mm) * 0.314) calc(var(--mm) * 0.130) 0 #fff, calc(var(--mm) * 0.240) calc(var(--mm) * 0.240) 0 #fff, calc(var(--mm) * 0.130) calc(var(--mm) * 0.314) 0 #fff, calc(var(--mm) * 0.000) calc(var(--mm) * 0.340) 0 #fff, calc(var(--mm) * -0.130) calc(var(--mm) * 0.314) 0 #fff, calc(var(--mm) * -0.240) calc(var(--mm) * 0.240) 0 #fff, calc(var(--mm) * -0.314) calc(var(--mm) * 0.130) 0 #fff, calc(var(--mm) * -0.340) calc(var(--mm) * 0.000) 0 #fff, calc(var(--mm) * -0.314) calc(var(--mm) * -0.130) 0 #fff, calc(var(--mm) * -0.240) calc(var(--mm) * -0.240) 0 #fff, calc(var(--mm) * -0.130) calc(var(--mm) * -0.314) 0 #fff, calc(var(--mm) * -0.000) calc(var(--mm) * -0.340) 0 #fff, calc(var(--mm) * 0.130) calc(var(--mm) * -0.314) 0 #fff, calc(var(--mm) * 0.240) calc(var(--mm) * -0.240) 0 #fff, calc(var(--mm) * 0.314) calc(var(--mm) * -0.130) 0 #fff;
+  filter: drop-shadow(calc(var(--mm) * .3) calc(var(--mm) * .5) calc(var(--mm) * .35) rgba(0, 0, 0, .42));
 }
 .bp-badge-txt {
-  /* Teks lencana: putih, tengah-tengah dalam poligon biru pada imej header (122.7-176.7mm x 16.5-25.5mm) */
-  position: absolute; left: calc(var(--mm) * 122.7); top: calc(var(--mm) * 16.5); width: calc(var(--mm) * 54); height: calc(var(--mm) * 9);
+  /* Teks lencana: putih, Montserrat Bold, tepat di tengah poligon biru pada imej header (122.5-177mm x 15.8-24.8mm) */
+  position: absolute; left: calc(var(--mm) * 122.5); top: calc(var(--mm) * 15.8); width: calc(var(--mm) * 54.5); height: calc(var(--mm) * 9);
   display: flex; align-items: center; justify-content: center; box-sizing: border-box; white-space: nowrap;
-  color: var(--m-badge-color); font-family: var(--m-title-font); font-weight: 700; font-size: var(--m-badge-size);
-  text-transform: uppercase; text-align: center; line-height: 1; letter-spacing: .01em;
-  text-shadow: 0 calc(var(--mm) * .3) calc(var(--mm) * .5) rgba(0, 20, 60, .6);
+  color: var(--m-badge-color); font-family: var(--m-title-font); font-weight: 800; font-size: var(--m-badge-size);
+  text-transform: uppercase; text-align: center; line-height: 1; letter-spacing: -.01em;
+  filter: drop-shadow(0 calc(var(--mm) * .3) calc(var(--mm) * .4) rgba(0, 20, 60, .7));
 }
 .bp-frame {
   position: absolute; left: calc(var(--mm) * 7); top: calc(var(--mm) * 38); right: calc(var(--mm) * 4); bottom: calc(var(--mm) * 20);
   border: var(--m-frame-width) solid var(--m-frame-color); background: var(--m-frame-bg); overflow: hidden;
 }
 .bp-frame > .bp-content { padding: calc(var(--mm) * 3.5); height: 100%; box-sizing: border-box; display: flex; flex-direction: column; }
-.bp-footer-img { position: absolute; left: 0; top: calc(var(--mm) * 281.2); width: 100%; height: calc(var(--mm) * 15.8); }
+.bp-footer-img { position: absolute; left: 0; top: calc(var(--mm) * 280); width: 100%; height: calc(var(--mm) * 17); }
 .bp-footer-text { position: absolute; inset: 0; pointer-events: none; }
 .bp-foot-title {
-  /* Teks kaki: huruf kental dan rapat, biru gelap, lejang putih + bayang jatuh, berpusat dalam ruang putih (39.4-190.1mm) */
-  position: absolute; left: calc(var(--mm) * 39.4); width: calc(var(--mm) * 150.7); top: calc(var(--mm) * 286.9); height: calc(var(--mm) * 9);
-  display: flex; align-items: center; justify-content: center; white-space: nowrap; overflow: hidden;
+  /* Teks kaki: kental & rapat, biru gelap, lejang putih rata + bayang jatuh, berpusat dalam ruang putih (40.7-188.7mm) */
+  position: absolute; left: calc(var(--mm) * 40.7); width: calc(var(--mm) * 148); top: calc(var(--mm) * 286.4); height: calc(var(--mm) * 9);
+  display: flex; align-items: center; justify-content: center; white-space: nowrap;
   color: var(--m-foot-color); font-family: "Roboto Condensed", "Arial Narrow", Arial, sans-serif; font-weight: 700; font-size: var(--m-foot-size);
   letter-spacing: 0; text-transform: uppercase; line-height: 1;
-  text-shadow:
-    calc(var(--mm) * .25) 0 0 #fff, calc(var(--mm) * -.25) 0 0 #fff, 0 calc(var(--mm) * .25) 0 #fff, 0 calc(var(--mm) * -.25) 0 #fff,
-    calc(var(--mm) * .3) calc(var(--mm) * .4) calc(var(--mm) * .4) rgba(0, 0, 0, .35);
+  text-shadow: calc(var(--mm) * 0.260) calc(var(--mm) * 0.000) 0 #fff, calc(var(--mm) * 0.240) calc(var(--mm) * 0.099) 0 #fff, calc(var(--mm) * 0.184) calc(var(--mm) * 0.184) 0 #fff, calc(var(--mm) * 0.099) calc(var(--mm) * 0.240) 0 #fff, calc(var(--mm) * 0.000) calc(var(--mm) * 0.260) 0 #fff, calc(var(--mm) * -0.099) calc(var(--mm) * 0.240) 0 #fff, calc(var(--mm) * -0.184) calc(var(--mm) * 0.184) 0 #fff, calc(var(--mm) * -0.240) calc(var(--mm) * 0.099) 0 #fff, calc(var(--mm) * -0.260) calc(var(--mm) * 0.000) 0 #fff, calc(var(--mm) * -0.240) calc(var(--mm) * -0.099) 0 #fff, calc(var(--mm) * -0.184) calc(var(--mm) * -0.184) 0 #fff, calc(var(--mm) * -0.099) calc(var(--mm) * -0.240) 0 #fff, calc(var(--mm) * -0.000) calc(var(--mm) * -0.260) 0 #fff, calc(var(--mm) * 0.099) calc(var(--mm) * -0.240) 0 #fff, calc(var(--mm) * 0.184) calc(var(--mm) * -0.184) 0 #fff, calc(var(--mm) * 0.240) calc(var(--mm) * -0.099) 0 #fff;
+  filter: drop-shadow(calc(var(--mm) * .25) calc(var(--mm) * .4) calc(var(--mm) * .3) rgba(0, 0, 0, .4));
 }
 .bp-page-no {
   /* Nombor halaman: emas #F4B41A dalam lencana trapezoid hujung kanan footer */
-  position: absolute; left: calc(var(--mm) * 197.2); width: calc(var(--mm) * 14); top: calc(var(--mm) * 286.4); height: calc(var(--mm) * 10);
+  position: absolute; left: calc(var(--mm) * 197.2); width: calc(var(--mm) * 14); top: calc(var(--mm) * 286); height: calc(var(--mm) * 10);
   display: flex; align-items: center; justify-content: center;
   color: #F4B41A; font-family: Montserrat, "Segoe UI", Arial, sans-serif; font-weight: 800; font-size: calc(var(--pt) * 21); line-height: 1;
-  font-variant-numeric: tabular-nums; text-shadow: 0 calc(var(--mm) * .25) calc(var(--mm) * .4) rgba(0, 20, 60, .55);
+  font-variant-numeric: tabular-nums; filter: drop-shadow(0 calc(var(--mm) * .25) calc(var(--mm) * .3) rgba(0, 20, 60, .6));
 }
 
 /* Blok kandungan - jarak guna padding (bukan margin) supaya pengukur penomboran tepat */

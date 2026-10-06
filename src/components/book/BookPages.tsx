@@ -38,10 +38,11 @@ export function ContentFrame({ pt, title, badge, number, children }: { pt: PageT
   const footer = useFooterText(m.footerText, ctx);
   // Tajuk berpusat dalam kanvas putih kiri (88mm x 24mm); lencana sentiasa ada pada imej header (teks lalai "BPPS <tahun>").
   const badgeText = badge || resolveTokens('BPPS {{tahun}}', ctx);
-  const titlePt = fitPt(m.titleUpper ? title.toUpperCase() : title, fonts[m.titleFont], 86, 23, m.titleSize, 1.05, 9, 2, 800);
-  const badgePt = fitPt(badgeText.toUpperCase(), fonts[m.titleFont], 52, 9, m.badgeSize, 1, 7, 1);
+  const titlePt = fitPt(m.titleUpper ? title.toUpperCase() : title, fonts[m.titleFont], 90, 22, m.titleSize, 1.02, 9, 2, 900);
+  const badgePt = fitPt(badgeText.toUpperCase(), fonts[m.titleFont], 54, 9, m.badgeSize, 1, 7, 1, 800);
   const footText = footer.trim();
-  const footPt = fitPt(footText.toUpperCase(), fonts['Roboto Condensed'], 148, 8.5, m.footerSize, 1, 7, 1);
+  const numPt = number !== undefined ? fitPt(String(number), fonts['Montserrat'], 9.5, 9, 21, 1, 9, 1, 800) : 21;
+  const footPt = fitPt(footText.toUpperCase(), fonts['Roboto Condensed'], 145, 8.5, m.footerSize, 1, 7, 1, 700);
   return (
     <Sheet pt={pt} className={`bp-content-page bp-pt-${pt}`}>
       {m.showBg && m.bgImage && <img className="bp-bg-img" src={m.bgImage} alt="" />}
@@ -56,7 +57,7 @@ export function ContentFrame({ pt, title, badge, number, children }: { pt: PageT
       {m.footerImage && <img className="bp-footer-img" src={m.footerImage} alt="" />}
       <div className="bp-footer-text">
         {footText && <div className="bp-foot-title" style={{ fontSize: `calc(var(--pt) * ${footPt})` }}>{footText}</div>}
-        {m.showPageNo && number !== undefined && <div className="bp-page-no">{number}</div>}
+        {m.showPageNo && number !== undefined && <div className="bp-page-no" style={{ fontSize: `calc(var(--pt) * ${numPt})` }}>{number}</div>}
       </div>
     </Sheet>
   );

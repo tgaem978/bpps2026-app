@@ -10,3 +10,8 @@ Teks ialah teks hidup yang berubah mengikut sistem:
 - Nombor halaman : emas #F4B41A, Montserrat ExtraBold, dalam lencana trapezoid kanan (.bp-page-no).
 Fail diubah: src/index.css, src/templates/master.ts (nilai lalai), src/components/book/BookPages.tsx, src/lib/pptxNative.ts (tajuk PPT di tengah).
 Halaman tanpa header/footer (kulit, partition) tidak berubah. Nilai master yang pernah anda ubah sendiri (Tetapan > Master) kekal; tekan "Set semula" untuk guna lalai baharu.
+
+## Semakan 2
+- Tinggi asal dipulihkan: header 0-37mm, footer 280-297mm (bingkai 38mm / 20mm tidak terganggu). Imej dimuat tepat pada kotak ini.
+- Tajuk: Montserrat Black (wght 900 ditambah dalam index.html), lejang putih licin 16 arah + bayang jatuh, tajuk 2 baris diseimbangkan.
+- Nombor halaman 3 digit dikecilkan automatik supaya muat dalam lencana.
