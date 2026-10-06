@@ -58,9 +58,9 @@ export const fonts: Record<string, string> = {
 const contentBase: MasterProps = {
   headerImage: templateAssets.header, footerImage: templateAssets.footer, bgImage: templateAssets.pageBg, showBg: true,
   // Tajuk: Poppins Bold 24pt, berpusat, hitam
-  titleFont: 'Poppins', titleSize: 22, titleColor: '#102A36', titleUpper: true,
+  titleFont: 'Montserrat', titleSize: 24, titleColor: '#0C2B5E', titleUpper: true,
   // Lencana: Poppins Bold 12.8pt, teks #F6F6F4 atas #004358, bingkai putih
-  badgeBg: '#004358', badgeColor: '#F6F6F4', badgeSize: 12.8,
+  badgeBg: '#0C2B5E', badgeColor: '#FFFFFF', badgeSize: 24,
   // Bingkai: 4.5pt #2D445B (80%)
   showFrame: true, frameColor: '#56697C', frameWidth: 1.6, frameBg: '#FFFFFF',
   // Isi: Arial Narrow 11pt, justify, jarak baris tunggal
@@ -70,7 +70,7 @@ const contentBase: MasterProps = {
   // Jadual: kepala #004257 teks putih (Arial Narrow Bold 11pt), lajur BIL #CB8200, garisan #D9D9D9; gaya emas #FFBA4B
   tableHeadBg: '#004257', tableHeadColor: '#FFFFFF', tableAccent: '#FFBA4B', rowAlt: '#FFFFFF', tableSize: 11,
   numBg: '#CB8200', numColor: '#FFFFFF', tableBorder: '#D9D9D9', panelColor: '#FFBA4B',
-  footerText: '', footerColor: '#FFFFFF', footerSize: 7.5, showPageNo: true,
+  footerText: 'BUKU PANDUAN PENGURUSAN SEKOLAH | {{nama_pendek}} | {{tahun}}', footerColor: '#0C2B5E', footerSize: 18, showPageNo: true,
   pageTitle: '', tocPartBg: '#004358', ruleColor: '#C9D4DC', ruleGap: 8,
   noteSize: 14, noteColor: '#22313B', schoolColor: '#004358', subtitleColor: '#004358', mottoColor: '#004358',
 };
@@ -103,7 +103,7 @@ const contentDefs: PropDef[] = [
   { key: 'titleUpper', label: 'Huruf besar', kind: 'toggle', group: g.title },
   { key: 'badgeBg', label: 'Lencana: latar', kind: 'color', group: g.title },
   { key: 'badgeColor', label: 'Lencana: teks', kind: 'color', group: g.title },
-  { key: 'badgeSize', label: 'Lencana: saiz (pt)', kind: 'size', group: g.title, min: 7, max: 18, step: 0.2 },
+  { key: 'badgeSize', label: 'Lencana: saiz maksimum (pt)', kind: 'size', group: g.title, min: 7, max: 28, step: 0.2 },
   { key: 'bodyFont', label: 'Fon', kind: 'font', group: g.body },
   { key: 'bodySize', label: 'Saiz (pt)', kind: 'size', group: g.body, min: 7, max: 16, step: 0.5 },
   { key: 'lineHeight', label: 'Jarak baris', kind: 'size', group: g.body, min: 1.1, max: 2.2, step: 0.05 },
@@ -127,7 +127,7 @@ const contentDefs: PropDef[] = [
   { key: 'frameBg', label: 'Latar dalam bingkai', kind: 'color', group: g.frame },
   { key: 'footerText', label: 'Teks kaki', kind: 'text', group: g.foot, hint: '{{motto}}, {{nama_sekolah}}, {{tahun}}' },
   { key: 'footerColor', label: 'Warna', kind: 'color', group: g.foot },
-  { key: 'footerSize', label: 'Saiz (pt)', kind: 'size', group: g.foot, min: 5, max: 12, step: 0.5 },
+  { key: 'footerSize', label: 'Saiz maksimum (pt)', kind: 'size', group: g.foot, min: 6, max: 24, step: 0.5 },
   { key: 'showPageNo', label: 'Papar nombor halaman', kind: 'toggle', group: g.foot },
 ];
 

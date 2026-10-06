@@ -36,25 +36,27 @@ export function ContentFrame({ pt, title, badge, number, children }: { pt: PageT
   const m = useMaster(pt);
   const ctx = useBookCtx();
   const footer = useFooterText(m.footerText, ctx);
-  // Tajuk rata kiri dari garis bingkai (7mm) hingga 97mm (ada lencana) / 121mm, berpusat menegak dalam jalur putih; lencana 99-161mm.
-  const titleW = badge ? 89 : 113;
-  const titlePt = fitPt(m.titleUpper ? title.toUpperCase() : title, fonts[m.titleFont], titleW, 17, m.titleSize, 1.08, 7, 2, 700);
-  const badgePt = badge ? fitPt(badge.toUpperCase(), fonts[m.titleFont], 42, 8.5, m.badgeSize, 1.05, 6, 1) : 0;
+  // Tajuk berpusat dalam kanvas putih kiri (88mm x 24mm); lencana sentiasa ada pada imej header (teks lalai "BPPS <tahun>").
+  const badgeText = badge || resolveTokens('BPPS {{tahun}}', ctx);
+  const titlePt = fitPt(m.titleUpper ? title.toUpperCase() : title, fonts[m.titleFont], 86, 23, m.titleSize, 1.05, 9, 2, 800);
+  const badgePt = fitPt(badgeText.toUpperCase(), fonts[m.titleFont], 52, 9, m.badgeSize, 1, 7, 1);
+  const footText = footer.trim();
+  const footPt = fitPt(footText.toUpperCase(), fonts['Roboto Condensed'], 148, 8.5, m.footerSize, 1, 7, 1);
   return (
     <Sheet pt={pt} className={`bp-content-page bp-pt-${pt}`}>
       {m.showBg && m.bgImage && <img className="bp-bg-img" src={m.bgImage} alt="" />}
       {m.headerImage && <img className="bp-header-img" src={m.headerImage} alt="" />}
-      <div className={`bp-title-box ${badge ? 'bp-has-badge' : ''}`}>
+      <div className="bp-title-box">
         <h2 className="bp-title" style={{ fontSize: `calc(var(--pt) * ${titlePt})` }}>{title}</h2>
       </div>
-      {badge && <span className="bp-badge" style={{ fontSize: `calc(var(--pt) * ${badgePt})` }}>{badge}</span>}
+      <div className="bp-badge-txt" style={{ fontSize: `calc(var(--pt) * ${badgePt})` }}>{badgeText}</div>
       <div className="bp-frame">
         <div className="bp-content">{children}</div>
       </div>
       {m.footerImage && <img className="bp-footer-img" src={m.footerImage} alt="" />}
       <div className="bp-footer-text">
-        <span>{footer}</span>
-        {m.showPageNo && number !== undefined && <span className="bp-page-no">{number}</span>}
+        {footText && <div className="bp-foot-title" style={{ fontSize: `calc(var(--pt) * ${footPt})` }}>{footText}</div>}
+        {m.showPageNo && number !== undefined && <div className="bp-page-no">{number}</div>}
       </div>
     </Sheet>
   );
@@ -131,6 +133,8 @@ function Segments({ segments, byId, ctx }: { segments: Segment[]; byId: Map<stri
 
 function SectionContentPage({ page }: { page: Extract<PagePlan, { kind: 'content' }> }) {
   const sec = useBookStore((s) => s.sections[page.sectionId]);
+  const outline = useBookStore((s) => s.outline);
+  const partTitle = outline.find((p) => p.id === locate(outline, page.sectionId)?.partId)?.title;
   const m = useMaster(page.layout);
   const ctx = useBookCtx();
   if (!sec) return null;
@@ -146,7 +150,7 @@ function SectionContentPage({ page }: { page: Extract<PagePlan, { kind: 'content
   const empty = page.columns.every((c) => c.length === 0);
   const title = sec.title || m.pageTitle;
   return (
-    <ContentFrame pt={page.layout} title={title} badge={sec.subtitle || undefined} number={page.number}>
+    <ContentFrame pt={page.layout} title={title} badge={sec.subtitle || partTitle || undefined} number={page.number}>
       {page.layout === 'twocol' ? (
         <div className="bp-cols">
           {page.columns.map((c, i) => <div key={i} className="bp-col"><Segments segments={c} byId={byId} ctx={ctx} /></div>)}
