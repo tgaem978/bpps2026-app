@@ -2,7 +2,8 @@ import type { AnyBlock, CommitteeBlock, OrgChartBlock } from '@/types/book';
 import type { Teacher } from '@/types/staff';
 import { kvPairs, listItems, paragraphParts, unitCount } from '@/lib/units';
 import { byPosition, committeeChartLines, nameOf, resolveMembers, resolveTokens, staffRows, valueText, type BookCtx } from '@/lib/resolve';
-import { arrangeFocus } from '@/lib/orgLayout';
+import { arrangeFocus, isLeader } from '@/lib/orgLayout';
+import { fmtStyle } from '@/lib/format';
 
 /** Siluet potret elegan bila tiada gambar. */
 export function Avatar({ name }: { name: string }) {
@@ -54,16 +55,28 @@ function OrgChart({ block, ctx }: { block: OrgChartBlock; ctx: BookCtx }) {
             {ri > 0 && n > 1 && <span className="bp-oc-bus" style={{ left: busInset(n, Math.max(n, 3)), right: busInset(n, Math.max(n, 3)) }} />}
             <div className="bp-oc-cards">
               {r.kind === 'person'
-                ? r.items.map((m, i) => (
-                    <div key={i} className={`bp-oc-card ${block.focus && m.position === block.focus && ri > 0 && n >= 3 ? 'bp-oc-focus' : ''}`} style={{ width: `${100 / Math.max(n, 3)}%` }}>
-                      {ri > 0 && !(block.focus && m.position === block.focus && n >= 3) && <span className="bp-oc-stub" />}
-                      <div className="bp-oc-photo">{m.photo ? <img src={m.photo} alt="" /> : <Avatar name={m.name} />}</div>
-                      <div className="bp-oc-pill">
-                        <p className="bp-oc-name">{m.name}</p>
-                        <p className="bp-oc-pos">{m.position}</p>
+                ? r.items.map((m, i) => {
+                    const focus = !!block.focus && m.position === block.focus && ri > 0 && n >= 3;
+                    return (
+                      <div key={i} className={`bp-oc-card ${focus ? 'bp-oc-focus' : ''}`} style={{ width: `${100 / Math.max(n, 3)}%` }}>
+                        {ri > 0 && !focus && <span className="bp-oc-stub" />}
+                        {isLeader(m.position) ? (
+                          <>
+                            <div className="bp-oc-photo">{m.photo ? <img src={m.photo} alt="" /> : <Avatar name={m.name} />}</div>
+                            <div className="bp-plate">
+                              <p className="bp-plate-name">{m.name}</p>
+                              <p className="bp-plate-role">{m.position}</p>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="bp-chip">
+                            <p className="bp-chip-role">{m.position}</p>
+                            <p className="bp-chip-name">{m.name}</p>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 : r.items.map((g, i) => (
                     <div key={i} className="bp-oc-card bp-oc-group" style={{ width: `${100 / Math.max(n, 3)}%` }}>
                       {ri > 0 && <span className="bp-oc-stub" />}
@@ -108,19 +121,21 @@ function CommitteeChart({ block, ctx, from, to }: { block: CommitteeBlock; ctx: 
                 {ln.cards.map((c, i) => (
                   <div key={i} className={`bp-oc-card ${arr.focusIndex === i ? 'bp-oc-focus' : ''}`} style={{ width: ln.lead ? '60%' : `${100 / slots}%` }}>
                     {linked && arr.focusIndex !== i && <span className="bp-oc-stub" />}
-                    {c.person ? (
+                    {c.person && isLeader(c.position) ? (
                       <>
                         <div className="bp-oc-photo">{c.photo ? <img src={c.photo} alt="" /> : <Avatar name={c.name} />}</div>
-                        <div className="bp-oc-pill">
-                          <p className="bp-oc-name">{c.name}</p>
-                          <p className="bp-oc-pos">{arr.focusIndex >= 0 ? c.position : t(c.role)}</p>
+                        <div className="bp-plate">
+                          <p className="bp-plate-name">{c.name}</p>
+                          <p className="bp-plate-role">{t(c.role)}</p>
+                          {c.position && t(c.role).toLowerCase() !== c.position.toLowerCase() && <p className="bp-plate-pos">{c.position}</p>}
                         </div>
                         {c.note && <p className="bp-cmc-note">{c.note}</p>}
                       </>
                     ) : (
-                      <div className="bp-cmc-box">
-                        <p className="bp-oc-pos">{t(c.role)}</p>
-                        <p className="bp-oc-name">{c.name}</p>
+                      <div className="bp-chip">
+                        <p className="bp-chip-role">{t(c.role)}</p>
+                        <p className="bp-chip-name">{c.name}</p>
+                        {c.note && <p className="bp-cmc-note">{c.note}</p>}
                       </div>
                     )}
                   </div>
@@ -184,7 +199,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
           </div>
         );
       }
-      return <div className="bp-block"><h3 className="bp-heading u kn">{parts[0]}</h3></div>;
+      return <div className="bp-block"><h3 className="bp-heading u kn" style={fmtStyle({ ...block, bold: undefined })}>{parts[0]}</h3></div>;
     }
     case 'paragraph': {
       const parts = paragraphParts(block.text).slice(from, end);
@@ -192,7 +207,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
       const sub = parts.map((p) => /^\*\*[^*\n]{1,100}\*\*$/.test(p) && !/[.!?,;:]\*\*$/.test(p));
       return (
         <div className={`bp-block ${sub[sub.length - 1] ? 'bp-block-tight' : ''}`}>
-          {parts.map((p, i) => <p key={i} className={`bp-para u ${sub[i] ? 'bp-subhead kn' : ''}`} style={block.align ? { textAlign: block.align } : undefined}><Rich text={t(p)} /></p>)}
+          {parts.map((p, i) => <p key={i} className={`bp-para u ${sub[i] ? 'bp-subhead kn' : ''}`} style={fmtStyle(block)}><Rich text={t(p)} /></p>)}
         </div>
       );
     }
@@ -200,7 +215,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
       const Tag = block.ordered ? 'ol' : 'ul';
       return (
         <div className="bp-block bp-list-wrap">
-          <Tag className={`bp-list ${block.ordered ? 'list-decimal' : 'list-disc'}`} start={block.ordered ? from + 1 : undefined}>
+          <Tag className={`bp-list ${block.ordered ? 'list-decimal' : 'list-disc'}`} start={block.ordered ? from + 1 : undefined} style={fmtStyle(block)}>
             {listItems(block.items).slice(from, end).map((it, i) => <li key={i} className="u"><Rich text={t(it)} /></li>)}
           </Tag>
         </div>
@@ -217,7 +232,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
           <table className={`bp-table ${block.style === 'gold' ? 'bp-table-gold' : ''}`}>
             <colgroup>
               {num && <col className="bp-num-col" />}
-              {columnShares(block.columns, block.rows).map((f, i) => <col key={i} style={{ width: `${(f * (num ? 94 : 100)).toFixed(2)}%` }} />)}
+              {(block.colWidths && block.colWidths.length === block.columns.length ? block.colWidths.map((w) => w / 100) : columnShares(block.columns, block.rows)).map((f, i) => <col key={i} style={{ width: `${(f * (num ? 94 : 100)).toFixed(2)}%` }} />)}
             </colgroup>
             <thead>
               <tr>
@@ -227,9 +242,9 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
             </thead>
             <tbody>
               {block.rows.slice(from, end).map((r, ri) => (
-                <tr key={ri} className="u">
+                <tr key={ri} className="u" style={block.rowHeights?.[from + ri] ? { height: `calc(var(--mm) * ${block.rowHeights[from + ri]})` } : undefined}>
                   {num && <td className="bp-num">{from + ri + 1}</td>}
-                  {block.columns.map((_, ci) => <td key={ci} className={cellClass(ci)}><Rich text={t(r[ci] ?? '')} /></td>)}
+                  {block.columns.map((_, ci) => <td key={ci} className={cellClass(ci)} style={fmtStyle({ ...block, align: block.colAlign?.[ci] ?? block.align }, { pad: true })}><Rich text={t(r[ci] ?? '')} /></td>)}
                 </tr>
               ))}
             </tbody>
@@ -244,7 +259,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
             {kvPairs(block.pairs).slice(from, end).map((p, i) => (
               <div key={i} className="u">
                 <dt>{t(p.key)}</dt>
-                <dd>{t(p.value) || ' '}</dd>
+                <dd style={fmtStyle(block)}>{t(p.value) || ' '}</dd>
               </div>
             ))}
           </dl>

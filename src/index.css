@@ -301,24 +301,35 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
 }
 
 
-/* ===== Templat carta organisasi (gaya PPKI): bingkai bulat merah berganda, label merah jambu, garis hitam ===== */
-.bp-oc { --oc-line: calc(var(--mm) * .45) solid #1a1a1a; --oc-red: #B5121B; --oc-pill: #FFCDC8; }
+/* ===== Templat carta organisasi BPPS: kemas, elegan dan ikut warna tema =====
+   Kad bergambar (bulat, bingkai berganda) untuk Guru Besar dan pentadbir sahaja; ahli lain berkad nama. */
+.bp-oc { --oc-line: calc(var(--mm) * .4) solid color-mix(in srgb, var(--m-head-bg) 60%, transparent); }
 .bp-oc .bp-oc-photo {
-  border-radius: 50%; aspect-ratio: 1; background: #fff; overflow: visible; margin-top: calc(var(--mm) * 2.8);
-  box-shadow: 0 0 0 calc(var(--mm) * .7) #fff, 0 0 0 calc(var(--mm) * 1.5) var(--oc-red), 0 0 0 calc(var(--mm) * 2.1) #fff, 0 0 0 calc(var(--mm) * 2.5) var(--oc-red);
+  width: calc(var(--mm) * 22); aspect-ratio: 1; border-radius: 50%; overflow: visible; background: #E6ECF0; margin-top: calc(var(--mm) * 2.9);
+  box-shadow: 0 0 0 calc(var(--mm) * .8) #fff, 0 0 0 calc(var(--mm) * 1.5) var(--m-accent), 0 0 0 calc(var(--mm) * 2.2) #fff,
+    0 0 0 calc(var(--mm) * 2.7) var(--m-head-bg), 0 calc(var(--mm) * 1.2) calc(var(--mm) * 3.2) rgba(10,30,45,.28);
 }
 .bp-oc .bp-oc-photo > img, .bp-oc .bp-oc-photo > svg { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: center top; display: block; }
-.bp-oc .bp-oc-pill {
-  margin: calc(var(--mm) * 3.4) auto 0; width: 94%; padding: calc(var(--mm) * 1) calc(var(--mm) * 1.6);
-  background: var(--oc-pill); border-radius: calc(var(--mm) * 3.2); box-shadow: 0 calc(var(--mm) * .5) calc(var(--mm) * .9) rgba(0,0,0,.28);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
+.bp-oc .bp-oc-lead .bp-oc-photo { width: calc(var(--mm) * 30); }
+.bp-cmc .bp-oc-photo { width: calc(var(--mm) * 17); }
+.bp-cmc .bp-oc-lead .bp-oc-photo { width: calc(var(--mm) * 25); }
+.bp-oc .bp-oc-focus .bp-oc-photo { transform: scale(1.16); transform-origin: 50% 0; }
+.bp-oc .bp-oc-focus .bp-plate { margin-top: calc(var(--mm) * 6); }
+.bp-plate {
+  box-sizing: border-box; width: 94%; margin: calc(var(--mm) * 4) auto 0; padding: calc(var(--mm) * 1.6) calc(var(--mm) * 1.8) calc(var(--mm) * 1.7);
+  background: var(--m-head-bg); color: var(--m-head-color); text-align: center; border-radius: calc(var(--mm) * 2.2);
+  border-bottom: calc(var(--mm) * .8) solid var(--m-accent); box-shadow: 0 calc(var(--mm) * .8) calc(var(--mm) * 2) rgba(10,30,45,.22);
 }
-.bp-oc .bp-oc-pill .bp-oc-name, .bp-oc .bp-oc-pill .bp-oc-pos {
-  margin: 0; min-height: 0; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0; text-align: center; line-height: 1.15;
+.bp-plate-name { margin: 0; font-family: var(--m-title-font); font-weight: 700; font-size: calc(var(--pt) * 7.2); line-height: 1.2; text-transform: uppercase; color: var(--m-head-color); }
+.bp-plate-role { margin: calc(var(--mm) * .8) 0 0; font-weight: 600; font-size: calc(var(--pt) * 5.8); letter-spacing: .07em; text-transform: uppercase; color: var(--m-accent); line-height: 1.2; }
+.bp-plate-pos { margin: calc(var(--mm) * .3) 0 0; font-size: calc(var(--pt) * 5.6); letter-spacing: .04em; text-transform: uppercase; color: var(--m-head-color); line-height: 1.2; }
+.bp-oc-lead .bp-plate { width: 78%; }
+.bp-oc-lead .bp-plate-name { font-size: calc(var(--pt) * 9.5); }
+.bp-oc-lead .bp-plate-role { font-size: calc(var(--pt) * 7); }
+.bp-chip {
+  box-sizing: border-box; width: 94%; margin: 0 auto; padding: calc(var(--mm) * 1.5) calc(var(--mm) * 2) calc(var(--mm) * 1.7); background: #fff; text-align: left;
+  border: calc(var(--mm) * .25) solid color-mix(in srgb, var(--m-head-bg) 22%, transparent); border-left: calc(var(--mm) * 1.2) solid var(--m-accent);
+  border-radius: calc(var(--mm) * 1.6); box-shadow: 0 calc(var(--mm) * .5) calc(var(--mm) * 1.4) rgba(10,30,45,.12);
 }
-.bp-oc .bp-oc-pill .bp-oc-name { font-weight: 800; font-size: calc(var(--pt) * 7); }
-.bp-oc .bp-oc-pill .bp-oc-pos { font-weight: 700; font-size: calc(var(--pt) * 6); margin-top: calc(var(--mm) * .3); }
-.bp-oc .bp-oc-lead .bp-oc-pill .bp-oc-name { font-size: calc(var(--pt) * 9); }
-.bp-oc .bp-oc-lead .bp-oc-pill .bp-oc-pos { font-size: calc(var(--pt) * 7.5); }
-.bp-oc .bp-oc-focus .bp-oc-photo { width: calc(100% * 1.0); transform: scale(1.18); transform-origin: 50% 100%; }
-.bp-oc .bp-oc-focus .bp-oc-pill { margin-top: calc(var(--mm) * 3.4); }
+.bp-chip-role { margin: 0; font-weight: 700; font-size: calc(var(--pt) * 5.6); letter-spacing: .07em; text-transform: uppercase; color: var(--m-accent); line-height: 1.2; }
+.bp-chip-name { margin: calc(var(--mm) * .5) 0 0; font-family: var(--m-title-font); font-weight: 600; font-size: calc(var(--pt) * 6.8); line-height: 1.22; text-transform: uppercase; color: var(--m-title-color); }

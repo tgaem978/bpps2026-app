@@ -16,3 +16,6 @@ export function arrangeFocus<T extends { position: string }>(items: T[], focus?:
   const mid = Math.ceil(others.length / 2);
   return { items: [...others.slice(0, mid), f, ...others.slice(mid)], focusIndex: mid };
 }
+
+/** Hanya Guru Besar dan pentadbir (GPK) dipaparkan sebagai kad bergambar; ahli lain sebagai kad nama. */
+export const isLeader = (position: string) => position === 'Guru Besar' || ADMIN_ORDER.includes(position);

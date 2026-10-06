@@ -108,6 +108,19 @@ function migrateV7(p: Partial<BookState>) {
   if (p.sections) for (const id of Object.keys(p.sections)) if ((id.startsWith('kk-') || id.startsWith('pk-')) && p.sections[id].updatedAt === null) delete p.sections[id];
 }
 
+/** v8: bahagian Kokurikulum dilengkapkan (aluan, tugas, takwim, pasukan sukan, rumah sukan, JK khas). */
+function migrateV8(p: Partial<BookState>) {
+  const part = p.outline?.find((x) => x.id === 'p-koku');
+  if (part) {
+    const ids = part.topics.flatMap((t) => [t.id, ...t.children]);
+    const allDefault = ids.length > 0 && ids.every((id) => id.startsWith('kk-'));
+    const untouched = ids.every((id) => !p.sections?.[id] || p.sections[id].updatedAt === null);
+    if (allDefault && untouched) part.topics = kokuTopics();
+    else for (const t of kokuTopics()) if (!ids.includes(t.id)) part.topics.push(t);
+  }
+  if (p.sections) for (const id of Object.keys(p.sections)) if (id.startsWith('kk-') && p.sections[id].updatedAt === null) delete p.sections[id];
+}
+
 /**
  * v6: halaman Pengenalan kini daripada PDF (halaman penuh). Bahagian Pengenalan yang belum disunting diganti
  * dengan kandungan lalai baharu; tajuk "Teras Perkhidmatan Awam & Budaya Kerja Sekolah" ditambah.
@@ -276,7 +289,7 @@ export const useBookStore = create<BookState>()(
     },
     {
       name: 'bpps2026-book',
-      version: 7,
+      version: 8,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -287,6 +300,7 @@ export const useBookStore = create<BookState>()(
         if (version < 5) migrateV5(p);
         if (version < 6) migrateV6(p);
         if (version < 7) migrateV7(p);
+        if (version < 8) migrateV8(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

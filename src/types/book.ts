@@ -5,19 +5,28 @@ export type BlockType =
 interface BaseBlock {
   id: string;
 }
-export interface HeadingBlock extends BaseBlock { type: 'heading'; text: string }
-export interface ParagraphBlock extends BaseBlock { type: 'paragraph'; text: string; align?: 'left' | 'center' | 'justify' }
-export interface ListBlock extends BaseBlock { type: 'list'; ordered: boolean; items: string[] }
+export type TextAlign = 'left' | 'center' | 'right' | 'justify';
+/** Tetapan teks: penjajaran, tebal, senget, garis bawah dan inden (aras, 1 aras = 7 mm). */
+export interface TextFmt { align?: TextAlign; bold?: boolean; italic?: boolean; underline?: boolean; indent?: number }
+export interface HeadingBlock extends BaseBlock, TextFmt { type: 'heading'; text: string }
+export interface ParagraphBlock extends BaseBlock, TextFmt { type: 'paragraph'; text: string }
+export interface ListBlock extends BaseBlock, TextFmt { type: 'list'; ordered: boolean; items: string[] }
 /** Gaya jadual dokumen BPPS: 'navy' (kepala biru gelap, lajur BIL emas) atau 'gold' (kepala emas). */
 export type TableStyle = 'navy' | 'gold';
-export interface TableBlock extends BaseBlock {
+export interface TableBlock extends BaseBlock, TextFmt {
   type: 'table'; columns: string[]; rows: string[][]; style?: TableStyle;
+  /** Lebar setiap lajur data (peratus daripada lebar jadual; jumlah 100). Tiada = auto. */
+  colWidths?: number[];
+  /** Tinggi minimum setiap baris data (mm); 0 = auto. */
+  rowHeights?: number[];
+  /** Penjajaran ikut lajur (mengatasi penjajaran jadual); tiada = auto. */
+  colAlign?: (TextAlign | undefined)[];
   /** Lajur BIL automatik (lalai: ya untuk gaya biru gelap). */
   numbered?: boolean;
   /** Lajur pertama berlatar emas (cth. jadual kumpulan bertugas). */
   firstCol?: 'gold';
 }
-export interface KeyValueBlock extends BaseBlock { type: 'keyvalue'; pairs: { key: string; value: string }[] }
+export interface KeyValueBlock extends BaseBlock, TextFmt { type: 'keyvalue'; pairs: { key: string; value: string }[] }
 export interface ImageBlock extends BaseBlock {
   type: 'image'; src: string; caption: string;
   /** Tinggi maksimum gambar (mm); lalai 70. */

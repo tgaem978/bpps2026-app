@@ -5,6 +5,8 @@ import { useUiStore } from '@/stores/uiStore';
 import { tokenHelp } from '@/lib/resolve';
 import { CommitteeEditor, OrgChartEditor, StaffListEditor } from './StaffBlockEditors';
 import { TakwimEditor } from './TakwimEditor';
+import FmtBar from './FmtBar';
+import TableEditor from './TableEditor';
 
 export const field = 'w-full rounded-md border border-border bg-surface px-3 py-2 text-sm';
 const iconBtn = 'rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-text disabled:opacity-30 disabled:hover:bg-transparent';
@@ -42,11 +44,17 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
 
   switch (block.type) {
     case 'heading':
-      return <input className={`${field} font-semibold`} value={block.text} onChange={(e) => onChange({ ...block, text: e.target.value })} aria-label="Teks tajuk" />;
+      return (
+        <div className="grid gap-1.5">
+          <FmtBar value={block} defaultAlign="left" noBold noIndent onChange={(patch) => onChange({ ...block, ...patch })} />
+          <input className={`${field} font-semibold`} value={block.text} onChange={(e) => onChange({ ...block, text: e.target.value })} aria-label="Teks tajuk" />
+        </div>
+      );
 
     case 'paragraph':
       return (
         <div className="grid gap-1.5">
+          <FmtBar value={block} defaultAlign="justify" onChange={(patch) => onChange({ ...block, ...patch })} />
           <textarea
             className={`${field} min-h-[96px] resize-y`}
             value={block.text}
@@ -55,11 +63,6 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
             aria-label="Teks perenggan"
           />
           <div className="flex flex-wrap items-center gap-1 text-[11px] text-muted">
-            <select className="mr-1 rounded-md border border-border bg-surface px-1.5 py-0.5 text-[11px]" value={block.align ?? 'justify'} onChange={(e) => onChange({ ...block, align: e.target.value === 'justify' ? undefined : (e.target.value as 'left' | 'center') })} aria-label="Penjajaran">
-              <option value="justify">Rata kiri-kanan</option>
-              <option value="left">Rata kiri</option>
-              <option value="center">Tengah</option>
-            </select>
             <span>Sisip automatik:</span>
             {tokenHelp.map((tk) => (
               <button
@@ -78,6 +81,7 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
     case 'list':
       return (
         <div className="grid gap-2">
+          <FmtBar value={block} defaultAlign="left" onChange={(patch) => onChange({ ...block, ...patch })} />
           <label className="flex items-center gap-2 text-xs text-muted">
             <input type="checkbox" checked={block.ordered} onChange={(e) => onChange({ ...block, ordered: e.target.checked })} />
             Senarai bernombor
@@ -110,84 +114,13 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
         </div>
       );
 
-    case 'table': {
-      const setCell = (r: number, c: number, v: string) =>
-        onChange({ ...block, rows: block.rows.map((row, ri) => (ri === r ? block.columns.map((_, ci) => (ci === c ? v : row[ci] ?? '')) : row)) });
-      return (
-        <div className="grid gap-2">
-          <label className="flex flex-wrap items-center gap-2 text-xs text-muted">
-            Gaya jadual
-            <select className="rounded-md border border-border bg-surface px-2 py-1 text-xs" value={block.style ?? 'navy'} onChange={(e) => onChange({ ...block, style: e.target.value as 'navy' | 'gold' })}>
-              <option value="navy">Biru gelap + lajur BIL emas</option>
-              <option value="gold">Kepala emas</option>
-            </select>
-            <label className="flex items-center gap-1">
-              <input type="checkbox" checked={block.numbered ?? block.style !== 'gold'} onChange={(e) => onChange({ ...block, numbered: e.target.checked })} /> Lajur BIL
-            </label>
-            <label className="flex items-center gap-1">
-              <input type="checkbox" checked={block.firstCol === 'gold'} onChange={(e) => onChange({ ...block, firstCol: e.target.checked ? 'gold' : undefined })} /> Lajur pertama emas
-            </label>
-            <span className="hidden sm:inline">· Guna **teks** untuk huruf tebal · Enter = baris baharu dalam sel</span>
-          </label>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr>
-                  {block.columns.map((col, ci) => (
-                    <th key={ci} className="border border-border bg-surface-2 p-1">
-                      <div className="flex items-center gap-1">
-                        <input
-                          className="w-full min-w-[90px] rounded bg-transparent px-1 py-1 font-semibold"
-                          value={col}
-                          onChange={(e) => onChange({ ...block, columns: block.columns.map((x, j) => (j === ci ? e.target.value : x)) })}
-                          aria-label={`Nama lajur ${ci + 1}`}
-                        />
-                        {block.columns.length > 1 && (
-                          <button
-                            className={iconBtn}
-                            onClick={() => onChange({ ...block, columns: block.columns.filter((_, j) => j !== ci), rows: block.rows.map((r) => r.filter((_, j) => j !== ci)) })}
-                            aria-label="Buang lajur"
-                          ><X size={13} /></button>
-                        )}
-                      </div>
-                    </th>
-                  ))}
-                  <th className="w-8" />
-                </tr>
-              </thead>
-              <tbody>
-                {block.rows.map((row, ri) => (
-                  <tr key={ri}>
-                    {block.columns.map((_, ci) => (
-                      <td key={ci} className="border border-border p-0">
-                        <textarea
-                          className="block w-full min-w-[90px] resize-none bg-transparent px-2 py-1.5"
-                          rows={Math.max(1, (row[ci] ?? '').split('\n').length)}
-                          value={row[ci] ?? ''}
-                          onChange={(e) => setCell(ri, ci, e.target.value)}
-                          aria-label={`Baris ${ri + 1} lajur ${ci + 1}`}
-                        />
-                      </td>
-                    ))}
-                    <td className="pl-1">
-                      <button className={iconBtn} onClick={() => onChange({ ...block, rows: block.rows.filter((_, j) => j !== ri) })} aria-label="Buang baris"><X size={14} /></button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="flex gap-2">
-            <button className={smallBtn} onClick={() => onChange({ ...block, rows: [...block.rows, block.columns.map(() => '')] })}><Plus size={13} /> Baris</button>
-            <button className={smallBtn} onClick={() => onChange({ ...block, columns: [...block.columns, `Lajur ${block.columns.length + 1}`], rows: block.rows.map((r) => [...r, '']) })}><Plus size={13} /> Lajur</button>
-          </div>
-        </div>
-      );
-    }
+    case 'table':
+      return <TableEditor block={block} onChange={onChange} />;
 
     case 'keyvalue':
       return (
         <div className="grid gap-2">
+          <FmtBar value={block} defaultAlign="left" onChange={(patch) => onChange({ ...block, ...patch })} />
           {block.pairs.map((pair, i) => (
             <div key={i} className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto] items-start gap-2">
               <input className={`${field} font-medium`} placeholder="Perkara" value={pair.key} onChange={(e) => onChange({ ...block, pairs: block.pairs.map((p, j) => (j === i ? { ...p, key: e.target.value } : p)) })} aria-label={`Perkara ${i + 1}`} />

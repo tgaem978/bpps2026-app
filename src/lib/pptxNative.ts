@@ -41,8 +41,8 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 }
 
 /** Rasterkan imej ke PNG/JPEG pada saiz kotak (dengan object-fit cover jika perlu). */
-async function raster(src: string, wPx: number, hPx: number, cover: boolean, jpeg: boolean): Promise<string> {
-  const key = `${src}|${Math.round(wPx)}|${Math.round(hPx)}|${cover}`;
+async function raster(src: string, wPx: number, hPx: number, cover: boolean, jpeg: boolean, circle = false, top = false): Promise<string> {
+  const key = `${src}|${Math.round(wPx)}|${Math.round(hPx)}|${cover}|${circle}|${top}`;
   let p = imgCache.get(key);
   if (!p) {
     p = (async () => {
@@ -54,13 +54,14 @@ async function raster(src: string, wPx: number, hPx: number, cover: boolean, jpe
       c.height = ch;
       const g = c.getContext('2d')!;
       if (jpeg) { g.fillStyle = '#fff'; g.fillRect(0, 0, cw, ch); }
+      if (circle) { g.beginPath(); g.arc(cw / 2, ch / 2, Math.min(cw, ch) / 2, 0, Math.PI * 2); g.clip(); }
       const iw = im.naturalWidth || cw;
       const ih = im.naturalHeight || ch;
       if (cover) {
         const s = Math.max(cw / iw, ch / ih);
         const sw = cw / s;
         const sh = ch / s;
-        g.drawImage(im, (iw - sw) / 2, (ih - sh) / 2, sw, sh, 0, 0, cw, ch);
+        g.drawImage(im, (iw - sw) / 2, top ? 0 : (ih - sh) / 2, sw, sh, 0, 0, cw, ch);
       } else g.drawImage(im, 0, 0, cw, ch);
       return jpeg ? c.toDataURL('image/jpeg', 0.9) : c.toDataURL('image/png');
     })();
@@ -143,6 +144,23 @@ class PageConverter {
     const slide = this.slide;
     const b = this.box(r);
     const name = el.className && typeof el.className === 'string' ? el.className.split(' ')[0] : el.tagName;
+    if (el.classList.contains('bp-oc-photo')) {
+      // Bingkai bulat berganda mengikut warna tema (emas + biru gelap) dan latar putih untuk gambar
+      const mm = (this.origin.right - this.origin.left) / 210;
+      const gold = hexVar(this.page, '--m-accent') ?? 'C99A2E';
+      const navy = hexVar(this.page, '--m-head-bg') ?? '1F3A5F';
+      const ringAt = (exp: number, wpt: number, col: string) => {
+        const e = exp * mm;
+        slide.addShape('ellipse', {
+          ...this.box(new DOMRect(r.left - e, r.top - e, r.width + 2 * e, r.height + 2 * e)),
+          objectName: 'Bingkai gambar', fill: { type: 'none' }, line: { color: col, width: wpt },
+        } as never);
+      };
+      ringAt(2.45, 1.6, navy);
+      ringAt(1.15, 2.3, gold);
+      slide.addShape('ellipse', { ...b, objectName: name, fill: { color: 'FFFFFF' }, line: { type: 'none' } } as never);
+      return;
+    }
     if (fill || uniform || ring) {
       const lw = uniform ? sides[0].w : 0;
       // garis PowerPoint dilukis di tengah sempadan: anjak setengah tebal ke dalam
@@ -229,6 +247,7 @@ class PageConverter {
       color: c?.hex ?? '000000',
       bold: parseInt(cs.fontWeight) >= 600,
       italic: cs.fontStyle === 'italic',
+      underline: /underline/.test(cs.textDecorationLine) ? { style: 'sng' } : undefined,
       align,
       lineSpacing: +this.pt(lh).toFixed(1),
       charSpacing: ls ? +this.pt(ls).toFixed(2) : undefined,
@@ -301,10 +320,12 @@ class PageConverter {
     const b = this.box(new DOMRect(L, T, R - L, B - T));
     const cover = cs.objectFit === 'cover';
     const scale = Math.min(4, 1800 / Math.max(r.width, 1));
-    const jpeg = /\.jpe?g($|\?)/i.test(el.currentSrc || el.src) || el.src.startsWith('data:image/jpeg');
+    const circle = /%$/.test(cs.borderTopLeftRadius) && parseFloat(cs.borderTopLeftRadius) >= 40;
+    const top = /\s0%$|top$/.test(cs.objectPosition.trim());
+    const jpeg = !circle && (/\.jpe?g($|\?)/i.test(el.currentSrc || el.src) || el.src.startsWith('data:image/jpeg'));
     this.ops.push(async () => {
       try {
-        let data = await raster(el.currentSrc || el.src, r.width * scale, r.height * scale, cover, jpeg);
+        let data = await raster(el.currentSrc || el.src, r.width * scale, r.height * scale, cover, jpeg, circle, top);
         if (clipped) data = await cropData(data, (L - r.left) / r.width, (T - r.top) / r.height, (R - L) / r.width, (B - T) / r.height, jpeg);
         this.slide.addImage({ data, ...b, objectName: el.alt || 'Gambar' } as never);
       } catch (e) { console.warn(e); }
