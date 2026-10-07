@@ -70,7 +70,7 @@ const contentBase: MasterProps = {
   // Jadual: kepala #004257 teks putih (Arial Narrow Bold 11pt), lajur BIL #CB8200, garisan #D9D9D9; gaya emas #FFBA4B
   tableHeadBg: '#004257', tableHeadColor: '#FFFFFF', tableAccent: '#FFBA4B', rowAlt: '#FFFFFF', tableSize: 11,
   numBg: '#CB8200', numColor: '#FFFFFF', tableBorder: '#D9D9D9', panelColor: '#FFBA4B',
-  footerText: 'BUKU PANDUAN PENGURUSAN SEKOLAH | {{nama_pendek}} | {{tahun}}', footerColor: '#0C2B5E', footerSize: 18, showPageNo: true,
+  footerText: 'BUKU PANDUAN PENGURUSAN SEKOLAH | {{nama_pendek}} | {{tahun}}', footerColor: '#0C2B5E', footerSize: 11, showPageNo: true,
   pageTitle: '', tocPartBg: '#004358', ruleColor: '#C9D4DC', ruleGap: 8,
   noteSize: 14, noteColor: '#22313B', schoolColor: '#004358', subtitleColor: '#004358', mottoColor: '#004358',
 };

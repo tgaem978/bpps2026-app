@@ -13,6 +13,9 @@ function widthAt100(text: string, font: string, weight = 700): number {
   return ctx2d.measureText(text).width;
 }
 
+/** Lebar relatif teks (pada 100px) - untuk membanding lebar baris. */
+export const widthOf = (text: string, font: string, weight = 900) => widthAt100(text, font, weight);
+
 /** Lebar teks dalam mm pada saiz pt tertentu. */
 const mmAt = (w100: number, pt: number) => (w100 / 100) * pt * 0.3528;
 

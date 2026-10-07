@@ -30,16 +30,17 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 .bp-header-img { position: absolute; left: 0; top: 0; width: 100%; height: calc(var(--mm) * 18.5); }
 .bp-title-box {
   /* Tajuk berpusat dalam kanvas putih kiri (15.5-106mm), berpusat menegak dalam jalur putih (2.9-14.6mm) */
-  position: absolute; left: calc(var(--mm) * 15.5); top: calc(var(--mm) * 2.9); width: calc(var(--mm) * 90.5); height: calc(var(--mm) * 11.7);
-  display: flex; align-items: center; justify-content: center;
+  position: absolute; left: calc(var(--mm) * 4); top: calc(var(--mm) * 2.9); width: calc(var(--mm) * 102); height: calc(var(--mm) * 11.7);
+  display: flex; align-items: center; justify-content: flex-start;
 }
 .bp-title {
   /* Montserrat Black, biru gelap #0C2B5E, lejang putih rata + bayang jatuh lembut (kesan timbul) */
-  margin: 0; font-family: var(--m-title-font); font-weight: 900; font-size: var(--m-title-size); line-height: 1.02; letter-spacing: -.03em; text-align: center; text-wrap: balance;
+  margin: 0; font-family: var(--m-title-font); font-weight: 900; font-size: var(--m-title-size); line-height: 1.02; letter-spacing: -.03em; text-align: left; margin-left: -.05em;
   text-transform: var(--m-title-case); color: var(--m-title-color);
   text-shadow: calc(var(--mm) * 0.260) calc(var(--mm) * 0.000) 0 #fff, calc(var(--mm) * 0.240) calc(var(--mm) * 0.099) 0 #fff, calc(var(--mm) * 0.184) calc(var(--mm) * 0.184) 0 #fff, calc(var(--mm) * 0.099) calc(var(--mm) * 0.240) 0 #fff, calc(var(--mm) * 0.000) calc(var(--mm) * 0.260) 0 #fff, calc(var(--mm) * -0.099) calc(var(--mm) * 0.240) 0 #fff, calc(var(--mm) * -0.184) calc(var(--mm) * 0.184) 0 #fff, calc(var(--mm) * -0.240) calc(var(--mm) * 0.099) 0 #fff, calc(var(--mm) * -0.260) calc(var(--mm) * 0.000) 0 #fff, calc(var(--mm) * -0.240) calc(var(--mm) * -0.099) 0 #fff, calc(var(--mm) * -0.184) calc(var(--mm) * -0.184) 0 #fff, calc(var(--mm) * -0.099) calc(var(--mm) * -0.240) 0 #fff, calc(var(--mm) * -0.000) calc(var(--mm) * -0.260) 0 #fff, calc(var(--mm) * 0.099) calc(var(--mm) * -0.240) 0 #fff, calc(var(--mm) * 0.184) calc(var(--mm) * -0.184) 0 #fff, calc(var(--mm) * 0.240) calc(var(--mm) * -0.099) 0 #fff;
   filter: drop-shadow(calc(var(--mm) * .3) calc(var(--mm) * .5) calc(var(--mm) * .35) rgba(0, 0, 0, .42));
 }
+.bp-title-line { display: block; white-space: nowrap; }
 .bp-badge-txt {
   /* Teks lencana: putih, Montserrat Bold, tepat di tengah poligon biru pada imej header (122.5-177mm x 7.4-12.9mm) */
   position: absolute; left: calc(var(--mm) * 122.5); top: calc(var(--mm) * 7.4); width: calc(var(--mm) * 54.5); height: calc(var(--mm) * 5.5);
@@ -49,7 +50,7 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
   filter: drop-shadow(0 calc(var(--mm) * .3) calc(var(--mm) * .4) rgba(0, 20, 60, .7));
 }
 .bp-frame {
-  position: absolute; left: calc(var(--mm) * 7); top: calc(var(--mm) * 38); right: calc(var(--mm) * 4); bottom: calc(var(--mm) * 20);
+  position: absolute; left: calc(var(--mm) * 4); top: calc(var(--mm) * 22.5); right: calc(var(--mm) * 4); bottom: calc(var(--mm) * 15.33);
   border: var(--m-frame-width) solid var(--m-frame-color); background: var(--m-frame-bg); overflow: hidden;
 }
 .bp-frame > .bp-content { padding: calc(var(--mm) * 3.5); height: 100%; box-sizing: border-box; display: flex; flex-direction: column; }
@@ -57,9 +58,9 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 .bp-footer-text { position: absolute; inset: 0; pointer-events: none; }
 .bp-foot-title {
   /* Teks kaki: kental & rapat, biru gelap, lejang putih rata + bayang jatuh, berpusat dalam ruang putih (40.7-188.7mm) */
-  position: absolute; left: calc(var(--mm) * 40.7); width: calc(var(--mm) * 148); top: calc(var(--mm) * 289.77); height: calc(var(--mm) * 6.4);
+  position: absolute; left: calc(var(--mm) * 40.7); width: calc(var(--mm) * 148); top: calc(var(--mm) * 289); height: calc(var(--mm) * 6.2);
   display: flex; align-items: center; justify-content: center; white-space: nowrap;
-  color: var(--m-foot-color); font-family: "Roboto Condensed", "Arial Narrow", Arial, sans-serif; font-weight: 700; font-size: var(--m-foot-size);
+  color: var(--m-foot-color); font-family: "Arial Narrow", "Liberation Sans Narrow", "Roboto Condensed", Arial, sans-serif; font-weight: 700; font-size: var(--m-foot-size);
   letter-spacing: 0; text-transform: uppercase; line-height: 1;
   text-shadow: calc(var(--mm) * 0.200) calc(var(--mm) * 0.000) 0 #fff, calc(var(--mm) * 0.185) calc(var(--mm) * 0.077) 0 #fff, calc(var(--mm) * 0.141) calc(var(--mm) * 0.141) 0 #fff, calc(var(--mm) * 0.077) calc(var(--mm) * 0.185) 0 #fff, calc(var(--mm) * 0.000) calc(var(--mm) * 0.200) 0 #fff, calc(var(--mm) * -0.077) calc(var(--mm) * 0.185) 0 #fff, calc(var(--mm) * -0.141) calc(var(--mm) * 0.141) 0 #fff, calc(var(--mm) * -0.185) calc(var(--mm) * 0.077) 0 #fff, calc(var(--mm) * -0.200) calc(var(--mm) * 0.000) 0 #fff, calc(var(--mm) * -0.185) calc(var(--mm) * -0.077) 0 #fff, calc(var(--mm) * -0.141) calc(var(--mm) * -0.141) 0 #fff, calc(var(--mm) * -0.077) calc(var(--mm) * -0.185) 0 #fff, calc(var(--mm) * -0.000) calc(var(--mm) * -0.200) 0 #fff, calc(var(--mm) * 0.077) calc(var(--mm) * -0.185) 0 #fff, calc(var(--mm) * 0.141) calc(var(--mm) * -0.141) 0 #fff, calc(var(--mm) * 0.185) calc(var(--mm) * -0.077) 0 #fff;
   filter: drop-shadow(calc(var(--mm) * .25) calc(var(--mm) * .4) calc(var(--mm) * .3) rgba(0, 0, 0, .4));

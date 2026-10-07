@@ -18,3 +18,8 @@ Halaman tanpa header/footer (kulit, partition) tidak berubah. Nilai master yang 
 
 ## Semakan 3
 - Header dikurangkan 50% (37mm → 18.5mm); footer dikurangkan 1/3 (17mm → 11.33mm, mulai 285.67mm). Imej dipadankan semula pada nisbah baharu; kedudukan teks dikira semula. Bingkai kandungan TIDAK diubah (kekal 38mm atas / 20mm bawah).
+
+## Semakan 4
+- Tajuk header: rata kiri, hujung huruf pertama selari dengan garis bingkai (4mm). 1–2 patah perkataan = satu baris (tengah menegak); 3+ = dua baris seimbang (`splitTitle` dalam BookPages.tsx; tidak berakhir pada kata sambung seperti DAN/DI/KE).
+- Bingkai kandungan dibesarkan: kiri/kanan 4mm, atas 22.5mm (4mm di bawah header), bawah 15.33mm (4mm di atas footer). `pageGeometry.frame` + `.bp-frame`. Penomboran dikira semula secara automatik.
+- Footer: Arial Narrow Bold (sandar Liberation Sans Narrow/Roboto Condensed), saiz lalai 11pt, kesan teks sama seperti tajuk header, berpusat menegak dalam ruang putih.

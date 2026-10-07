@@ -8,7 +8,7 @@ import { resolveTokens, type BookCtx } from '@/lib/resolve';
 import { locate } from '@/lib/outline';
 import type { Block } from '@/types/book';
 import BlockView from './BlockView';
-import { fitPt } from '@/lib/fit';
+import { fitPt, widthOf } from '@/lib/fit';
 
 /** Gaya master semua jenis halaman sebagai CSS variables dalam <head>. */
 export function MasterStyles() {
@@ -31,6 +31,24 @@ function useFooterText(template: string, ctx: BookCtx) {
   return resolveTokens(template.replace(/\{\{\s*motto\s*\}\}/g, motto), ctx);
 }
 
+const FOOT_FONT = '"Arial Narrow", "Liberation Sans Narrow", "Roboto Condensed", Arial, sans-serif';
+const CONNECTORS = new Set(['DAN', 'DI', 'KE', 'DARI', 'YANG', 'UNTUK', 'DENGAN', 'ATAU', '&', 'SERTA', 'BAGI', 'PADA', 'DALAM']);
+
+/** Pecah tajuk halaman: 1-2 patah perkataan = satu baris; 3 atau lebih = dua baris seimbang (tidak berakhir pada kata sambung). */
+export function splitTitle(title: string, font: string): string[] {
+  const words = title.trim().split(/\s+/).filter(Boolean);
+  if (words.length <= 2) return [words.join(' ')];
+  const w = (t: string) => widthOf(t, font);
+  let best = 1, bestScore = Infinity;
+  for (let k = 1; k < words.length; k++) {
+    const a = words.slice(0, k).join(' '), b = words.slice(k).join(' ');
+    let score = Math.max(w(a), w(b));
+    if (CONNECTORS.has(words[k - 1].toUpperCase())) score += 1000;
+    if (score < bestScore) { bestScore = score; best = k; }
+  }
+  return [words.slice(0, best).join(' '), words.slice(best).join(' ')];
+}
+
 /** Templat halaman isi (BPPS 05 dan variasinya): jalur tajuk, bingkai, jalur kaki. */
 export function ContentFrame({ pt, title, badge, number, children }: { pt: PageType; title: string; badge?: string; number?: number; children: ReactNode }) {
   const m = useMaster(pt);
@@ -38,17 +56,20 @@ export function ContentFrame({ pt, title, badge, number, children }: { pt: PageT
   const footer = useFooterText(m.footerText, ctx);
   // Tajuk berpusat dalam kanvas putih kiri (90mm x 11.7mm); lencana sentiasa ada pada imej header (teks lalai "BPPS <tahun>").
   const badgeText = badge || resolveTokens('BPPS {{tahun}}', ctx);
-  const titlePt = fitPt(m.titleUpper ? title.toUpperCase() : title, fonts[m.titleFont], 90, 11, m.titleSize, 1.02, 9, 2, 900);
+  const titleLines = splitTitle(m.titleUpper ? title.toUpperCase() : title, fonts[m.titleFont]);
+  const titlePt = Math.min(...titleLines.map((ln) => fitPt(ln, fonts[m.titleFont], 99, 11 / titleLines.length, m.titleSize, 1.02, 8, 1, 900)));
   const badgePt = fitPt(badgeText.toUpperCase(), fonts[m.titleFont], 54, 5.5, m.badgeSize, 1, 7, 1, 800);
   const footText = footer.trim();
   const numPt = number !== undefined ? fitPt(String(number), fonts['Montserrat'], 9.5, 6.5, 21, 1, 9, 1, 800) : 21;
-  const footPt = fitPt(footText.toUpperCase(), fonts['Roboto Condensed'], 145, 6.2, m.footerSize, 1, 7, 1, 700);
+  const footPt = fitPt(footText.toUpperCase(), FOOT_FONT, 145, 6.2, m.footerSize, 1, 7, 1, 700);
   return (
     <Sheet pt={pt} className={`bp-content-page bp-pt-${pt}`}>
       {m.showBg && m.bgImage && <img className="bp-bg-img" src={m.bgImage} alt="" />}
       {m.headerImage && <img className="bp-header-img" src={m.headerImage} alt="" />}
       <div className="bp-title-box">
-        <h2 className="bp-title" style={{ fontSize: `calc(var(--pt) * ${titlePt})` }}>{title}</h2>
+        <h2 className="bp-title" style={{ fontSize: `calc(var(--pt) * ${titlePt})` }}>
+          {titleLines.map((ln, i) => <span key={i} className="bp-title-line">{ln}</span>)}
+        </h2>
       </div>
       <div className="bp-badge-txt" style={{ fontSize: `calc(var(--pt) * ${badgePt})` }}>{badgeText}</div>
       <div className="bp-frame">
