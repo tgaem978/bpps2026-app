@@ -23,3 +23,8 @@ Halaman tanpa header/footer (kulit, partition) tidak berubah. Nilai master yang 
 - Tajuk header: rata kiri, hujung huruf pertama selari dengan garis bingkai (4mm). 1–2 patah perkataan = satu baris (tengah menegak); 3+ = dua baris seimbang (`splitTitle` dalam BookPages.tsx; tidak berakhir pada kata sambung seperti DAN/DI/KE).
 - Bingkai kandungan dibesarkan: kiri/kanan 4mm, atas 22.5mm (4mm di bawah header), bawah 15.33mm (4mm di atas footer). `pageGeometry.frame` + `.bp-frame`. Penomboran dikira semula secara automatik.
 - Footer: Arial Narrow Bold (sandar Liberation Sans Narrow/Roboto Condensed), saiz lalai 11pt, kesan teks sama seperti tajuk header, berpusat menegak dalam ruang putih.
+- Footer: lencana nombor kini segi empat selari condong (tepi kanan selari tepi kiri), bucu atas kanan selari garis bingkai kanan (206mm); lencana kedua sama bentuk ditambah dengan sela 2mm dan hujung kanan sampai tepi muka surat. Kotak nombor berpusat pada lencana pertama (left 189.45mm).
+- Footer: lencana nombor ditukar kepada imej lencana baharu daripada pengguna (biru + emas, 45°); biru dimampatkan ke lebar ~17mm, bucu atas kanan di 206mm (garis bingkai), emas sampai tepi muka surat. Nombor berpusat (left 186.3mm).
+- Footer: dua garisan kuning melintang dalam lencana biru dipadam.
+- Footer (semakan akhir lencana): titik cahaya biru dipadam; sela biru-emas ~2mm; lebar kotak biru 20mm (muat 3 digit, nombor berpusat left 184.8mm, maks 15pt); warna emas lencana dipadankan dengan emas header/footer (#F4B41A–#FFD700).
+- Nombor halaman: font, warna (putih), kesan bayang dan saiz sama seperti teks lencana biru header (`--m-title-font`, `--m-badge-color`, saiz = badgePt, dihadkan supaya 3 digit muat).

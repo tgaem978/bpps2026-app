@@ -60,7 +60,7 @@ export function ContentFrame({ pt, title, badge, number, children }: { pt: PageT
   const titlePt = Math.min(...titleLines.map((ln) => fitPt(ln, fonts[m.titleFont], 99, 11 / titleLines.length, m.titleSize, 1.02, 8, 1, 900)));
   const badgePt = fitPt(badgeText.toUpperCase(), fonts[m.titleFont], 54, 5.5, m.badgeSize, 1, 7, 1, 800);
   const footText = footer.trim();
-  const numPt = number !== undefined ? fitPt(String(number), fonts['Montserrat'], 9.5, 6.5, 21, 1, 9, 1, 800) : 21;
+  const numPt = number !== undefined ? Math.min(badgePt, fitPt(String(number), fonts[m.titleFont], 12, 5.5, m.badgeSize, 1, 8, 1, 800)) : 21;
   const footPt = fitPt(footText.toUpperCase(), FOOT_FONT, 145, 6.2, m.footerSize, 1, 7, 1, 700);
   return (
     <Sheet pt={pt} className={`bp-content-page bp-pt-${pt}`}>

@@ -66,11 +66,11 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
   filter: drop-shadow(calc(var(--mm) * .25) calc(var(--mm) * .4) calc(var(--mm) * .3) rgba(0, 0, 0, .4));
 }
 .bp-page-no {
-  /* Nombor halaman: emas #F4B41A dalam lencana trapezoid hujung kanan footer */
-  position: absolute; left: calc(var(--mm) * 197.2); width: calc(var(--mm) * 14); top: calc(var(--mm) * 288); height: calc(var(--mm) * 9);
+  /* Nombor halaman: gaya sama seperti teks lencana header (putih, fon tajuk Montserrat 800, bayang jatuh) */
+  position: absolute; left: calc(var(--mm) * 184.8); width: calc(var(--mm) * 14); top: calc(var(--mm) * 287.65); height: calc(var(--mm) * 9);
   display: flex; align-items: center; justify-content: center;
-  color: #F4B41A; font-family: Montserrat, "Segoe UI", Arial, sans-serif; font-weight: 800; font-size: calc(var(--pt) * 21); line-height: 1;
-  font-variant-numeric: tabular-nums; filter: drop-shadow(0 calc(var(--mm) * .25) calc(var(--mm) * .3) rgba(0, 20, 60, .6));
+  color: var(--m-badge-color); font-family: var(--m-title-font); font-weight: 800; font-size: var(--m-badge-size); line-height: 1; letter-spacing: -.01em;
+  font-variant-numeric: tabular-nums; filter: drop-shadow(0 calc(var(--mm) * .3) calc(var(--mm) * .4) rgba(0, 20, 60, .7));
 }
 
 /* Blok kandungan - jarak guna padding (bukan margin) supaya pengukur penomboran tepat */
