@@ -36,13 +36,13 @@ export function ContentFrame({ pt, title, badge, number, children }: { pt: PageT
   const m = useMaster(pt);
   const ctx = useBookCtx();
   const footer = useFooterText(m.footerText, ctx);
-  // Tajuk berpusat dalam kanvas putih kiri (88mm x 24mm); lencana sentiasa ada pada imej header (teks lalai "BPPS <tahun>").
+  // Tajuk berpusat dalam kanvas putih kiri (90mm x 11.7mm); lencana sentiasa ada pada imej header (teks lalai "BPPS <tahun>").
   const badgeText = badge || resolveTokens('BPPS {{tahun}}', ctx);
-  const titlePt = fitPt(m.titleUpper ? title.toUpperCase() : title, fonts[m.titleFont], 90, 22, m.titleSize, 1.02, 9, 2, 900);
-  const badgePt = fitPt(badgeText.toUpperCase(), fonts[m.titleFont], 54, 9, m.badgeSize, 1, 7, 1, 800);
+  const titlePt = fitPt(m.titleUpper ? title.toUpperCase() : title, fonts[m.titleFont], 90, 11, m.titleSize, 1.02, 9, 2, 900);
+  const badgePt = fitPt(badgeText.toUpperCase(), fonts[m.titleFont], 54, 5.5, m.badgeSize, 1, 7, 1, 800);
   const footText = footer.trim();
-  const numPt = number !== undefined ? fitPt(String(number), fonts['Montserrat'], 9.5, 9, 21, 1, 9, 1, 800) : 21;
-  const footPt = fitPt(footText.toUpperCase(), fonts['Roboto Condensed'], 145, 8.5, m.footerSize, 1, 7, 1, 700);
+  const numPt = number !== undefined ? fitPt(String(number), fonts['Montserrat'], 9.5, 6.5, 21, 1, 9, 1, 800) : 21;
+  const footPt = fitPt(footText.toUpperCase(), fonts['Roboto Condensed'], 145, 6.2, m.footerSize, 1, 7, 1, 700);
   return (
     <Sheet pt={pt} className={`bp-content-page bp-pt-${pt}`}>
       {m.showBg && m.bgImage && <img className="bp-bg-img" src={m.bgImage} alt="" />}
