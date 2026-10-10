@@ -493,7 +493,7 @@ async function ensureMaster(pptx: Pptx, page: HTMLElement, made: Map<string, str
     objects.push({ placeholder: {
       options: {
         name: 'title', type: 'title', x: (r.left - o.left) * k, y: (r.top - o.top) * k, w: (r.width + 4) * k, h: r.height * k,
-        fontFace: firstFont(cs.fontFamily), fontSize: 24, bold: true, color: c?.hex ?? '000000', align: mirror ? 'right' : 'left', valign: 'middle', margin: 0,
+        fontFace: firstFont(cs.fontFamily), fontSize: 24, bold: true, color: c?.hex ?? '000000', align: 'center', valign: 'middle', margin: 0,
       },
       text: '',
     } });

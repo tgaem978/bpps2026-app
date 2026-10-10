@@ -31,16 +31,16 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 .bp-title-box {
   /* Tajuk berpusat dalam kanvas putih kiri (15.5-106mm), berpusat menegak dalam jalur putih (2.9-14.6mm) */
   position: absolute; left: calc(var(--mm) * 4); top: calc(var(--mm) * 2.9); width: calc(var(--mm) * 102); height: calc(var(--mm) * 11.7);
-  display: flex; align-items: center; justify-content: flex-start;
+  display: flex; align-items: center; justify-content: center;
 }
 .bp-title {
   /* Montserrat Black, biru gelap #0C2B5E, lejang putih rata + bayang jatuh lembut (kesan timbul) */
-  margin: 0; font-family: var(--m-title-font); font-weight: 900; font-size: var(--m-title-size); line-height: 1.02; letter-spacing: -.03em; text-align: left; margin-left: -.05em;
+  margin: 0; font-family: var(--m-title-font); font-weight: 900; font-size: var(--m-title-size); line-height: 1.02; letter-spacing: -.03em; text-align: center; margin-left: 0;
   text-transform: var(--m-title-case); color: var(--m-title-color);
   text-shadow: calc(var(--mm) * 0.260) calc(var(--mm) * 0.000) 0 #fff, calc(var(--mm) * 0.240) calc(var(--mm) * 0.099) 0 #fff, calc(var(--mm) * 0.184) calc(var(--mm) * 0.184) 0 #fff, calc(var(--mm) * 0.099) calc(var(--mm) * 0.240) 0 #fff, calc(var(--mm) * 0.000) calc(var(--mm) * 0.260) 0 #fff, calc(var(--mm) * -0.099) calc(var(--mm) * 0.240) 0 #fff, calc(var(--mm) * -0.184) calc(var(--mm) * 0.184) 0 #fff, calc(var(--mm) * -0.240) calc(var(--mm) * 0.099) 0 #fff, calc(var(--mm) * -0.260) calc(var(--mm) * 0.000) 0 #fff, calc(var(--mm) * -0.240) calc(var(--mm) * -0.099) 0 #fff, calc(var(--mm) * -0.184) calc(var(--mm) * -0.184) 0 #fff, calc(var(--mm) * -0.099) calc(var(--mm) * -0.240) 0 #fff, calc(var(--mm) * -0.000) calc(var(--mm) * -0.260) 0 #fff, calc(var(--mm) * 0.099) calc(var(--mm) * -0.240) 0 #fff, calc(var(--mm) * 0.184) calc(var(--mm) * -0.184) 0 #fff, calc(var(--mm) * 0.240) calc(var(--mm) * -0.099) 0 #fff;
   filter: drop-shadow(calc(var(--mm) * .3) calc(var(--mm) * .5) calc(var(--mm) * .35) rgba(0, 0, 0, .42));
 }
-.bp-title-line { display: block; white-space: nowrap; }
+.bp-title-line { display: block; white-space: nowrap; text-align: center; }
 .bp-badge-txt {
   /* Teks lencana: putih, Montserrat Bold, tepat di tengah poligon biru pada imej header (122.5-177mm x 7.4-12.9mm) */
   position: absolute; left: calc(var(--mm) * 122.5); top: calc(var(--mm) * 7.4); width: calc(var(--mm) * 54.5); height: calc(var(--mm) * 5.5);
@@ -66,19 +66,17 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
   filter: drop-shadow(calc(var(--mm) * .25) calc(var(--mm) * .4) calc(var(--mm) * .3) rgba(0, 0, 0, .4));
 }
 .bp-page-no {
-  /* Nombor halaman: emas #F4B41A dalam lencana trapezoid hujung kanan footer */
+  /* Nombor halaman: warna, fon, berat & kesan sama seperti teks lencana tajuk di header (putih, Montserrat 800, bayang biru gelap) */
   position: absolute; left: calc(var(--mm) * 184.8); width: calc(var(--mm) * 14); top: calc(var(--mm) * 287.65); height: calc(var(--mm) * 9);
   display: flex; align-items: center; justify-content: center;
-  color: #F4B41A; font-family: Montserrat, "Segoe UI", Arial, sans-serif; font-weight: 800; font-size: calc(var(--pt) * 21); line-height: 1;
-  font-variant-numeric: tabular-nums; filter: drop-shadow(0 calc(var(--mm) * .25) calc(var(--mm) * .3) rgba(0, 20, 60, .6));
+  color: var(--m-badge-color); font-family: var(--m-title-font); font-weight: 800; font-size: calc(var(--pt) * 21); line-height: 1; letter-spacing: -.01em;
+  font-variant-numeric: tabular-nums; filter: drop-shadow(0 calc(var(--mm) * .3) calc(var(--mm) * .4) rgba(0, 20, 60, .7));
 }
 
 /* Susun atur cermin (halaman genap): header, footer, tajuk, lencana, tajuk kaki dan nombor dipantulkan kiri-kanan.
    Lebar halaman 210mm: kiri baharu = 210 - kiri asal - lebar. */
 .bp-mirror .bp-header-img, .bp-mirror .bp-footer-img { transform: scaleX(-1); }
-.bp-mirror .bp-title-box { left: calc(var(--mm) * 104); justify-content: flex-end; }
-.bp-mirror .bp-title { text-align: right; margin-left: 0; margin-right: -.05em; }
-.bp-mirror .bp-title-line { text-align: right; }
+.bp-mirror .bp-title-box { left: calc(var(--mm) * 104); }
 .bp-mirror .bp-badge-txt { left: calc(var(--mm) * 33); }
 .bp-mirror .bp-foot-title { left: calc(var(--mm) * 21.3); }
 .bp-mirror .bp-page-no { left: calc(var(--mm) * 11.2); }
