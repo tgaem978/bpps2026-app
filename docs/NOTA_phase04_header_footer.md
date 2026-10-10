@@ -27,4 +27,17 @@ Halaman tanpa header/footer (kulit, partition) tidak berubah. Nilai master yang 
 - Footer: lencana nombor ditukar kepada imej lencana baharu daripada pengguna (biru + emas, 45°); biru dimampatkan ke lebar ~17mm, bucu atas kanan di 206mm (garis bingkai), emas sampai tepi muka surat. Nombor berpusat (left 186.3mm).
 - Footer: dua garisan kuning melintang dalam lencana biru dipadam.
 - Footer (semakan akhir lencana): titik cahaya biru dipadam; sela biru-emas ~2mm; lebar kotak biru 20mm (muat 3 digit, nombor berpusat left 184.8mm, maks 15pt); warna emas lencana dipadankan dengan emas header/footer (#F4B41A–#FFD700).
-- Nombor halaman: font, warna (putih), kesan bayang dan saiz sama seperti teks lencana biru header (`--m-title-font`, `--m-badge-color`, saiz = badgePt, dihadkan supaya 3 digit muat).
+- Footer direka semula (SVG→PNG 2576x139): jalur navy-cyan-emas atas, hiasan kiri tiga jalur condong 45° + halftone, ruang teks bersih, lencana nombor biru berbingkai emas + jalur emas ke tepi. Struktur/posisi teks sama seperti sebelumnya.
+
+## Semakan 5 — Muka hadapan muktamad (phase04m)
+- `public/template/cover-default.jpg` diganti dengan reka bentuk muka hadapan muktamad (1821×2576 px, A4).
+- Hanya imej muka hadapan berubah; header/footer halaman isi kekal seperti phase04i.
+- Untuk menggunakan imej lain, muat naik pada tetapan muka hadapan (`cover.image`) tanpa menukar fail ini.
+
+## Semakan 6 — Susun atur cermin automatik (phase05)
+- Halaman bernombor genap (2, 4, 6…): dipantulkan kiri-kanan — header/footer dibalikkan, tajuk rata kanan, lencana & teks kaki dialih, nombor di kiri bawah.
+- Halaman bernombor ganjil (1, 3, 5…): susun atur asal — tajuk kiri atas, nombor kanan bawah.
+- Penentuan automatik: `isMirrored(number)` dalam `src/config/layout.ts` (pemalar `MIRROR_PAGES = 'even' | 'odd'` — tukar satu perkataan untuk menyongsangkan seluruh buku). Kelas `bp-mirror` di `ContentFrame`; CSS di `src/index.css`.
+- Tambah/buang/susun semula halaman → nombor dikira semula, jadi dikemas kini sendiri.
+- Eksport PPTX (`src/lib/pptxNative.ts`): header/footer halaman dipantulkan dibalikkan, tajuk placeholder rata kanan, master berasingan.
+- Hanya halaman isi (ContentFrame); kulit & partition tidak terlibat.

@@ -41,8 +41,8 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 }
 
 /** Rasterkan imej ke PNG/JPEG pada saiz kotak (dengan object-fit cover jika perlu). */
-async function raster(src: string, wPx: number, hPx: number, cover: boolean, jpeg: boolean, circle = false, top = false): Promise<string> {
-  const key = `${src}|${Math.round(wPx)}|${Math.round(hPx)}|${cover}|${circle}|${top}`;
+async function raster(src: string, wPx: number, hPx: number, cover: boolean, jpeg: boolean, circle = false, top = false, flip = false): Promise<string> {
+  const key = `${src}|${Math.round(wPx)}|${Math.round(hPx)}|${cover}|${circle}|${top}|${flip}`;
   let p = imgCache.get(key);
   if (!p) {
     p = (async () => {
@@ -54,6 +54,7 @@ async function raster(src: string, wPx: number, hPx: number, cover: boolean, jpe
       c.height = ch;
       const g = c.getContext('2d')!;
       if (jpeg) { g.fillStyle = '#fff'; g.fillRect(0, 0, cw, ch); }
+      if (flip) { g.translate(cw, 0); g.scale(-1, 1); }
       if (circle) { g.beginPath(); g.arc(cw / 2, ch / 2, Math.min(cw, ch) / 2, 0, Math.PI * 2); g.clip(); }
       const iw = im.naturalWidth || cw;
       const ih = im.naturalHeight || ch;
@@ -446,7 +447,7 @@ async function ensureMaster(pptx: Pptx, page: HTMLElement, made: Map<string, str
   const frame = page.querySelector<HTMLElement>(':scope > .bp-frame');
   const title = page.querySelector<HTMLElement>('.bp-title');
   const skip: Element[] = [header, footer, bg, full, title].filter((x): x is HTMLImageElement | HTMLElement => !!x);
-  const sig = [pt, header?.src, footer?.src, bg?.src, full?.src, frame ? getComputedStyle(frame).borderTopColor + getComputedStyle(frame).borderTopWidth : ''].join('|');
+  const sig = [pt, page.classList.contains('bp-mirror') ? 'mirror' : 'normal', header?.src, footer?.src, bg?.src, full?.src, frame ? getComputedStyle(frame).borderTopColor + getComputedStyle(frame).borderTopWidth : ''].join('|');
   const existing = made.get(sig);
   const noDecor: Element[] = frame ? [frame] : [];
   if (existing) return { name: existing, skip, noDecor };
@@ -457,19 +458,20 @@ async function ensureMaster(pptx: Pptx, page: HTMLElement, made: Map<string, str
   const o = innerRect(page);
   const k = SLIDE_W / o.width;
   const objects: unknown[] = [];
-  const imgObj = async (im: HTMLImageElement, jpeg: boolean) => {
+  const mirror = page.classList.contains('bp-mirror');
+  const imgObj = async (im: HTMLImageElement, jpeg: boolean, flip = false) => {
     const r = im.getBoundingClientRect();
     const L = Math.max(r.left, o.left); const T = Math.max(r.top, o.top);
     const R = Math.min(r.right, o.right); const B = Math.min(r.bottom, o.bottom);
     const scale = Math.min(3, 2000 / r.width);
-    let data = await raster(im.currentSrc || im.src, r.width * scale, r.height * scale, getComputedStyle(im).objectFit === 'cover', jpeg);
+    let data = await raster(im.currentSrc || im.src, r.width * scale, r.height * scale, getComputedStyle(im).objectFit === 'cover', jpeg, false, false, flip);
     if (R - L < r.width - 1 || B - T < r.height - 1) data = await cropData(data, (L - r.left) / r.width, (T - r.top) / r.height, (R - L) / r.width, (B - T) / r.height, jpeg);
     objects.push({ image: { data, x: (L - o.left) * k, y: (T - o.top) * k, w: (R - L) * k, h: (B - T) * k } });
   };
   if (full) await imgObj(full, true);
   if (bg) await imgObj(bg, false);
-  if (header) await imgObj(header, false);
-  if (footer) await imgObj(footer, false);
+  if (header) await imgObj(header, false, mirror);
+  if (footer) await imgObj(footer, false, mirror);
   if (frame) {
     const cs = getComputedStyle(frame);
     const r = frame.getBoundingClientRect();
@@ -491,7 +493,7 @@ async function ensureMaster(pptx: Pptx, page: HTMLElement, made: Map<string, str
     objects.push({ placeholder: {
       options: {
         name: 'title', type: 'title', x: (r.left - o.left) * k, y: (r.top - o.top) * k, w: (r.width + 4) * k, h: r.height * k,
-        fontFace: firstFont(cs.fontFamily), fontSize: 24, bold: true, color: c?.hex ?? '000000', align: 'center', valign: 'middle', margin: 0,
+        fontFace: firstFont(cs.fontFamily), fontSize: 24, bold: true, color: c?.hex ?? '000000', align: mirror ? 'right' : 'left', valign: 'middle', margin: 0,
       },
       text: '',
     } });

@@ -66,12 +66,22 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
   filter: drop-shadow(calc(var(--mm) * .25) calc(var(--mm) * .4) calc(var(--mm) * .3) rgba(0, 0, 0, .4));
 }
 .bp-page-no {
-  /* Nombor halaman: gaya sama seperti teks lencana header (putih, fon tajuk Montserrat 800, bayang jatuh) */
+  /* Nombor halaman: emas #F4B41A dalam lencana trapezoid hujung kanan footer */
   position: absolute; left: calc(var(--mm) * 184.8); width: calc(var(--mm) * 14); top: calc(var(--mm) * 287.65); height: calc(var(--mm) * 9);
   display: flex; align-items: center; justify-content: center;
-  color: var(--m-badge-color); font-family: var(--m-title-font); font-weight: 800; font-size: var(--m-badge-size); line-height: 1; letter-spacing: -.01em;
-  font-variant-numeric: tabular-nums; filter: drop-shadow(0 calc(var(--mm) * .3) calc(var(--mm) * .4) rgba(0, 20, 60, .7));
+  color: #F4B41A; font-family: Montserrat, "Segoe UI", Arial, sans-serif; font-weight: 800; font-size: calc(var(--pt) * 21); line-height: 1;
+  font-variant-numeric: tabular-nums; filter: drop-shadow(0 calc(var(--mm) * .25) calc(var(--mm) * .3) rgba(0, 20, 60, .6));
 }
+
+/* Susun atur cermin (halaman genap): header, footer, tajuk, lencana, tajuk kaki dan nombor dipantulkan kiri-kanan.
+   Lebar halaman 210mm: kiri baharu = 210 - kiri asal - lebar. */
+.bp-mirror .bp-header-img, .bp-mirror .bp-footer-img { transform: scaleX(-1); }
+.bp-mirror .bp-title-box { left: calc(var(--mm) * 104); justify-content: flex-end; }
+.bp-mirror .bp-title { text-align: right; margin-left: 0; margin-right: -.05em; }
+.bp-mirror .bp-title-line { text-align: right; }
+.bp-mirror .bp-badge-txt { left: calc(var(--mm) * 33); }
+.bp-mirror .bp-foot-title { left: calc(var(--mm) * 21.3); }
+.bp-mirror .bp-page-no { left: calc(var(--mm) * 11.2); }
 
 /* Blok kandungan - jarak guna padding (bukan margin) supaya pengukur penomboran tepat */
 .bp-content { color: var(--m-text); }

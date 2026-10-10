@@ -1,3 +1,4 @@
+import { isMirrored } from '../../config/layout';
 import type { ReactNode } from 'react';
 import { useBookStore } from '@/stores/bookStore';
 import { useProjectStore } from '@/stores/projectStore';
@@ -60,10 +61,12 @@ export function ContentFrame({ pt, title, badge, number, children }: { pt: PageT
   const titlePt = Math.min(...titleLines.map((ln) => fitPt(ln, fonts[m.titleFont], 99, 11 / titleLines.length, m.titleSize, 1.02, 8, 1, 900)));
   const badgePt = fitPt(badgeText.toUpperCase(), fonts[m.titleFont], 54, 5.5, m.badgeSize, 1, 7, 1, 800);
   const footText = footer.trim();
-  const numPt = number !== undefined ? Math.min(badgePt, fitPt(String(number), fonts[m.titleFont], 12, 5.5, m.badgeSize, 1, 8, 1, 800)) : 21;
+  // Susun atur cermin automatik: halaman genap = nombor di kanan / tajuk di kiri (asal); halaman ganjil = dipantulkan (nombor di kiri / tajuk di kanan).
+  const mirror = isMirrored(number);
+  const numPt = number !== undefined ? fitPt(String(number), fonts['Montserrat'], 12, 5, 15, 1, 8, 1, 800) : 21;
   const footPt = fitPt(footText.toUpperCase(), FOOT_FONT, 145, 6.2, m.footerSize, 1, 7, 1, 700);
   return (
-    <Sheet pt={pt} className={`bp-content-page bp-pt-${pt}`}>
+    <Sheet pt={pt} className={`bp-content-page bp-pt-${pt}${mirror ? ' bp-mirror' : ''}`}>
       {m.showBg && m.bgImage && <img className="bp-bg-img" src={m.bgImage} alt="" />}
       {m.headerImage && <img className="bp-header-img" src={m.headerImage} alt="" />}
       <div className="bp-title-box">
