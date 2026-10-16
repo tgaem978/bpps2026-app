@@ -12,7 +12,6 @@ import { hemTopics, partHemSections } from '@/config/partHEM';
 import { partPpkiSections } from '@/config/partPPKI';
 import { partMaklumatSections } from '@/config/partMaklumat';
 
-const h = (text: string): Block => ({ id: uid(), type: 'heading', text });
 const p = (text: string): Block => ({ id: uid(), type: 'paragraph', text });
 const ul = (items: string[], ordered = false): Block => ({ id: uid(), type: 'list', ordered, items });
 const kv = (pairs: [string, string][]): Block => ({ id: uid(), type: 'keyvalue', pairs: pairs.map(([key, value]) => ({ key, value })) });
@@ -20,7 +19,6 @@ const kv = (pairs: [string, string][]): Block => ({ id: uid(), type: 'keyvalue',
 const pos = (...values: string[]): MemberRef[] => values.map((value) => ({ kind: 'position', value }));
 const row = (role: string, members: MemberRef[]): CommitteeRow => ({ id: uid(), role, members });
 const committee = (title: string, rows: CommitteeRow[]): Block => ({ id: uid(), type: 'committee', title, rows });
-const chartCommittee = (title: string, focus: string, rows: CommitteeRow[]): Block => ({ id: uid(), type: 'committee', title, rows, display: 'chart', focus });
 const level = (label: string, positions: string[], display: OrgLevel['display'] = 'person'): OrgLevel => ({ id: uid(), label, positions, display });
 
 const section = (title: string, subtitle: string, blocks: Block[], layout: SectionLayout = 'standard'): SectionContent => ({
