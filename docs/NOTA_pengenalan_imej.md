@@ -5,3 +5,8 @@
 - Header (tajuk + lencana PENGENALAN), footer dan nombor halaman (susun atur cermin) dijana sistem melalui `ContentFrame`.
 - Kod: `ImageBlock.frameFill` (src/types/book.ts), `SectionContentPage` (BookPages.tsx), `.bp-fill-img` (index.css), `src/config/partPengenalan.ts`, migrasi v11 dalam bookStore.ts (bahagian yang belum disunting dimuat semula dengan imej).
 - Bahagian Pengenalan yang pernah anda sunting sendiri tidak ditimpa; padam bahagian itu / import projek baharu untuk mendapat imej.
+
+## Semakan: eksport PPTX boleh disunting & susunan HEM
+- pptxNative.ts: imej `object-fit: contain` (halaman Pengenalan) kini dieksport dengan nisbah asal & dipusatkan (sebelum ini diregangkan ke kotak).
+- HEM: Bidang Tugas kini diletakkan selepas JK unit berkenaan (partHEM.ts `hemTopics`; migrasi v12 untuk projek sedia ada). Halaman pengenalan "Bidang Tugas Unit HEM" (hem-tugas) tidak lagi dalam susunan.
+- PPTX boleh disunting: tajuk header, lencana, teks kaki & nombor halaman kini dirender sebagai imej (fon web dibenamkan, lejang putih & bayang seperti sistem) kerana fon Montserrat dll. tidak ada pada telefon/komputer lain. Badan halaman (teks, jadual, bentuk) kekal boleh disunting. Tajuk header tidak lagi boleh disunting dalam PowerPoint (ubah dalam sistem).

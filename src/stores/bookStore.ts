@@ -152,6 +152,22 @@ function migrateV11(p: Partial<BookState>) {
   if (p.sections) for (const id of ids) if (p.sections[id] && p.sections[id].updatedAt === null) delete p.sections[id];
 }
 
+/** v12: Bidang Tugas HEM diletakkan selepas JK unit berkenaan (susunan lama: semua JK, kemudian semua Bidang Tugas). */
+function migrateV12(p: Partial<BookState>) {
+  const part = p.outline?.find((x) => x.id === 'p-hem');
+  if (!part || !part.topics.some((t) => t.id === 'hem-jk')) return;
+  const fresh = hemTopics();
+  const jk = fresh.find((t) => t.id === 'hem-jk')!;
+  const oldJk = part.topics.find((t) => t.id === 'hem-jk')!;
+  const oldTugas = part.topics.find((t) => t.id === 'hem-tugas');
+  // Gabungkan: jawatankuasa & bidang tugas sedia ada (termasuk yang ditambah pengguna) disusun ikut susunan baharu; selebihnya di hujung.
+  const known = new Set(jk.children);
+  const all = [...oldJk.children, ...(oldTugas?.children ?? [])];
+  const merged = [...jk.children.filter((id) => all.includes(id)), ...all.filter((id) => !known.has(id))];
+  oldJk.children = merged;
+  part.topics = part.topics.filter((t) => t.id !== 'hem-tugas');
+}
+
 /**
  * v6: halaman Pengenalan kini daripada PDF (halaman penuh). Bahagian Pengenalan yang belum disunting diganti
  * dengan kandungan lalai baharu; tajuk "Teras Perkhidmatan Awam & Budaya Kerja Sekolah" ditambah.
@@ -320,7 +336,7 @@ export const useBookStore = create<BookState>()(
     },
     {
       name: 'bpps2026-book',
-      version: 11,
+      version: 12,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -335,6 +351,7 @@ export const useBookStore = create<BookState>()(
         if (version < 9) migrateV9(p);
         if (version < 10) migrateV10(p);
         if (version < 11) migrateV11(p);
+        if (version < 12) migrateV12(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

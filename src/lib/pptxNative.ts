@@ -320,13 +320,26 @@ class PageConverter {
     const clipped = R - L < r.width - 1 || B - T < r.height - 1;
     const b = this.box(new DOMRect(L, T, R - L, B - T));
     const cover = cs.objectFit === 'cover';
+    const contain = cs.objectFit === 'contain';
     const scale = Math.min(4, 1800 / Math.max(r.width, 1));
     const circle = /%$/.test(cs.borderTopLeftRadius) && parseFloat(cs.borderTopLeftRadius) >= 40;
     const top = /\s0%$|top$/.test(cs.objectPosition.trim());
     const jpeg = !circle && (/\.jpe?g($|\?)/i.test(el.currentSrc || el.src) || el.src.startsWith('data:image/jpeg'));
     this.ops.push(async () => {
       try {
-        let data = await raster(el.currentSrc || el.src, r.width * scale, r.height * scale, cover, jpeg, circle, top);
+        const src = el.currentSrc || el.src;
+        // object-fit: contain → kekalkan nisbah asal imej (jangan regangkan ke kotak <img>) dan pusatkan dalam kotak
+        if (contain && !clipped) {
+          const im = await loadImage(src);
+          const iw = im.naturalWidth || 1; const ih = im.naturalHeight || 1;
+          const f = Math.min(b.w / iw, b.h / ih);
+          const fw = iw * f; const fh = ih * f;
+          const fb = { x: b.x + (b.w - fw) / 2, y: b.y + (b.h - fh) / 2, w: fw, h: fh };
+          const data = await raster(src, Math.min(iw, r.width * scale), Math.min(iw, r.width * scale) * ih / iw, false, jpeg);
+          this.slide.addImage({ data, ...fb, objectName: el.alt || 'Gambar' } as never);
+          return;
+        }
+        let data = await raster(src, r.width * scale, r.height * scale, cover, jpeg, circle, top);
         if (clipped) data = await cropData(data, (L - r.left) / r.width, (T - r.top) / r.height, (R - L) / r.width, (B - T) / r.height, jpeg);
         this.slide.addImage({ data, ...b, objectName: el.alt || 'Gambar' } as never);
       } catch (e) { console.warn(e); }
@@ -503,8 +516,15 @@ async function ensureMaster(pptx: Pptx, page: HTMLElement, made: Map<string, str
   return { name, skip, noDecor };
 }
 
+/** Teks "chrome" header/footer (tajuk, lencana, teks kaki, nombor halaman) yang berkesan khas (lejang, bayang, fon web). */
+const CHROME_SEL = '.bp-title-box, .bp-badge-txt, .bp-foot-title, .bp-page-no';
+const CHROME_HIDE_SEL = '.bp-frame, .bp-header-img, .bp-footer-img, .bp-bg-img, .bp-full-img';
+
+/** Perenderkan halaman (tanpa bingkai/kandungan/jalur imej) ke PNG lutsinar - hanya teks header & footer. */
+export type ChromeRender = (page: HTMLElement, filter: (node: Node) => boolean) => Promise<string>;
+
 /** Eksport halaman sebagai slaid PowerPoint yang boleh disunting. */
-export async function buildNativePptx(pptx: Pptx, wraps: HTMLElement[], onProgress: (done: number, total: number) => void) {
+export async function buildNativePptx(pptx: Pptx, wraps: HTMLElement[], onProgress: (done: number, total: number) => void, renderChrome?: ChromeRender) {
   const masters = new Map<string, string>();
   for (let i = 0; i < wraps.length; i++) {
     const page = wraps[i].querySelector<HTMLElement>('.book-page');
@@ -512,7 +532,28 @@ export async function buildNativePptx(pptx: Pptx, wraps: HTMLElement[], onProgre
     const m = await ensureMaster(pptx, page, masters);
     const slide = pptx.addSlide({ masterName: m.name });
     const title = page.querySelector<HTMLElement>('.bp-title');
-    if (title && m.skip.includes(title)) {
+    const skip = new Set(m.skip);
+
+    // Teks header/footer dirender sebagai imej supaya fon (Montserrat dll.), lejang putih & bayang sama seperti dalam sistem
+    // walaupun fon tidak dipasang pada peranti yang membuka PPTX.
+    let chromeDone = false;
+    if (renderChrome && page.querySelector(CHROME_SEL)) {
+      try {
+        const prevBg = page.style.background; const prevSh = page.style.boxShadow; const prevBd = page.style.border;
+        page.style.background = 'transparent'; page.style.boxShadow = 'none'; page.style.border = '0';
+        let full: string;
+        try { full = await renderChrome(wraps[i], (n) => !(n instanceof Element && n.matches(CHROME_HIDE_SEL))); }
+        finally { page.style.background = prevBg; page.style.boxShadow = prevSh; page.style.border = prevBd; }
+        const hdr = await cropData(full, 0, 0, 1, 0.07, false);
+        const ftr = await cropData(full, 0, 0.96, 1, 0.04, false);
+        slide.addImage({ data: hdr, x: 0, y: 0, w: SLIDE_W, h: SLIDE_H * 0.07, objectName: 'Tajuk & lencana (imej)' } as never);
+        slide.addImage({ data: ftr, x: 0, y: SLIDE_H * 0.96, w: SLIDE_W, h: SLIDE_H * 0.04, objectName: 'Teks kaki & nombor halaman (imej)' } as never);
+        page.querySelectorAll(CHROME_SEL).forEach((e) => skip.add(e));
+        chromeDone = true;
+      } catch (e) { console.warn('Render header/footer gagal, guna teks boleh sunting', e); }
+    }
+
+    if (title && m.skip.includes(title) && !chromeDone) {
       const cs = getComputedStyle(title);
       const k = SLIDE_W / innerRect(page).width;
       const text = cs.textTransform === 'uppercase' ? title.innerText.toUpperCase() : title.innerText;
@@ -525,7 +566,7 @@ export async function buildNativePptx(pptx: Pptx, wraps: HTMLElement[], onProgre
         shadow: { type: 'outer', angle: 90, blur: 1.5, offset: 0.6, color: '102A36', opacity: 0.2 },
       } as never);
     }
-    await new PageConverter(page, slide, new Set(m.skip), new Set(m.noDecor)).run();
+    await new PageConverter(page, slide, skip, new Set(m.noDecor)).run();
     onProgress(i + 1, wraps.length);
   }
 }

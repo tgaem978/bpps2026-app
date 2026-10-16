@@ -81,12 +81,26 @@ export const hemTopics = (): OutlineTopic[] => [
   { id: 'hem-visi-misi', children: [] },
   { id: 'hem-objektif', children: [] },
   { id: 'hem-jk-induk', children: [] },
-  { id: 'hem-jk', children: ['hem-jk-1', 'hem-jk-2', 'hem-jk-3', 'hem-jk-4', 'hem-jk-5', 'hem-jk-6', 'hem-jk-7', 'hem-jk-8', 'hem-jk-9', 'hem-jk-10'] },
-  { id: 'hem-tugas', children: ['hem-tugas-1', 'hem-tugas-2', 'hem-tugas-3', 'hem-tugas-4', 'hem-tugas-5', 'hem-tugas-6', 'hem-tugas-7', 'hem-tugas-8'] },
+  // Bidang Tugas diletakkan selepas JK unit berkenaan (disiplin & pengawas selepas JK Pengawas; dll.)
+  {
+    id: 'hem-jk',
+    children: [
+      'hem-jk-1', 'hem-tugas-2',   // Bimbingan & Kaunseling / Disiplin
+      'hem-jk-2', 'hem-tugas-1',   // Pengawas / Data Murid → Disiplin & Pengawas
+      'hem-jk-3', 'hem-tugas-4',   // Kebajikan / KWAPM & BAP → Kebajikan Murid & COMBI
+      'hem-jk-4', 'hem-tugas-5',   // Susu / Kantin
+      'hem-jk-5', 'hem-tugas-8',   // RMT
+      'hem-jk-6', 'hem-tugas-6',   // BOSD / SPBT
+      'hem-jk-7', 'hem-tugas-3',   // Kebersihan & Keceriaan / Kesihatan & Rawatan
+      'hem-jk-8', 'hem-tugas-7',   // PPDA / Keselamatan & Kecemasan
+      'hem-jk-9',                  // Baitulmal / Kedai Buku
+      'hem-jk-10',                 // Pencegahan Denggi (COMBI)
+    ],
+  },
 ];
 
 /** Semua ID kandungan HEM (termasuk subtajuk) – digunakan oleh migrasi. */
-export const hemIds = (): string[] => hemTopics().flatMap((t) => [t.id, ...t.children]);
+export const hemIds = (): string[] => [...hemTopics().flatMap((t) => [t.id, ...t.children]), 'hem-tugas'];
 
 export const partHemSections = (): Record<string, SectionContent> => ({
   'hem-aluan': sec('KATA-KATA ALUAN PENOLONG KANAN HAL EHWAL MURID', SUB, [

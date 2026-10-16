@@ -14,7 +14,7 @@ export type PptMode = 'native' | 'image';
 
 export async function exportPagesToPptx(wraps: HTMLElement[], label: string, onProgress: (done: number, total: number) => void, mode: PptMode = 'native') {
   if (!wraps.length) throw new Error('Tiada halaman untuk dieksport.');
-  const [{ default: PptxGenJS }, { toJpeg, getFontEmbedCSS }, native] = await Promise.all([import('pptxgenjs'), import('html-to-image'), import('./pptxNative')]);
+  const [{ default: PptxGenJS }, { toJpeg, toPng, getFontEmbedCSS }, native] = await Promise.all([import('pptxgenjs'), import('html-to-image'), import('./pptxNative')]);
   const pptx = new PptxGenJS();
   pptx.defineLayout({ name: 'A4P', width: W, height: H });
   pptx.layout = 'A4P';
@@ -25,7 +25,11 @@ export async function exportPagesToPptx(wraps: HTMLElement[], label: string, onP
   const safe = label.replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, ' ').trim().slice(0, 60);
   if (mode === 'native') {
     onProgress(0, wraps.length);
-    await native.buildNativePptx(pptx, wraps, onProgress);
+    const fontCSS = await getFontEmbedCSS(wraps[0]).catch(() => '');
+    const first = wraps[0].querySelector<HTMLElement>('.book-page') ?? wraps[0];
+    const pr = Math.max(1, 2200 / first.getBoundingClientRect().width);
+    await native.buildNativePptx(pptx, wraps, onProgress, (page, filter) =>
+      toPng(page, { pixelRatio: pr, fontEmbedCSS: fontCSS, cacheBust: false, filter, style: { background: 'transparent', backgroundColor: 'transparent' } }));
     await pptx.writeFile({ fileName: `BPPS2026 - ${safe}.pptx` });
     return;
   }
