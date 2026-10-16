@@ -10,3 +10,7 @@
 - pptxNative.ts: imej `object-fit: contain` (halaman Pengenalan) kini dieksport dengan nisbah asal & dipusatkan (sebelum ini diregangkan ke kotak).
 - HEM: Bidang Tugas kini diletakkan selepas JK unit berkenaan (partHEM.ts `hemTopics`; migrasi v12 untuk projek sedia ada). Halaman pengenalan "Bidang Tugas Unit HEM" (hem-tugas) tidak lagi dalam susunan.
 - PPTX boleh disunting: tajuk header, lencana, teks kaki & nombor halaman kini dirender sebagai imej (fon web dibenamkan, lejang putih & bayang seperti sistem) kerana fon Montserrat dll. tidak ada pada telefon/komputer lain. Badan halaman (teks, jadual, bentuk) kekal boleh disunting. Tajuk header tidak lagi boleh disunting dalam PowerPoint (ubah dalam sistem).
+
+## HEM (semakan terkini, menggantikan susunan selang-seli)
+- Susunan asal dipulihkan: semua JK Unit (1-10) dahulu, kemudian halaman pengenalan Bidang Tugas dan 8 Bidang Tugas. Bidang Tugas disusun ikut turutan JK berkaitan: Bimbingan & Kaunseling, Disiplin & Pengawas, Kebajikan & COMBI, Kantin, RMT, SPBT, Kesihatan & Rawatan, Keselamatan & Kebersihan (`HEM_TUGAS_ORDER` dalam partHEM.ts; migrasi v13).
+- JK Induk HEM: jadual "Guru Penyelaras Unit" dibuang; setiap unit kini kad nama (jawatan unit + nama) dalam carta induk di bawah aras Setiausaha.

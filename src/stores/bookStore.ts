@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Block, BlockType, CoverContent, OutlinePart, SectionContent } from '@/types/book';
 import { kokuTopics, ppkiChildren } from '@/config/partKoku';
-import { hemIds, hemTopics } from '@/config/partHEM';
+import { HEM_TUGAS_ORDER, hemIds, hemTopics } from '@/config/partHEM';
 import { defaultCover, defaultOutline, defaultSections, newSection } from '@/config/defaultContent';
 import { createBlock, uid } from '@/lib/blocks';
 import { allIds } from '@/lib/outline';
@@ -152,20 +152,24 @@ function migrateV11(p: Partial<BookState>) {
   if (p.sections) for (const id of ids) if (p.sections[id] && p.sections[id].updatedAt === null) delete p.sections[id];
 }
 
-/** v12: Bidang Tugas HEM diletakkan selepas JK unit berkenaan (susunan lama: semua JK, kemudian semua Bidang Tugas). */
-function migrateV12(p: Partial<BookState>) {
+/** v13: JK Unit HEM semuanya dahulu, kemudian Bidang Tugas (susunan asal); Bidang Tugas disusun ikut turutan JK berkaitan. */
+function migrateV13(p: Partial<BookState>) {
   const part = p.outline?.find((x) => x.id === 'p-hem');
   if (!part || !part.topics.some((t) => t.id === 'hem-jk')) return;
-  const fresh = hemTopics();
-  const jk = fresh.find((t) => t.id === 'hem-jk')!;
-  const oldJk = part.topics.find((t) => t.id === 'hem-jk')!;
+  const jkTopic = part.topics.find((t) => t.id === 'hem-jk')!;
   const oldTugas = part.topics.find((t) => t.id === 'hem-tugas');
-  // Gabungkan: jawatankuasa & bidang tugas sedia ada (termasuk yang ditambah pengguna) disusun ikut susunan baharu; selebihnya di hujung.
-  const known = new Set(jk.children);
-  const all = [...oldJk.children, ...(oldTugas?.children ?? [])];
-  const merged = [...jk.children.filter((id) => all.includes(id)), ...all.filter((id) => !known.has(id))];
-  oldJk.children = merged;
-  part.topics = part.topics.filter((t) => t.id !== 'hem-tugas');
+  const all = [...jkTopic.children, ...(oldTugas?.children ?? [])];
+  const isTugas = (id: string) => id.startsWith('hem-tugas-');
+  const tugasIds = all.filter(isTugas);
+  const jkIds = all.filter((id) => !isTugas(id));
+  const tugas = [...HEM_TUGAS_ORDER.filter((id) => tugasIds.includes(id)), ...tugasIds.filter((id) => !HEM_TUGAS_ORDER.includes(id))];
+  jkTopic.children = jkIds;
+  const rest = part.topics.filter((t) => t.id !== 'hem-tugas');
+  const at = rest.findIndex((t) => t.id === 'hem-jk');
+  rest.splice(at + 1, 0, { id: 'hem-tugas', children: tugas });
+  part.topics = rest;
+  // halaman pengenalan Bidang Tugas & JK Induk lalai (belum disunting) dimuat semula dengan kandungan baharu
+  if (p.sections) for (const id of ['hem-tugas', 'hem-jk-induk']) if (p.sections[id] && p.sections[id].updatedAt === null) delete p.sections[id];
 }
 
 /**
@@ -336,7 +340,7 @@ export const useBookStore = create<BookState>()(
     },
     {
       name: 'bpps2026-book',
-      version: 12,
+      version: 13,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -351,7 +355,7 @@ export const useBookStore = create<BookState>()(
         if (version < 9) migrateV9(p);
         if (version < 10) migrateV10(p);
         if (version < 11) migrateV11(p);
-        if (version < 12) migrateV12(p);
+        if (version < 13) migrateV13(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

@@ -65,15 +65,19 @@ const INDUK: [string, string, string][] = [
   ['GP Baitulmal', 'YAACOB BIN ISMAIL', 'ROSNAYA BINTI MAT ISA'],
   ['GP SSDM', 'MUHAMMAD IZWAN BIN HALIM', 'ROHAZLINDA BT ISSAHAK'],
 ];
-/** Baris unit induk: nama unit pada baris pertama, nama kedua pada baris seterusnya. */
-const indukRows = (): string[][] => {
-  const out: string[][] = [];
+/** Kad unit dalam carta induk: satu baris (jawatan unit) bagi setiap unit; nama tanpa jawatan lain. Baris unit kosong = nama tambahan unit sebelumnya. */
+const indukUnitRows = (): CommitteeRow[] => {
+  const units: { unit: string; names: string[] }[] = [];
   for (const [unit, a, b] of INDUK) {
-    if (unit) out.push([unit, a]); else out.push(['', a]);
-    if (b) out.push(['', b]);
+    const names = [a, b].filter(Boolean);
+    if (unit || !units.length) units.push({ unit, names });
+    else units[units.length - 1].names.push(...names);
   }
-  return out;
+  return units.map(({ unit, names }) => dbRow(unit, ...names));
 };
+
+/** Susunan halaman Bidang Tugas (ikut turutan JK Unit berkaitan). */
+export const HEM_TUGAS_ORDER = ['hem-tugas-2', 'hem-tugas-1', 'hem-tugas-4', 'hem-tugas-5', 'hem-tugas-8', 'hem-tugas-6', 'hem-tugas-3', 'hem-tugas-7'];
 
 export const hemTopics = (): OutlineTopic[] => [
   { id: 'hem-aluan', children: [] },
@@ -81,23 +85,12 @@ export const hemTopics = (): OutlineTopic[] => [
   { id: 'hem-visi-misi', children: [] },
   { id: 'hem-objektif', children: [] },
   { id: 'hem-jk-induk', children: [] },
-  // Bidang Tugas diletakkan selepas JK unit berkenaan (disiplin & pengawas selepas JK Pengawas; dll.)
-  {
-    id: 'hem-jk',
-    children: [
-      'hem-jk-1', 'hem-tugas-2',   // Bimbingan & Kaunseling / Disiplin
-      'hem-jk-2', 'hem-tugas-1',   // Pengawas / Data Murid → Disiplin & Pengawas
-      'hem-jk-3', 'hem-tugas-4',   // Kebajikan / KWAPM & BAP → Kebajikan Murid & COMBI
-      'hem-jk-4', 'hem-tugas-5',   // Susu / Kantin
-      'hem-jk-5', 'hem-tugas-8',   // RMT
-      'hem-jk-6', 'hem-tugas-6',   // BOSD / SPBT
-      'hem-jk-7', 'hem-tugas-3',   // Kebersihan & Keceriaan / Kesihatan & Rawatan
-      'hem-jk-8', 'hem-tugas-7',   // PPDA / Keselamatan & Kecemasan
-      'hem-jk-9',                  // Baitulmal / Kedai Buku
-      'hem-jk-10',                 // Pencegahan Denggi (COMBI)
-    ],
-  },
+  { id: 'hem-jk', children: ['hem-jk-1', 'hem-jk-2', 'hem-jk-3', 'hem-jk-4', 'hem-jk-5', 'hem-jk-6', 'hem-jk-7', 'hem-jk-8', 'hem-jk-9', 'hem-jk-10'] },
+  // Bidang Tugas disusun mengikut turutan JK Unit yang dipadankan:
+  // Bimbingan (JK1) → Disiplin & Pengawas (JK1-2) → Kebajikan & COMBI (JK3/10) → Kantin (JK4) → RMT (JK5) → SPBT (JK6) → Kesihatan (JK7) → Keselamatan (JK8)
+  { id: 'hem-tugas', children: [...HEM_TUGAS_ORDER] },
 ];
+
 
 /** Semua ID kandungan HEM (termasuk subtajuk) – digunakan oleh migrasi. */
 export const hemIds = (): string[] => [...hemTopics().flatMap((t) => [t.id, ...t.children]), 'hem-tugas'];
@@ -147,10 +140,10 @@ export const partHemSections = (): Record<string, SectionContent> => ({
         posRow('Pengerusi', GB),
         posRow('Naib Pengerusi', PKP, PKHEM, PKKO, PKPTG, PKPK),
         dbRow('Setiausaha Hal Ehwal Murid', 'ZIRWATUL RAFIDAH BINTI RAHIM', 'SITI NORLIANA BINTI MOHD NOR'),
+        { id: uid(), role: 'Guru Penyelaras Unit', members: [], group: true },
+        ...indukUnitRows(),
       ],
     },
-    h('Guru Penyelaras Unit'),
-    tbl(['UNIT', 'GURU PENYELARAS'], indukRows()),
   ], 'open'),
   'hem-jk': sec('JAWATANKUASA UNIT HAL EHWAL MURID', SUB, [
     ul([
@@ -217,7 +210,7 @@ export const partHemSections = (): Record<string, SectionContent> => ({
   ]),
   'hem-tugas': sec('BIDANG TUGAS UNIT HAL EHWAL MURID', 'GARIS PANDUAN & BIDANG TUGAS', [
     p('Garis panduan dan bidang tugas bagi setiap unit di bawah Hal Ehwal Murid sesi 2026:'),
-    ul(['Disiplin Sekolah dan Unit Pengawas', 'Bimbingan dan Kaunseling', 'Kesihatan dan Rawatan', 'Kebajikan Murid, KWAPM / BAP, Skim Tabungan dan Takaful serta Pencegahan Denggi (COMBI)', 'Pengurusan Kantin', 'Skim Pinjaman Buku Teks (SPBT)', 'Unit Keselamatan serta Kecerian dan Kebersihan Sekolah', 'Pengurusan RMT']),
+    ul(['Bimbingan dan Kaunseling', 'Disiplin Sekolah dan Unit Pengawas', 'Kebajikan Murid, KWAPM / BAP, Skim Tabungan dan Takaful serta Pencegahan Denggi (COMBI)', 'Pengurusan Kantin', 'Pengurusan RMT', 'Skim Pinjaman Buku Teks (SPBT)', 'Kesihatan dan Rawatan', 'Unit Keselamatan serta Kecerian dan Kebersihan Sekolah'], true),
   ]),
   'hem-tugas-1': sec('BIDANG TUGAS: DISIPLIN & PENGAWAS', 'GARIS PANDUAN & BIDANG TUGAS', [
     h('Disiplin Sekolah (Guru Disiplin) dan Unit Pengawas'),
