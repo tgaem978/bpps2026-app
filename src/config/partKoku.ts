@@ -5,7 +5,6 @@ import { uid } from '@/lib/blocks';
 import { ADMIN_POSITIONS } from '@/config/defaultStaff';
 import { partAStaff } from '@/config/partA';
 
-const BASE = import.meta.env.BASE_URL;
 const [GB, PKP, PKHEM, PKKO, PKPTG, PKPK] = ADMIN_POSITIONS;
 
 const h = (text: string): Block => ({ id: uid(), type: 'heading', text });
@@ -18,7 +17,7 @@ const sec = (title: string, subtitle: string, blocks: Block[], layout: SectionCo
 /* ---- Padanan nama → guru (ejaan boleh berbeza sedikit) ---- */
 const squash = (s: string) => s.toUpperCase().replace(/[^A-Z]/g, '');
 const words = (s: string) => new Set(s.toUpperCase().replace(/[^A-Z ]/g, ' ').split(/\s+/).filter((w) => w.length > 2 && !['BIN', 'BINTI', 'BT'].includes(w)));
-function member(name: string): MemberRef {
+export function member(name: string): MemberRef {
   const target = squash(name);
   let i = partAStaff.findIndex((s) => squash(s.nama) === target);
   if (i < 0) {
@@ -81,17 +80,10 @@ const unitSesi = (name: string, pagi: string[], petang: string[], boldFirst = fa
 const unitSebelah = (names: string[], lists: string[][]): Block =>
   nameTable(names, Array.from({ length: Math.max(...lists.map((l) => l.length)) }, (_, i) => lists.map((l) => l[i] ?? '')), false);
 
-/* ---- Halaman pembahagi (tajuk sahaja) daripada PDF ---- */
-const pdfPage = (no: string, title: string): SectionContent => ({
-  title, subtitle: 'KOKURIKULUM', layout: 'standard', updatedAt: null,
-  blocks: [{ id: `kokurikulum-${no}`, type: 'image', src: `${BASE}kokurikulum/pg-${no}.jpg`, caption: '', fullPage: true }],
-});
-const ppkiPage = (file: string, title: string): SectionContent => ({
-  title, subtitle: 'PPKI', layout: 'standard', updatedAt: null,
-  blocks: [{ id: `ppki-${file}`, type: 'image', src: `${BASE}ppki/${file}.jpg`, caption: '', fullPage: true }],
-});
+/* ---- Halaman pembahagi: tajuk + senarai unit (teks, boleh disunting) ---- */
+const divider = (title: string, units: string[]): SectionContent =>
+  sec(title, 'KOKURIKULUM', [p('Unit di bawah kategori ini:'), ul(units)]);
 
-const img = (file: string, caption: string, height?: number): Block => ({ id: uid(), type: 'image', src: `${BASE}kokurikulum/${file}`, caption, height });
 const tbl = (columns: string[], rows: string[][]): Block => ({ id: uid(), type: 'table', style: 'navy', numbered: false, columns, rows });
 const ADMINS: string[][] = [
   ['PENGERUSI', 'SHAMSUKAMAL BIN ANIFAR (GURU BESAR)'],
@@ -113,10 +105,14 @@ const SUKAN_JK: string[][] = [
   ['NAIB SETIAUSAHA SUKAN 1 & 1M1S', 'SAHRULLIZAM BIN LIAS'],
   ['NAIB SETIAUSAHA SUKAN 2 & 1M1S', 'MOHD ZULFADLI BIN YUSOF'],
 ];
-const rumah = (nama: string, key: string): SectionContent => sec(`RUMAH ${nama}`, 'RUMAH SUKAN', [
-  h('Sesi Pagi'), img(`rumah-${key}-pagi.png`, '', 100),
-  h('Sesi Petang'), img(`rumah-${key}-petang.png`, '', 100),
+/** Senarai ahli rumah sukan (ketua ditandakan (K) dan ditebalkan). */
+const ahli = (names: string[]): Block => tbl(['NAMA AHLI'], names.map((n) => [/\(K\)/.test(n) ? `**${n}**` : n])) as Block;
+const rumah = (nama: string, pagi: string[], petang: string[]): SectionContent => sec(`RUMAH ${nama}`, 'RUMAH SUKAN', [
+  h('Sesi Pagi'), numbered(ahli(pagi)),
+  h('Sesi Petang'), numbered(ahli(petang)),
 ]);
+/** Jadual dengan lajur BIL automatik. */
+const numbered = (b: Block): Block => ({ ...(b as object), numbered: true } as Block);
 
 export const kokuTopics = (): OutlineTopic[] => [
   { id: 'kk-aluan', children: [] },
@@ -282,15 +278,15 @@ export const partKokuSections = (): Record<string, SectionContent> => ({
     ]),
   ]),
   'kk-pembangunan-sukan': sec('JAWATANKUASA PEMBANGUNAN SUKAN 2026', 'SUKAN & PERMAINAN', [tbl(['JAWATAN', 'NAMA'], SUKAN_JK)]),
-  'kk-pasukan-1': sec('SENARAI JURULATIH PASUKAN SUKAN (1)', 'SUKAN & PERMAINAN', [img('pasukan-1.png', 'Bil. 1 hingga 5. (K) = ketua jurulatih.', 225)]),
-  'kk-pasukan-2': sec('SENARAI JURULATIH PASUKAN SUKAN (2)', 'SUKAN & PERMAINAN', [img('pasukan-2.png', 'Bil. 6 hingga 12. (K) = ketua jurulatih.', 225)]),
-  'kk-pasukan-3': sec('SENARAI JURULATIH PASUKAN SUKAN (3)', 'SUKAN & PERMAINAN', [img('pasukan-3.png', 'Suara Emas dan Ragbi.', 150), img('pasukan-4.png', 'Silat & Taekwondo.', 45)]),
+  'kk-pasukan-1': sec('SENARAI JURULATIH PASUKAN SUKAN (1)', 'SUKAN & PERMAINAN', [tbl(['BIL', 'PASUKAN', 'NAMA JURULATIH'], [["1", "BADMINTON", "**KAMARUNZAMAN BIN ADAM (K)**"], ["", "", "FAIZAH BINTI MOHD SAHAT"], ["", "", "NORLAILI BINTI MUHAMMAD"], ["", "", "SITI NORLIANA BINTI MOHD NOR"], ["", "", "ABDULLAH MUHAIMIN BIN AHAMAD"], ["", "", "SALEHA BINTI MOHAMED YUSOF"], ["2", "BOLA BALING", "**ABOL IBNUL EQKWAM BIN ZOLKIFLI (K)**"], ["", "", "MUHAMMAD HAZWAN BIN MD TAIB"], ["", "", "YACOOB BIN ISMAIL"], ["", "", "SITI 'AISYAH BINTI JAMALUDIN"], ["", "", "NUR IZZAH ‘ATIRAH BINTI HUDALLAH"], ["", "", "NORAZAH BINTI AB AZIZ @ HAMID"], ["3", "BOLA JARING", "**ZATUSY SYAMAM BINTI SHARUDDIN (K)**"], ["", "", "NUR FATIN UMMAIRAQ BINTI ABDUL HALIM"], ["", "", "SITI RAFIDAH BINTI ABD RAHMAN"], ["", "", "HAPINI BINTI ABDULL WAHAB"], ["", "", "ZURIFAH BINTI ABD.RAHMAN"], ["4", "BOLA SEPAK", "**MUHAMMAD IZWAN BIN HALIM (K)**"], ["", "", "MUHAMMAD SHAFIQ BIN HAZMAN"], ["", "", "MOHD ZULFADLI BIN YUSOF"], ["", "", "ANDREW ANAK ENTIPAN"], ["", "", "RAHANA BINTI MOHAMAD KHATIB"], ["", "", "SITI NOR AINIYAH BINTI RIDAWI"], ["5", "BOLA TAMPAR", "**AHMAD IZHAM BIN ABD GHANI (K)**"], ["", "", "ALIF HAZIM BIN NAJIB"], ["", "", "MOHD ARIF BIN AHMAD THARMIZI"], ["", "", "NUR INSYIRAH NAJWA BINTI OTHMAN"], ["", "", "ZUBAIDAH BINTI DAUD KAIYIN"], ["", "", "ZULATUL AZRINA BINTI ZULKEFLI"]]), p('(K) = ketua jurulatih.')]),
+  'kk-pasukan-2': sec('SENARAI JURULATIH PASUKAN SUKAN (2)', 'SUKAN & PERMAINAN', [tbl(['BIL', 'PASUKAN', 'NAMA JURULATIH'], [["6", "BOWLING", "**NORASHIKIN BINTI AZIZ (K)**"], ["", "", "YETTE SURIANE BINTI MOHD BAHARUDDIN"], ["", "", "MOHD HAMDI FARKHAN BIN SALEHHUDDIN"], ["", "", "ABDUL JALIL BIN MAT"], ["", "", "NORLAILA BINTI MOHD SALLEH"], ["", "", "NORIDAYU BINTI NORDIN"], ["7", "CATUR", "**MUHAMMAD HAFIZ BIN YUSOF (K)**"], ["", "", "BHARATHI USHA A/P MARTHEVEERAN"], ["", "", "NUR SAHIRA BINTI MOHD SOIB"], ["", "", "NOOR ILLI BINTI ELAS"], ["", "", "SURINA BINTI MALEK"], ["", "", "SITI SUHAILI BINTI ISMAIL"], ["8", "KEBUDAYAAN", "**NUR IZRIN FARAH HANI BINTI ISMAIL (K)**"], ["", "", "SITI MAZURA BINTI SHAIKH MUSTAFA"], ["", "", "ZALIFAH BINTI MOHD ZAWAWI"], ["", "", "ZAHRAH BINTI MOHAMAD DAHLAN"], ["", "", "FATIMAH BINTI AB LATIF"], ["9", "MEMANAH", "**MUHD AZIZI BIN AHMAD SHAMSUL MA’ARIF (K)**"], ["", "", "NOORAZILA BINTI ABDULLAH"], ["", "", "MOHD SHAKIR BIN ESUAN"], ["", "", "NORBAZRIANA BINTI BADRI"], ["", "", "ROSNAYA BT MAT ISA"], ["", "", "MASLINA BT JAMIYOU@HAJI ABDULLAH"], ["10", "OLAHRAGA", "**SAHRULLIZAM BIN LIAS (K)**"], ["", "", "NASIHA BINTI MOHD SHARIF"], ["", "", "SUGANIYA A/P ARNACHALAM"], ["", "", "MUHAMMAD HAFIZ BIN MOHD BASRI"], ["", "", "ROHAZLINDA BINTI ISSAHAK"], ["", "", "HAREENA A/P N. SIVAGANESE"], ["11", "PERBARISAN", "**NURAZIRA BINTI ABDULL HALIM (K)**"], ["", "", "NURASYAHIRA BINTI BASIRUN"], ["", "", "SINNTHU A/P PONNUSAMY"], ["", "", "KHARAINE BINTI CHE IBRAHIM"], ["", "", "SARAH AQILAH BINTI JAMALULAIL"], ["", "", "SITI HAJAR BINTI AB HADI"], ["", "", "ZIRWATUL RAFIDAH BINTI RAHIM"], ["12", "SEPAK TAKRAW", "**ROSLEEN BIN ABU BAKAR (K)**"], ["", "", "ZAIDI BIN OTHMAN"], ["", "", "MUSAFARUDDIN BIN OTHMAN"], ["", "", "AZMI BIN MOHAMAD @ ALIAS"], ["", "", "DARSHINII GUNASAGARAN"], ["", "", "NORAZLIZA BINTI ISMAIL"], ["", "", "NORMALIZA BINTI RAMLI"]]), p('(K) = ketua jurulatih.')]),
+  'kk-pasukan-3': sec('SENARAI JURULATIH PASUKAN SUKAN (3)', 'SUKAN & PERMAINAN', [tbl(['BIL', 'PASUKAN', 'NAMA JURULATIH'], [["13", "SILAT & TAEKWONDO", "**SHAREENA FATIHAH BINTI SHARIN (K)**"], ["", "", "FAATIMATUZZAHRAH BINTI HALIMUDIN"], ["", "", "SALME BINTI SENIK"], ["", "", "HUSNA AMIRA BINTI ISMAIL"], ["14", "SUARA EMAS", "**MOHD ZAHIR BIN RAMLI (K)**"], ["", "", "ABOL IBNUL EQKWAM BIN ZOLKIFLI"], ["", "", "FARAH NUR IMANIAH BINTI MOHD SHUKRI"], ["", "", "SHAREENA FATIHAH BINTI SHARIN"], ["", "", "KHIRUL AMIR BIN ABU HASAN"], ["", "", "TENGKU MOHAMMAD AIMAN BIN TENGKU MOHAMMAD FAUZAN"], ["", "", "AISAH BINTI SH'ARI"], ["16", "RAGBI", "MUHAMAD ALIFF BIN KAMAL AFFANDI"], ["", "", "SHAIFUL NAZRI BIN ABDUL JABBAR"], ["", "", "NORSABRINA BINTI HASSAN"], ["", "", "NOOR HAMIMI BINTI ABDUL AZIZ"], ["", "", "NOR SUZERA BINTI ZAHARI"], ["", "", "HAWA SYAHIRAH BINTI MOHD SAID"], ["", "", "SITI FAREZZA BINTI ABD MUIS"]]), p('(K) = ketua jurulatih.')]),
   'kk-rumah-sukan': sec('JAWATANKUASA RUMAH SUKAN 2026', 'RUMAH SUKAN', [tbl(['JAWATAN', 'NAMA'], SUKAN_JK)]),
-  'kk-rumah-biru': rumah('BIRU', 'biru'),
-  'kk-rumah-hijau': rumah('HIJAU', 'hijau'),
-  'kk-rumah-kuning': rumah('KUNING', 'kuning'),
-  'kk-rumah-merah': rumah('MERAH', 'merah'),
-  'kk-rumah-ungu': rumah('UNGU', 'ungu'),
+  'kk-rumah-biru': rumah('BIRU', ["NOORAZILA BINTI ABDULLAH (K)", "FAIZAH BINTI MOHD SAHAT", "NORASSKIN BT MOHAMED", "NURASYAHIRA BINTI BASIRUN", "RAHANA BINTI MOHAMAD KHATIB", "ROSLEEN BIN ABU BAKAR", "TENGKU MOHAMMAD AIMAN BIN TENGKU MOHAMMAD FAUZAN", "YAACOB BIN ISMAIL", "YETTE SURIANE BINTI MOHD BAHARUDDIN", "ZULATUL AZRINA BINTI ZULKEFLI"], ["SITI MAZURA BINTI SHAIKH MUSTAFA (K)", "ABOL IBNUL EQKWAM BIN ZOLKIFLI", "DARSHINII GUNASAGARAN", "KHARAINE BINTI CHE IBRAHIM", "SURINA BINTI MALEK", "MUHAMMAD HAFIZ BIN MOHD BASRI", "NOOR HAMIMI BINTI ABDUL AZIZ", "NORBAZRIANA BINTI BADRI"]),
+  'kk-rumah-hijau': rumah('HIJAU', ["MOHD ARIF BIN AHMAD THARMIZI (K)", "ABDUL JALIL BIN MAT", "FARAH NUR IMANIAH BINTI MOHD SHUKRI", "KAMARUNZAMAN BIN ADAM", "MASLINA BT JAMIYOU@HAJI ABDULLAH", "NUR IZZAH ‘ATIRAH BINTI HUDALLAH", "RUZANA BINTI AHMAD", "ZURIFAH BINTI ABD.RAHMAN", "SUGANIYA A/P ARNACHALAM", "NORLAILI BINTI MUHAMMAD"], ["SITI NOR AINIYAH BINTI RIDAWI (K)", "MOHD SHAKIR BIN ESUAN", "MUHAMMAD HAZWAN BIN MD TAIB", "NOR SUZERA BINTI ZAHARI", "NUR INSYIRAH NAJWA BINTI OTHMAN", "SITI HAJAR BINTI AB HADI", "SITI NORLIANA BINTI MOHD NOR", "THIVANY A/P MANOGARAN"]),
+  'kk-rumah-kuning': rumah('KUNING', ["ABDULLAH MUHAIMIN BIN AHAMAD (K)", "BHARATHI USHA A/P MARTHEVEERAN", "ZATUSY SYAMAM BINTI SHARUDDIN", "NUR FAKHIRA BINTI JALALUDDIN", "NORASHIKIN BINTI AZIZ", "NORIDAYU BINTI NORDIN", "ROHAZLINDA BINTI ISSAHAK", "WAN NOOR HILWANI BINTI WAN MOHAMED", "ZAIDI BIN OTHMAN", "ZIRWATUL RAFIDAH BINTI RAHIM"], ["ANDREW ANAK ENTIPAN (K)", "AHMAD IZHAM BIN ABD GHANI", "ALIF HAZIM BIN NAJIB", "NOOR ILLI BINTI ELAS", "NORSABRINA BINTI HASSAN", "RAJA NUR SAZLIN BINTI RAJA SAFWAN", "SALME BINTI SENIK", "SINNTHU A/P PONNUSAMY", "SHAREENA FATIHAH BINTI SHARIN"]),
+  'kk-rumah-merah': rumah('MERAH', ["SARAH AQILAH BINTI JAMALULAIL (K)", "AISAH BINTI SH'ARI", "FAATIMATUZZAHRAH BINTI HALIMUDIN", "MUHAMMAD IZWAN BIN HALIM", "MOHD ZAHIR BIN RAMLI", "SHAIFUL NAZRI BIN ABDUL JABBAR", "NURAZIRA BINTI ABDULL HALIM", "SALEHA BINTI MOHAMED YUSOF", "HAREENA A/P N.SIVAGANESE"], ["AZMI BIN MOHAMAD @ ALIAS (K)", "HAPINI BINTI ABDULL WAHAB", "HUSNA AMIRA BINTI ISMAIL", "MOHD HAMDI FARKHAN BIN SALEHHUDDIN", "NORAZLIZA BINTI ISMAIL", "NUR FATIN UMMAIRAQ BINTI ABDUL HALIM", "ROSNAYA BT MAT ISA", "MUHD AZIZI BIN AHMAD SHAMSUL MA’ARIF", "ZUBAIDAH BINTI DAUD KAIYIN"]),
+  'kk-rumah-ungu': rumah('UNGU', ["NORMALIZA BINTI RAMLI (K)", "MUHAMMAD HAFIZ BIN YUSOF", "MUHAMMAD SHAFIQ BIN HAZMAN", "NORAZAH BINTI AB AZIZ @ HAMID", "NORLAILA BINTI MOHD SALLEH", "GRACE ANNE", "NUR SAHIRA BINTI MOHD SOIB", "SITI 'AISYAH BINTI JAMALUDIN", "SITI SUHAILI BINTI ISMAIL", "ZALIFAH BINTI MOHD ZAWAWI"], ["MUSAFARUDIN BIN OTHMAN (K)", "FATIMAH BINTI AB LATIF", "HAWA SYAHIRAH BINTI MOHD SAID", "KHIRUL AMIR BIN ABU HASAN", "ZAHRAH BINTI MOHAMAD DAHLAN", "NASIHA BINTI MOHD SHARIF", "NUR IZRIN FARAH HANI BINTI ISMAIL", "SITI FAREZZA BINTI ABD MUIS", "SITI RAFIDAH BINTI ABD RAHMAN"]),
   'kk-khas': sec('SENARAI JAWATANKUASA KHAS KOKURIKULUM', 'KOKURIKULUM', [
     ul(['Jawatankuasa Penilaian iKeps, SEGAK & PAJSK', 'Jawatankuasa 1M1S', 'Jawatankuasa Majlis Anugerah Kecemerlangan Kokurikulum', 'Jawatankuasa Merentas Desa', 'Jawatankuasa Pendidikan Luar dan Lawatan'], true),
   ]),
@@ -343,7 +339,7 @@ export const partKokuSections = (): Record<string, SectionContent> => ({
       'Pasukan badan beruniform yang bertugas pada minggu berkenaan digalakkan membuat satu persembahan mengenai keistimewaan / kekuatan badan beruniform masing-masing.',
     ], true),
   ]),
-  'kk-jk-02': pdfPage('02', 'BADAN BERUNIFORM'),
+  'kk-jk-02': divider('BADAN BERUNIFORM', ['Pengakap Kanak-Kanak', 'Tunas Kadet Remaja Sekolah', 'Bulan Sabit Merah Malaysia', 'Pergerakan Puteri Islam Malaysia', 'Pandu Puteri Islam Malaysia']),
   'kk-jk-03': sec("JAWATANKUASA BADAN BERUNIFORM", 'KOKURIKULUM', [
     jkUnit('JAWATANKUASA BADAN BERUNIFORM', ['MUHAMMAD IZWAN BIN HALIM', 'NOOR HAMIMI BINTI ABDUL AZIZ'], ['NUR IZZAH ‘ATIRAH BINTI HUDALLAH', 'NOR SUZERA BINTI ZAHARI']),
   ]),
@@ -356,7 +352,7 @@ export const partKokuSections = (): Record<string, SectionContent> => ({
     ...unitSesi("PERGERAKAN PUTERI ISLAM MALAYSIA", ["YETTE SURIANE BINTI MOHD BAHARUDDIN", "FAATIMATUZZAHRAH BINTI HALIMUDIN", "FAIZAH BINTI MOHD SAHAT", "NORASHIKIN BINTI AZIZ", "NORASSKIN BT MOHAMED", "NORMALIZA BINTI RAMLI", "SALEHA BINTI MOHAMED YUSOF", "SITI 'AISYAH BINTI JAMALUDIN", "SITI SUHAILI BINTI ISMAIL", "WAN NOOR HILWANI BINTI WAN MOHAMED"], ["SITI HAJAR BINTI AB HADI", "HUSNA AMIRA BINTI ISMAIL", "KHARAINE BINTI CHE IBRAHIM", "NORAZLIZA BINTI ISMAIL", "NORBAZRIANA BINTI BADRI", "NUR INSYIRAH NAJWA BINTI OTHMAN", "SITI NORLIANA BINTI MOHD NOR", "SITI RAFIDAH BINTI ABD RAHMAN", "ZAHRAH BINTI MOHAMAD DAHLAN"], true),
     ...unitSesi("PANDU PUTERI ISLAM MALAYSIA", ["NORIDAYU BINTI NORDIN", "FARAH NUR IMANIAH BINTI MOHD SHUKRI", "NOORAZILA BINTI ABDULLAH", "NORLAILA BINTI MOHD SALLEH", "RUZANA BINTI AHMAD", "SUGANIYA A/P ARNACHALAM", "ZATUSY SYAMAM BINTI SHARUDDIN", "ZIRWATUL RAFIDAH BINTI RAHIM", "ZALIFAH BINTI MOHD ZAWAWI", "ZULATUL AZRINA BINTI ZULKEFLI"], ["SHAREENA FATIHAH BINTI SHARIN", "FATIMAH BINTI AB LATIF", "HAWA SYAHIRAH BINTI MOHD SAID", "NASIHA BINTI MOHD SHARIF", "SINNTHU A/P PONNUSAMY", "SITI MAZURA BINTI SHAIKH MUSTAFA", "ZUBAIDAH BINTI DAUD KAIYIN"], true),
   ]),
-  'kk-jk-06': pdfPage('06', 'KELAB & PERSATUAN'),
+  'kk-jk-06': divider('KELAB & PERSATUAN', ['Bahasa Melayu', 'Bahasa Inggeris', 'Bahasa Arab', 'Pendidikan Islam', 'Kebudayaan & Kesenian', 'STEM', 'Lestari Alam', 'Rukun Negara', 'Cyberkids', 'Pencegahan Jenayah']),
   'kk-jk-07': sec("JAWATANKUASA KELAB & PERSATUAN", 'KOKURIKULUM', [
     jkUnit('JAWATANKUASA KELAB & PERSATUAN', ['MUHAMMAD HAFIZ BIN YUSOF', 'NUR INSYIRAH NAJWA BINTI OTHMAN'], ['HAREENA A/P N.SIVAGANESE', 'SITI NOR AINIYAH BINTI RIDAWI']),
   ]),
@@ -372,7 +368,7 @@ export const partKokuSections = (): Record<string, SectionContent> => ({
     unitSebelah(["LESTARI ALAM", "RUKUN NEGARA"], [["NORASHIKIN BINTI AZIZ (K)", "YETTE SURIANE BINTI MOHD BAHARUDDIN", "NURASYAHIRA BINTI BASIRUN", "ZULATUL AZRINA BINTI ZULKEFLI"], ["ABDULLAH MUHAIMIN BIN AHAMAD (K)", "ZIRWATUL RAFIDAH BINTI RAHIM", "NUR SAHIRA BINTI MOHD SOIB", "MUHAMAD ALIFF BIN KAMAL AFFANDI"]]),
     unitSebelah(["CYBERKIDS", "PENCEGAHAN JENAYAH"], [["FAATIMATUZZAHRAH BINTI HALIMUDIN (K)", "NUR FAKHIRA BINTI JALALUDDIN", "NORLAILA BINTI MOHD SALLEH", "NORLAILI BINTI MUHAMMAD", "ZURIFAH BINTI ABD.RAHMAN"], ["MOHD ARIF BIN AHMAD THARMIZI (K)", "SHAIFUL NAZRI BIN ABDUL JABBAR", "ZATUSY SYAMAM BINTI SHARUDDIN", "MUHAMMAD IZWAN BIN HALIM"]]),
   ]),
-  'kk-jk-10': pdfPage('10', 'SUKAN & PERMAINAN'),
+  'kk-jk-10': divider('SUKAN & PERMAINAN', ['Bola Baling', 'Bola Jaring', 'Olahraga', 'Bola Sepak', 'Bola Tampar', 'Sepak Takraw', 'Ragbi']),
   'kk-jk-11': sec("JAWATANKUASA SUKAN & PERMAINAN", 'KOKURIKULUM', [
     jkUnit('JAWATANKUASA SUKAN & PERMAINAN', ['MUHAMMAD SHAFIQ BIN HAZMAN', 'NUR FATIN UMMAIRAQ BINTI ABDUL HALIM'], ['RUZANA BINTI AHMAD', 'ZAHRAH BINTI MOHAMAD DAHLAN']),
   ]),
@@ -386,7 +382,4 @@ export const partKokuSections = (): Record<string, SectionContent> => ({
     ...unitSesi("BOLA TAMPAR", ["ZULATUL AZRINA BINTI ZULKEFLI (K)", "YETTE SURIANE BINTI MOHD BAHARUDDIN", "ABDUL JALIL BIN MAT", "ZAIDI BIN OTHMAN", "MUHAMMAD IZWAN BIN HALIM", "FAATIMATUZZAHRAH BINTI HALIMUDIN", "NUR IZZAH ‘ATIRAH BINTI HUDALLAH"], ["AHMAD IZHAM BIN ABD GHANI (K)", "SITI HAJAR BINTI AB HADI", "NOOR ILLI BINTI ELAS", "SHAREENA FATIHAH BINTI SHARIN", "ALIF HAZIM BIN NAJIB", "SINNTHU A/P PONNUSAMY", "SITI NOR AINIYAH BINTI RIDAWI", "HAWA SYAHIRAH BINTI MOHD SAID", "AZMI BIN MOHAMAD @ ALIAS"], false),
     unitSebelah(["SEPAK TAKRAW", "RAGBI"], [["ROSLEEN BIN ABU BAKAR", "ZALIFAH BINTI MOHD ZAWAWI", "SARAH AQILAH BINTI JAMALULAIL", "YAACOB BIN ISMAIL", "SITI SUHAILI BINTI ISMAIL", "NORMALIZA BINTI RAMLI"], ["MUHAMAD ALIFF BIN KAMAL AFFANDI (K)", "NORAZAH BINTI AB AZIZ @ HAMID", "NURAZIRA BINTI ABDULL HALIM", "SHAIFUL NAZRI BIN ABDUL JABBAR", "NORIDAYU BINTI NORDIN", "NURASYAHIRA BINTI BASIRUN"]]),
   ]),
-  'pk-jpks': ppkiPage('jpks', 'JAWATANKUASA PENDIDIKAN KHAS SEKOLAH (JPKS) 2026'),
-  'pk-carta': ppkiPage('carta', 'CARTA ORGANISASI PROGRAM PENDIDIKAN KHAS INTEGRASI 2026'),
-  'pk-jk-induk': ppkiPage('induk', 'JAWATANKUASA INDUK PROGRAM PENDIDIKAN KHAS INTEGRASI 2026'),
 });

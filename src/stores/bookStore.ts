@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Block, BlockType, CoverContent, OutlinePart, SectionContent } from '@/types/book';
 import { kokuTopics, ppkiChildren } from '@/config/partKoku';
+import { hemIds, hemTopics } from '@/config/partHEM';
 import { defaultCover, defaultOutline, defaultSections, newSection } from '@/config/defaultContent';
 import { createBlock, uid } from '@/lib/blocks';
 import { allIds } from '@/lib/outline';
@@ -119,6 +120,30 @@ function migrateV8(p: Partial<BookState>) {
     else for (const t of kokuTopics()) if (!ids.includes(t.id)) part.topics.push(t);
   }
   if (p.sections) for (const id of Object.keys(p.sections)) if (id.startsWith('kk-') && p.sections[id].updatedAt === null) delete p.sections[id];
+}
+
+/** v9: Pengurusan Hal Ehwal Murid baharu (kandungan Buku Pengurusan 2026 – sub-unit HEM) menggantikan tajuk contoh. */
+function migrateV9(p: Partial<BookState>) {
+  const part = p.outline?.find((x) => x.id === 'p-hem');
+  if (part) {
+    const ids = part.topics.flatMap((t) => [t.id, ...t.children]);
+    const old = ['hem', 'jk-hem'];
+    const untouched = ids.every((id) => !p.sections?.[id] || p.sections[id].updatedAt === null);
+    if (ids.every((id) => old.includes(id)) && untouched) part.topics = hemTopics();
+    else if (!ids.some((id) => id.startsWith('hem-'))) part.topics = [...hemTopics(), ...part.topics];
+  }
+  if (p.sections) for (const id of [...hemIds(), 'hem', 'jk-hem']) if (p.sections[id] && p.sections[id].updatedAt === null) delete p.sections[id];
+}
+
+/** v10: halaman imej (Pengenalan, PPKI, pembahagi/pasukan/rumah Kokurikulum, pelan sekolah) diganti kandungan teks boleh sunting. */
+function migrateV10(p: Partial<BookState>) {
+  const ids = [
+    'b-rukun-negara', 'b-aku-janji', 'b-teras', 'b-ikrar', 'b-fokus', 'b-ithink', 'b-5c', 'b-aspirasi', 'b-dpd', 'b-ts25', 'b-spi', 'b-visi-kpm',
+    'b-pelan', 'b-pelan-kecemasan', 'b-visi-sekolah', 'pk-jpks', 'pk-carta', 'pk-jk-induk',
+    'kk-jk-02', 'kk-jk-06', 'kk-jk-10', 'kk-pasukan-1', 'kk-pasukan-2', 'kk-pasukan-3',
+    'kk-rumah-biru', 'kk-rumah-hijau', 'kk-rumah-kuning', 'kk-rumah-merah', 'kk-rumah-ungu',
+  ];
+  if (p.sections) for (const id of ids) if (p.sections[id] && p.sections[id].updatedAt === null) delete p.sections[id];
 }
 
 /**
@@ -289,7 +314,7 @@ export const useBookStore = create<BookState>()(
     },
     {
       name: 'bpps2026-book',
-      version: 8,
+      version: 10,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -301,6 +326,8 @@ export const useBookStore = create<BookState>()(
         if (version < 6) migrateV6(p);
         if (version < 7) migrateV7(p);
         if (version < 8) migrateV8(p);
+        if (version < 9) migrateV9(p);
+        if (version < 10) migrateV10(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

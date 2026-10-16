@@ -8,6 +8,9 @@ import { partKKSections } from '@/config/partKK';
 import { partBSections } from '@/config/partB';
 import { partPengenalanSections } from '@/config/partPengenalan';
 import { kokuTopics, partKokuSections, ppkiChildren } from '@/config/partKoku';
+import { hemTopics, partHemSections } from '@/config/partHEM';
+import { partPpkiSections } from '@/config/partPPKI';
+import { partMaklumatSections } from '@/config/partMaklumat';
 
 const h = (text: string): Block => ({ id: uid(), type: 'heading', text });
 const p = (text: string): Block => ({ id: uid(), type: 'paragraph', text });
@@ -85,7 +88,7 @@ export const defaultOutline = (): OutlinePart[] => [
       { id: 'k-takwim', children: [] },
     ],
   },
-  { id: 'p-hem', title: 'PENGURUSAN HAL EHWAL MURID', note: '{{jawatan:GPK Hal Ehwal Murid}}', divider: true, topics: [{ id: 'hem', children: ['jk-hem'] }] },
+  { id: 'p-hem', title: 'PENGURUSAN HAL EHWAL MURID', note: '{{jawatan:GPK Hal Ehwal Murid}}', divider: true, topics: hemTopics() },
   {
     id: 'p-koku', title: 'PENGURUSAN KOKURIKULUM', note: '{{jawatan:GPK Kokurikulum}}', divider: true,
     topics: kokuTopics(),
@@ -105,8 +108,11 @@ export const defaultSections = (): Record<string, SectionContent> => ({
   ...partASections(),
   ...partKKSections(),
   ...partBSections(),
+  ...partMaklumatSections(),
   ...partPengenalanSections(),
   ...partKokuSections(),
+  ...partHemSections(),
+  ...partPpkiSections(),
   'maklumat-sekolah': section('PROFIL SEKOLAH', 'MAKLUMAT SEKOLAH', [
     kv([
       ['Nama Sekolah', '{{nama_sekolah}}'],
@@ -137,20 +143,6 @@ export const defaultSections = (): Record<string, SectionContent> => ({
       row('Penolong Naib Pengerusi', pos(PKHEM, PKKO, PKPTG, PKPK)),
       row('Setiausaha', []),
       row('Ahli Jawatankuasa', pos('Guru Penyelaras Bestari', 'Guru Data', 'Guru Perpustakaan dan Media')),
-    ]),
-  ]),
-  hem: section('PENGURUSAN HAL EHWAL MURID', '', [
-    h('Fokus Utama'),
-    ul(['Disiplin murid', 'Kebajikan dan biasiswa', 'Kesihatan dan keselamatan', 'Bimbingan dan kaunseling']),
-    h('Peraturan Am Murid'),
-    ul(['Hadir ke sekolah sebelum 7.30 pagi.', 'Memakai pakaian seragam yang lengkap dan kemas.', 'Menghormati guru dan rakan.'], true),
-  ]),
-  'jk-hem': section('JAWATANKUASA INDUK HEM', '', [
-    chartCommittee('JAWATANKUASA INDUK UNIT HAL EHWAL MURID', PKHEM, [
-      row('Pengerusi', pos(GB)),
-      row('Naib Pengerusi', pos(PKP, PKHEM, PKKO, PKPTG, PKPK)),
-      row('Setiausaha HEM', []),
-      row('Unit Bimbingan dan Kaunseling', pos('Guru Bimbingan dan Kaunseling')),
     ]),
   ]),
   'pendidikan-khas': section('PENDIDIKAN KHAS', 'PPKI', [

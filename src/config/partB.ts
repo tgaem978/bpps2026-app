@@ -857,11 +857,10 @@ const PB: Record<string, SectionContent> = {
     "align": "center"
    },
    {
-    "id": "cec04dbe9671",
-    "type": "image",
-    "src": "@@/content/qr-lagu.jpg",
-    "caption": "Audio lagu: bit.ly/laguSKBTS2024",
-    "height": 26
+    "id": "lagu-pautan",
+    "type": "paragraph",
+    "text": "Audio lagu: **bit.ly/laguSKBTS2024**",
+    "align": "center"
    }
   ],
   "updatedAt": null
