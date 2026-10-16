@@ -171,6 +171,13 @@ function SectionContentPage({ page }: { page: Extract<PagePlan, { kind: 'content
       </Sheet>
     );
   }
+  if (lead && lead.type === 'image' && lead.frameFill) {
+    return (
+      <ContentFrame pt={page.layout} title={sec.title || m.pageTitle} badge={sec.subtitle || partTitle || undefined} number={page.number}>
+        <img className="bp-fill-img" src={lead.src} alt={sec.title} />
+      </ContentFrame>
+    );
+  }
   const byId = new Map(sec.blocks.map((b) => [b.id, b]));
   const empty = page.columns.every((c) => c.length === 0);
   const title = sec.title || m.pageTitle;

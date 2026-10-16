@@ -33,6 +33,8 @@ export interface ImageBlock extends BaseBlock {
   height?: number;
   /** Gambar mengisi satu halaman A4 penuh tanpa bingkai/tajuk BPPS (cth. halaman Pengenalan daripada PDF). */
   fullPage?: boolean;
+  /** Gambar mengisi bingkai kandungan satu halaman (header & footer sistem kekal) — halaman Pengenalan. */
+  frameFill?: boolean;
 }
 
 /** Satu aras carta organisasi: diisi automatik daripada guru yang memegang jawatan tersebut. */

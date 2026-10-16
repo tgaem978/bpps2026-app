@@ -220,7 +220,7 @@ export function useBookPlan(): PagePlan[] {
       tocIndex.push({ row: tocRows.length - 1, at: body.length });
       const layout = sec.layout ?? 'standard';
       const first = sec.blocks[0];
-      const fullImg = first && first.type === 'image' && first.fullPage ? first : null;
+      const fullImg = first && first.type === 'image' && (first.fullPage || first.frameFill) ? first : null;
       const pages: Segment[][][] = fullImg
         ? [[[{ blockId: fullImg.id, from: 0, to: 1 }]]]
         : paginate(sec.blocks, ctx, optsOf(layout, layout === 'twocol' ? 2 : 1));

@@ -146,6 +146,12 @@ function migrateV10(p: Partial<BookState>) {
   if (p.sections) for (const id of ids) if (p.sections[id] && p.sections[id].updatedAt === null) delete p.sections[id];
 }
 
+/** v11: halaman Pengenalan kembali sebagai imej (kandungan sahaja) dalam header/footer sistem. */
+function migrateV11(p: Partial<BookState>) {
+  const ids = ['b-rukun-negara', 'b-aku-janji', 'b-teras', 'b-ikrar', 'b-fokus', 'b-ithink', 'b-5c', 'b-aspirasi', 'b-dpd', 'b-ts25', 'b-spi', 'b-visi-kpm'];
+  if (p.sections) for (const id of ids) if (p.sections[id] && p.sections[id].updatedAt === null) delete p.sections[id];
+}
+
 /**
  * v6: halaman Pengenalan kini daripada PDF (halaman penuh). Bahagian Pengenalan yang belum disunting diganti
  * dengan kandungan lalai baharu; tajuk "Teras Perkhidmatan Awam & Budaya Kerja Sekolah" ditambah.
@@ -314,7 +320,7 @@ export const useBookStore = create<BookState>()(
     },
     {
       name: 'bpps2026-book',
-      version: 10,
+      version: 11,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -328,6 +334,7 @@ export const useBookStore = create<BookState>()(
         if (version < 8) migrateV8(p);
         if (version < 9) migrateV9(p);
         if (version < 10) migrateV10(p);
+        if (version < 11) migrateV11(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

@@ -53,6 +53,7 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
   position: absolute; left: calc(var(--mm) * 4); top: calc(var(--mm) * 22.5); right: calc(var(--mm) * 4); bottom: calc(var(--mm) * 15.33);
   border: var(--m-frame-width) solid var(--m-frame-color); background: var(--m-frame-bg); overflow: hidden;
 }
+.bp-fill-img { display: block; flex: 1 1 auto; min-height: 0; width: calc(100% + var(--mm) * 7); height: calc(100% + var(--mm) * 7); margin: calc(var(--mm) * -3.5); object-fit: contain; object-position: center; }
 .bp-frame > .bp-content { padding: calc(var(--mm) * 3.5); height: 100%; box-sizing: border-box; display: flex; flex-direction: column; }
 .bp-footer-img { position: absolute; left: 0; top: calc(var(--mm) * 285.67); width: 100%; height: calc(var(--mm) * 11.33); }
 .bp-footer-text { position: absolute; inset: 0; pointer-events: none; }
