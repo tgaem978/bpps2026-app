@@ -132,9 +132,9 @@ function CommitteeChart({ block, ctx, from, to }: { block: CommitteeBlock; ctx: 
                         {c.note && <p className="bp-cmc-note">{c.note}</p>}
                       </>
                     ) : (
-                      <div className="bp-chip">
+                      <div className={`bp-chip${c.names ? ' bp-chip-multi' : ''}`}>
                         <p className="bp-chip-role">{t(c.role)}</p>
-                        <p className="bp-chip-name">{c.name}</p>
+                        {(c.names ?? [c.name]).map((nm, k) => <p key={k} className="bp-chip-name">{nm}</p>)}
                         {c.note && <p className="bp-cmc-note">{c.note}</p>}
                       </div>
                     )}

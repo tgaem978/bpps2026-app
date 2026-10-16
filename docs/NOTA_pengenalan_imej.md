@@ -14,3 +14,4 @@
 ## HEM (semakan terkini, menggantikan susunan selang-seli)
 - Susunan asal dipulihkan: semua JK Unit (1-10) dahulu, kemudian halaman pengenalan Bidang Tugas dan 8 Bidang Tugas. Bidang Tugas disusun ikut turutan JK berkaitan: Bimbingan & Kaunseling, Disiplin & Pengawas, Kebajikan & COMBI, Kantin, RMT, SPBT, Kesihatan & Rawatan, Keselamatan & Kebersihan (`HEM_TUGAS_ORDER` dalam partHEM.ts; migrasi v13).
 - JK Induk HEM: jadual "Guru Penyelaras Unit" dibuang; setiap unit kini kad nama (jawatan unit + nama) dalam carta induk di bawah aras Setiausaha.
+- Carta JK Induk HEM: setiap unit & Setiausaha = satu kad (tajuk unit, nama sesi pagi, nama sesi petang) — `CommitteeRow.stack`; nama tanpa bin/binti/a/l/a/p (`CommitteeBlock.cleanNames`, `shortName` dalam resolve.ts). Gambar pentadbir dikecilkan (carta jawatankuasa 17→15mm, utama 25→22mm; carta organisasi 22→20 / 30→27mm) dan diletakkan tengah-tengah bulatan (`object-position: center center`). Migrasi v14.

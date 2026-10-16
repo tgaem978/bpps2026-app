@@ -55,7 +55,10 @@ export function resolveMembers(ctx: BookCtx, refs: MemberRef[]): ResolvedMember[
 }
 
 /** Kad carta jawatankuasa dan barisnya (satu baris = satu unit penomboran). */
-export interface ChartCard extends ResolvedMember { role: string }
+export interface ChartCard extends ResolvedMember { role: string; names?: string[] }
+
+/** Nama ringkas: buang bin / binti / a/l / a/p. */
+export const shortName = (n: string) => n.replace(/\b(BIN|BINTI|BT|BTE|A\/L|A\/P)\b\.?/gi, ' ').replace(/\s{2,}/g, ' ').replace(/\s+([,@])/g, '$1').trim();
 export interface ChartLine { cards: ChartCard[]; label: string; tierStart: boolean; lead: boolean }
 
 /** Aras carta: peranan berawalan sama berada pada aras yang sama (cth. semua "Ketua Panitia ..."). */
@@ -71,7 +74,11 @@ export function committeeChartLines(b: CommitteeBlock, ctx: BookCtx, perLine = 5
       tiers.push({ label: r.role, key: '#group', cards: [] });
       continue;
     }
-    const cards = resolveMembers(ctx, r.members).map((m) => ({ ...m, role: r.role }));
+    let cards: ChartCard[];
+    const resolved = resolveMembers(ctx, r.members);
+    const nm = (x: string) => (b.cleanNames ? shortName(x) : x);
+    if (r.stack && resolved.length) cards = [{ ...resolved[0], name: nm(resolved[0].name), names: resolved.map((m) => nm(m.name)), role: r.role }];
+    else cards = resolved.map((m) => ({ ...m, name: nm(m.name), role: r.role }));
     if (!cards.length) continue;
     const k = tierKey(r.role);
     const cur = tiers[tiers.length - 1];

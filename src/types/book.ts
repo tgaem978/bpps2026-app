@@ -61,13 +61,19 @@ export type MemberRef =
   | { kind: 'position'; value: string }
   | { kind: 'text'; value: string };
 /** group = baris label kumpulan tanpa ahli (cth. "Ketua Guru Penasihat"). */
-export interface CommitteeRow { id: string; role: string; members: MemberRef[]; group?: boolean }
+export interface CommitteeRow {
+  id: string; role: string; members: MemberRef[]; group?: boolean;
+  /** Carta bergambar: semua ahli baris ini dipaparkan dalam SATU kad (tajuk = peranan, nama disusun ke bawah). */
+  stack?: boolean;
+}
 export interface CommitteeBlock extends BaseBlock {
   type: 'committee'; title: string; rows: CommitteeRow[];
   /** 'list' = senarai peranan (lalai); 'chart' = carta bergambar mengikut aras */
   display?: 'list' | 'chart';
   /** Papar kategori jawatan di sebelah nama (lalai: ya) */
   showPosition?: boolean;
+  /** Carta bergambar: buang bin/binti/a/l/a/p daripada nama pada kad. */
+  cleanNames?: boolean;
   /** Carta bergambar: jawatan pentadbir yang diletakkan di tengah aras pentadbir, cth. 'GPK Kokurikulum'. */
   focus?: string;
 }

@@ -42,7 +42,6 @@ const jk = (title: string, setiausaha: string, naibSetiausaha: string | string[]
 const posRow = (role: string, ...positions: string[]): CommitteeRow => ({
   id: uid(), role, members: positions.map((value): MemberRef => ({ kind: 'position', value })),
 });
-const dbRow = (role: string, ...names: string[]): CommitteeRow => ({ id: uid(), role, members: names.map(member) });
 
 const INDUK: [string, string, string][] = [
   ['Guru Bimbingan dan Kaunseling', 'ZURIFAH BINTI ABD RAHMAN', 'NUR FAKHIRA BT JALALUDDIN'],
@@ -65,7 +64,8 @@ const INDUK: [string, string, string][] = [
   ['GP Baitulmal', 'YAACOB BIN ISMAIL', 'ROSNAYA BINTI MAT ISA'],
   ['GP SSDM', 'MUHAMMAD IZWAN BIN HALIM', 'ROHAZLINDA BT ISSAHAK'],
 ];
-/** Kad unit dalam carta induk: satu baris (jawatan unit) bagi setiap unit; nama tanpa jawatan lain. Baris unit kosong = nama tambahan unit sebelumnya. */
+/** Kad unit dalam carta induk: SATU kad bagi setiap unit - tajuk unit, nama sesi pagi, nama sesi petang (tiada jawatan lain). */
+const stackRow = (role: string, ...names: string[]): CommitteeRow => ({ id: uid(), role, members: names.map(member), stack: true });
 const indukUnitRows = (): CommitteeRow[] => {
   const units: { unit: string; names: string[] }[] = [];
   for (const [unit, a, b] of INDUK) {
@@ -73,7 +73,7 @@ const indukUnitRows = (): CommitteeRow[] => {
     if (unit || !units.length) units.push({ unit, names });
     else units[units.length - 1].names.push(...names);
   }
-  return units.map(({ unit, names }) => dbRow(unit, ...names));
+  return units.map(({ unit, names }) => stackRow(unit, ...names));
 };
 
 /** Susunan halaman Bidang Tugas (ikut turutan JK Unit berkaitan). */
@@ -135,11 +135,11 @@ export const partHemSections = (): Record<string, SectionContent> => ({
   ]),
   'hem-jk-induk': sec('JAWATANKUASA INDUK UNIT HAL EHWAL MURID', 'SESI 2026', [
     {
-      id: uid(), type: 'committee', title: '', display: 'chart', focus: PKHEM,
+      id: uid(), type: 'committee', title: '', display: 'chart', focus: PKHEM, cleanNames: true,
       rows: [
         posRow('Pengerusi', GB),
         posRow('Naib Pengerusi', PKP, PKHEM, PKKO, PKPTG, PKPK),
-        dbRow('Setiausaha Hal Ehwal Murid', 'ZIRWATUL RAFIDAH BINTI RAHIM', 'SITI NORLIANA BINTI MOHD NOR'),
+        stackRow('Setiausaha Hal Ehwal Murid', 'ZIRWATUL RAFIDAH BINTI RAHIM', 'SITI NORLIANA BINTI MOHD NOR'),
         { id: uid(), role: 'Guru Penyelaras Unit', members: [], group: true },
         ...indukUnitRows(),
       ],

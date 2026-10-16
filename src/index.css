@@ -324,14 +324,14 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
    Kad bergambar (bulat, bingkai berganda) untuk Guru Besar dan pentadbir sahaja; ahli lain berkad nama. */
 .bp-oc { --oc-line: calc(var(--mm) * .4) solid color-mix(in srgb, var(--m-head-bg) 60%, transparent); }
 .bp-oc .bp-oc-photo {
-  width: calc(var(--mm) * 22); aspect-ratio: 1; border-radius: 50%; overflow: visible; background: #E6ECF0; margin-top: calc(var(--mm) * 2.9);
+  width: calc(var(--mm) * 20); aspect-ratio: 1; border-radius: 50%; overflow: visible; background: #E6ECF0; margin-top: calc(var(--mm) * 2.9);
   box-shadow: 0 0 0 calc(var(--mm) * .8) #fff, 0 0 0 calc(var(--mm) * 1.5) var(--m-accent), 0 0 0 calc(var(--mm) * 2.2) #fff,
     0 0 0 calc(var(--mm) * 2.7) var(--m-head-bg), 0 calc(var(--mm) * 1.2) calc(var(--mm) * 3.2) rgba(10,30,45,.28);
 }
-.bp-oc .bp-oc-photo > img, .bp-oc .bp-oc-photo > svg { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: center top; display: block; }
-.bp-oc .bp-oc-lead .bp-oc-photo { width: calc(var(--mm) * 30); }
-.bp-cmc .bp-oc-photo { width: calc(var(--mm) * 17); }
-.bp-cmc .bp-oc-lead .bp-oc-photo { width: calc(var(--mm) * 25); }
+.bp-oc .bp-oc-photo > img, .bp-oc .bp-oc-photo > svg { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: center center; display: block; }
+.bp-oc .bp-oc-lead .bp-oc-photo { width: calc(var(--mm) * 27); }
+.bp-cmc .bp-oc-photo { width: calc(var(--mm) * 15); }
+.bp-cmc .bp-oc-lead .bp-oc-photo { width: calc(var(--mm) * 22); }
 .bp-oc .bp-oc-focus .bp-oc-photo { transform: scale(1.16); transform-origin: 50% 0; }
 .bp-oc .bp-oc-focus .bp-plate { margin-top: calc(var(--mm) * 6); }
 .bp-plate {
@@ -352,3 +352,5 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
 }
 .bp-chip-role { margin: 0; font-weight: 700; font-size: calc(var(--pt) * 5.6); letter-spacing: .07em; text-transform: uppercase; color: var(--m-accent); line-height: 1.2; }
 .bp-chip-name { margin: calc(var(--mm) * .5) 0 0; font-family: var(--m-title-font); font-weight: 600; font-size: calc(var(--pt) * 6.8); line-height: 1.22; text-transform: uppercase; color: var(--m-title-color); }
+.bp-chip-multi .bp-chip-name { font-size: calc(var(--pt) * 6.2); margin-top: calc(var(--mm) * .35); }
+.bp-chip-multi .bp-chip-name + .bp-chip-name { margin-top: calc(var(--mm) * .15); }

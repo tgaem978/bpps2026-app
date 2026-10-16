@@ -172,6 +172,11 @@ function migrateV13(p: Partial<BookState>) {
   if (p.sections) for (const id of ['hem-tugas', 'hem-jk-induk']) if (p.sections[id] && p.sections[id].updatedAt === null) delete p.sections[id];
 }
 
+/** v14: carta JK Induk HEM - kad unit (nama pagi/petang), nama ringkas; halaman lalai dimuat semula. */
+function migrateV14(p: Partial<BookState>) {
+  if (p.sections && p.sections['hem-jk-induk'] && p.sections['hem-jk-induk'].updatedAt === null) delete p.sections['hem-jk-induk'];
+}
+
 /**
  * v6: halaman Pengenalan kini daripada PDF (halaman penuh). Bahagian Pengenalan yang belum disunting diganti
  * dengan kandungan lalai baharu; tajuk "Teras Perkhidmatan Awam & Budaya Kerja Sekolah" ditambah.
@@ -340,7 +345,7 @@ export const useBookStore = create<BookState>()(
     },
     {
       name: 'bpps2026-book',
-      version: 13,
+      version: 14,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -356,6 +361,7 @@ export const useBookStore = create<BookState>()(
         if (version < 10) migrateV10(p);
         if (version < 11) migrateV11(p);
         if (version < 13) migrateV13(p);
+        if (version < 14) migrateV14(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),
