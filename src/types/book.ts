@@ -74,6 +74,8 @@ export interface CommitteeBlock extends BaseBlock {
   showPosition?: boolean;
   /** Carta bergambar: buang bin/binti/a/l/a/p daripada nama pada kad. */
   cleanNames?: boolean;
+  /** Carta bergambar: mesti muat dalam SATU halaman (dipadatkan automatik jika perlu). */
+  onePage?: boolean;
   /** Carta bergambar: jawatan pentadbir yang diletakkan di tengah aras pentadbir, cth. 'GPK Kokurikulum'. */
   focus?: string;
 }

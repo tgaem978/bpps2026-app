@@ -135,7 +135,7 @@ export const partHemSections = (): Record<string, SectionContent> => ({
   ]),
   'hem-jk-induk': sec('JAWATANKUASA INDUK UNIT HAL EHWAL MURID', 'SESI 2026', [
     {
-      id: uid(), type: 'committee', title: '', display: 'chart', focus: PKHEM, cleanNames: true,
+      id: uid(), type: 'committee', title: '', display: 'chart', focus: PKHEM, cleanNames: true, onePage: true,
       rows: [
         posRow('Pengerusi', GB),
         posRow('Naib Pengerusi', PKP, PKHEM, PKKO, PKPTG, PKPK),

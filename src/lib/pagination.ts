@@ -122,21 +122,34 @@ export function paginate(blocks: AnyBlock[], ctx: BookCtx, o: PaginateOpts): Seg
   for (const block of blocks) {
     let m = measure(block, ctx, o.pt, colW, o.sig);
     let density = 0;
-    if (block.type === 'table' || block.type === 'takwim') {
-      // Satu jadual satu halaman jika boleh: padatkan sedikit jika perlu, dan mula di halaman baharu
+    const onePageChart = block.type === 'committee' && block.display === 'chart' && !!block.onePage;
+    if (block.type === 'table' || block.type === 'takwim' || onePageChart) {
+      // Satu jadual/carta satu halaman jika boleh: padatkan sedikit jika perlu, dan mula di halaman baharu
       // jika ia muat sepenuhnya di sana tetapi tidak dalam baki ruang halaman semasa.
+      const levels = onePageChart ? [1, 2, 3] : [1, 2];
       if (total(m) > available) {
-        for (const d of [1, 2]) {
+        for (const d of levels) {
           const md = measure(block, ctx, o.pt, colW, o.sig, d);
-          if (total(md) <= available) { m = md; density = d; break; }
+          density = d;
+          m = md;
+          if (total(md) <= available) break;
         }
+        if (!onePageChart && total(m) > available) { m = measure(block, ctx, o.pt, colW, o.sig, 0); density = 0; }
       }
       const slot = slots[slots.length - 1];
       if (total(m) <= available && used + total(m) > available && slot.length > 0) {
         // Cuba padatkan supaya muat dalam baki ruang (kurang ruang kosong); jika tidak, mula halaman baharu.
         const room = available - used;
-        const fit = [1, 2].filter((d) => d > density).map((d) => ({ d, md: measure(block, ctx, o.pt, colW, o.sig, d) })).find((x) => total(x.md) <= room);
+        const fit = levels.filter((d) => d > density).map((d) => ({ d, md: measure(block, ctx, o.pt, colW, o.sig, d) })).find((x) => total(x.md) <= room);
         if (fit) { m = fit.md; density = fit.d; } else newSlot();
+      }
+      if (onePageChart) {
+        // Seluruh carta = satu segmen pada satu halaman (tidak dipecah).
+        if (used + total(m) > available && slots[slots.length - 1].length > 0) newSlot();
+        slots[slots.length - 1].push({ blockId: block.id, from: 0, to: m.units.length, density: density || undefined });
+        used += total(m);
+        lastKeep = null;
+        continue;
       }
     }
     m.units.forEach((h, i) => {

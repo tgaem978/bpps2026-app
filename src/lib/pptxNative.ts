@@ -149,7 +149,6 @@ class PageConverter {
       // Bingkai bulat berganda mengikut warna tema (emas + biru gelap) dan latar putih untuk gambar
       const mm = (this.origin.right - this.origin.left) / 210;
       const gold = hexVar(this.page, '--m-accent') ?? 'C99A2E';
-      const navy = hexVar(this.page, '--m-head-bg') ?? '1F3A5F';
       const ringAt = (exp: number, wpt: number, col: string) => {
         const e = exp * mm;
         slide.addShape('ellipse', {
@@ -157,8 +156,7 @@ class PageConverter {
           objectName: 'Bingkai gambar', fill: { type: 'none' }, line: { color: col, width: wpt },
         } as never);
       };
-      ringAt(2.45, 1.6, navy);
-      ringAt(1.15, 2.3, gold);
+      ringAt(1.25, 2, gold);
       slide.addShape('ellipse', { ...b, objectName: name, fill: { color: 'FFFFFF' }, line: { type: 'none' } } as never);
       return;
     }

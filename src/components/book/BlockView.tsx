@@ -97,11 +97,11 @@ function OrgChart({ block, ctx }: { block: OrgChartBlock; ctx: BookCtx }) {
 }
 
 /** Jawatankuasa sebagai carta bergambar: aras demi aras, maksimum 5 kad sebaris (setiap baris = satu unit). */
-function CommitteeChart({ block, ctx, from, to }: { block: CommitteeBlock; ctx: BookCtx; from: number; to: number }) {
+function CommitteeChart({ block, ctx, from, to, density = 0 }: { block: CommitteeBlock; ctx: BookCtx; from: number; to: number; density?: number }) {
   const t = (s: string) => resolveTokens(s, ctx);
   const lines = committeeChartLines(block, ctx).slice(from, to);
   return (
-    <div className="bp-block">
+    <div className={`bp-block${density ? ` bp-dense-${density}` : ''}`}>
       {block.title && <h3 className="bp-heading bp-cm-title">{t(block.title)}{from > 0 ? ' (samb.)' : ''}</h3>}
       <div className="bp-oc bp-cmc">
         {lines.map((ln0, li) => {
@@ -284,7 +284,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
         </div>
       );
     case 'committee': {
-      if (block.display === 'chart') return <CommitteeChart block={block} ctx={ctx} from={from} to={end} />;
+      if (block.display === 'chart') return <CommitteeChart block={block} ctx={ctx} from={from} to={end} density={density} />;
       const showPos = block.showPosition !== false;
       return (
         <div className="bp-block">
