@@ -147,17 +147,11 @@ class PageConverter {
     const name = el.className && typeof el.className === 'string' ? el.className.split(' ')[0] : el.tagName;
     if (el.classList.contains('bp-oc-photo')) {
       // Bingkai bulat berganda mengikut warna tema (emas + biru gelap) dan latar putih untuk gambar
-      const mm = (this.origin.right - this.origin.left) / 210;
       const gold = hexVar(this.page, '--m-accent') ?? 'C99A2E';
-      const ringAt = (exp: number, wpt: number, col: string) => {
-        const e = exp * mm;
-        slide.addShape('ellipse', {
-          ...this.box(new DOMRect(r.left - e, r.top - e, r.width + 2 * e, r.height + 2 * e)),
-          objectName: 'Bingkai gambar', fill: { type: 'none' }, line: { color: col, width: wpt },
-        } as never);
-      };
-      ringAt(1.25, 2, gold);
-      slide.addShape('ellipse', { ...b, objectName: name, fill: { color: 'FFFFFF' }, line: { type: 'none' } } as never);
+      // gelang emas (tebal = 7.5% diameter, sama seperti CSS) dan gambar di dalamnya
+      const rw = Math.min(r.width, r.height) * 0.075;
+      slide.addShape('ellipse', { ...b, objectName: 'Bingkai gambar', fill: { color: gold }, line: { color: 'FFFFFF', width: 0.75 } } as never);
+      slide.addShape('ellipse', { ...this.box(new DOMRect(r.left + rw, r.top + rw, r.width - 2 * rw, r.height - 2 * rw)), objectName: name, fill: { color: 'FFFFFF' }, line: { color: 'B07A12', width: 0.75 } } as never);
       return;
     }
     if (fill || uniform || ring) {

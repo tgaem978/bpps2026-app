@@ -59,6 +59,17 @@ export interface ChartCard extends ResolvedMember { role: string; names?: string
 
 /** Nama ringkas: buang bin / binti / a/l / a/p. */
 export const shortName = (n: string) => n.replace(/\b(BIN|BINTI|BT|BTE|A\/L|A\/P)\b\.?/gi, ' ').replace(/\s{2,}/g, ' ').replace(/\s+([,@])/g, '$1').trim();
+
+/**
+ * Ejaan nama pada kad carta (seragam untuk semua carta): HURUF BESAR, tanpa bin/binti/a/l/a/p
+ * (kecuali `keepFull`), jarak tunggal dan alias "@" dengan ruang di kiri dan kanan.
+ */
+export const chartName = (n: string, keepFull = false) =>
+  (keepFull ? n : shortName(n)).replace(/\s*@\s*/g, ' @ ').replace(/\s{2,}/g, ' ').trim().toLocaleUpperCase('ms');
+
+/** Ejaan jawatan/peranan pada kad carta: jarak tunggal dan "&" dengan ruang; huruf besar dikawal oleh CSS. */
+export const chartRole = (r: string) => r.replace(/\s*&\s*/g, ' & ').replace(/\s{2,}/g, ' ').trim();
+
 export interface ChartLine { cards: ChartCard[]; label: string; tierStart: boolean; lead: boolean }
 
 /** Aras carta: peranan berawalan sama berada pada aras yang sama (cth. semua "Ketua Panitia ..."). */
@@ -76,7 +87,7 @@ export function committeeChartLines(b: CommitteeBlock, ctx: BookCtx, perLine = 5
     }
     let cards: ChartCard[];
     const resolved = resolveMembers(ctx, r.members);
-    const nm = (x: string) => (b.cleanNames ? shortName(x) : x);
+    const nm = (x: string) => chartName(x, b.cleanNames === false);
     if (r.stack && resolved.length) cards = [{ ...resolved[0], name: nm(resolved[0].name), names: resolved.map((m) => nm(m.name)), role: r.role }];
     else cards = resolved.map((m) => ({ ...m, name: nm(m.name), role: r.role }));
     if (!cards.length) continue;

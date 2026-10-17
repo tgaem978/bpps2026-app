@@ -195,37 +195,6 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 .bp-toc-l2 .bp-toc-text::before { content: '–'; color: var(--m-accent); margin-right: calc(var(--mm) * 1.8); }
 tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(--m-frame-bg); }
 
-/* Carta organisasi */
-.bp-oc { padding-top: calc(var(--mm) * 4); --oc-line: calc(var(--mm) * .35) solid var(--m-head-bg); }
-.bp-oc-row { position: relative; padding-top: calc(var(--mm) * 12); }
-.bp-oc-row.bp-oc-first { padding-top: 0; }
-.bp-oc-drop { position: absolute; left: 50%; top: 0; height: calc(var(--mm) * 6); border-left: var(--oc-line); }
-.bp-oc-bus { position: absolute; top: calc(var(--mm) * 6); border-top: var(--oc-line); }
-.bp-oc-cards { display: flex; justify-content: center; }
-.bp-oc-card { position: relative; box-sizing: border-box; padding: 0 calc(var(--mm) * 1.5); display: flex; flex-direction: column; align-items: center; text-align: center; }
-.bp-oc-stub { position: absolute; top: calc(var(--mm) * -6); left: 50%; height: calc(var(--mm) * 6); border-left: var(--oc-line); }
-.bp-oc-photo {
-  width: calc(var(--mm) * 26); aspect-ratio: 4 / 5; border-radius: calc(var(--mm) * 2); overflow: hidden; background: #E6ECF0;
-  box-shadow: 0 0 0 calc(var(--mm) * .55) #fff, 0 0 0 calc(var(--mm) * .95) var(--m-accent), 0 calc(var(--mm) * 1) calc(var(--mm) * 2.6) rgba(10,30,45,.22);
-}
-.bp-oc-lead .bp-oc-photo { width: calc(var(--mm) * 34); }
-.bp-oc-photo img, .bp-avatar { width: 100%; height: 100%; object-fit: cover; display: block; }
-.bp-oc-pos {
-  margin: calc(var(--mm) * 3) 0 0; font-family: var(--m-title-font); font-weight: 600; font-size: calc(var(--pt) * 6.4); letter-spacing: .09em;
-  text-transform: uppercase; color: var(--m-accent); line-height: 1.2;
-}
-.bp-oc-name { margin: calc(var(--mm) * .9) 0 0; font-family: var(--m-title-font); font-weight: 700; font-size: calc(var(--pt) * 7.8); line-height: 1.22; color: var(--m-title-color); text-transform: uppercase; }
-.bp-oc-lead .bp-oc-pos { font-size: calc(var(--pt) * 7.4); }
-.bp-oc-lead .bp-oc-name { font-size: calc(var(--pt) * 10); }
-.bp-oc-gbox { width: 100%; border: calc(var(--mm) * .3) solid rgba(0,67,88,.3); border-radius: calc(var(--mm) * 1.5); overflow: hidden; background: #fff; }
-.bp-oc-gtitle {
-  margin: 0; background: var(--m-head-bg); color: var(--m-head-color); border-bottom: calc(var(--mm) * .5) solid var(--m-head-accent);
-  font-family: var(--m-title-font); font-weight: 600; font-size: calc(var(--pt) * 6.2); letter-spacing: .06em; text-transform: uppercase; line-height: 1.25;
-  padding: calc(var(--mm) * 1.5) calc(var(--mm) * 1.5); min-height: 2.5em; display: flex; align-items: center; justify-content: center;
-}
-.bp-oc-gname { margin: 0; padding: calc(var(--mm) * 1.3) calc(var(--mm) * 1.5); font-size: calc(var(--pt) * 7.6); font-weight: 600; line-height: 1.25; }
-.bp-oc-gname + .bp-oc-gname { border-top: calc(var(--mm) * .2) solid rgba(0,0,0,.07); }
-
 /* Jawatankuasa */
 .bp-cm-title { margin-bottom: calc(var(--mm) * 1); }
 .bp-cm-row { display: grid; grid-template-columns: calc(var(--mm) * 48) 1fr; border-bottom: calc(var(--mm) * .25) solid rgba(45,68,91,.16); padding: calc(var(--mm) * 1.6) 0; }
@@ -243,41 +212,6 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
   display: block; padding: calc(var(--mm) * 1.2) calc(var(--mm) * 2.5); border-left: calc(var(--mm) * .8) solid var(--m-accent);
   background: color-mix(in srgb, var(--m-accent) 13%, transparent); color: var(--m-head-bg);
   font-family: var(--m-title-font); font-weight: 700; font-size: .9em; letter-spacing: .04em; text-transform: uppercase;
-}
-
-/* Jawatankuasa - paparan carta bergambar (guna gaya carta organisasi) */
-.bp-cmc .bp-oc-row { padding-top: calc(var(--mm) * 10); }
-.bp-cmc .bp-oc-row.bp-oc-first { padding-top: 0; }
-.bp-cmc .bp-oc-row.bp-cmc-cont { padding-top: calc(var(--mm) * 4); }
-.bp-cmc .bp-oc-drop { height: calc(var(--mm) * 5); }
-.bp-cmc .bp-oc-bus { top: calc(var(--mm) * 5); }
-.bp-cmc .bp-oc-stub { top: calc(var(--mm) * -5); height: calc(var(--mm) * 5); }
-.bp-cmc .bp-oc-photo { width: calc(var(--mm) * 17); }
-.bp-cmc .bp-oc-lead .bp-oc-photo { width: calc(var(--mm) * 27); }
-/* Label peranan dikhaskan 2 baris supaya nama dalam satu baris kad sentiasa sejajar */
-.bp-cmc .bp-oc-pos {
-  margin-top: calc(var(--mm) * 2.2); font-size: calc(var(--pt) * 6); letter-spacing: .05em;
-  min-height: 2.4em; display: flex; align-items: flex-end; justify-content: center;
-}
-.bp-cmc .bp-oc-name { font-size: calc(var(--pt) * 7.2); }
-.bp-cmc .bp-oc-lead .bp-oc-pos { font-size: calc(var(--pt) * 7); }
-.bp-cmc .bp-oc-lead .bp-oc-name { font-size: calc(var(--pt) * 9.5); }
-.bp-cmc-note { margin: calc(var(--mm) * .5) 0 0; font-size: calc(var(--pt) * 6.4); line-height: 1.2; color: #5D6B75; }
-.bp-cmc-box {
-  width: 100%; box-sizing: border-box; padding: calc(var(--mm) * 2) calc(var(--mm) * 1.5); background: #fff;
-  border: calc(var(--mm) * .3) solid color-mix(in srgb, var(--m-head-bg) 30%, transparent); border-radius: calc(var(--mm) * 1.5);
-}
-.bp-cmc-box .bp-oc-pos { margin-top: 0; }
-.bp-cmc .bp-cmc-labelled { padding-top: calc(var(--mm) * 19); }
-.bp-cmc .bp-cmc-labelled.bp-oc-first { padding-top: calc(var(--mm) * 9); }
-.bp-cmc .bp-cmc-labelled .bp-oc-drop { height: calc(var(--mm) * 14); }
-.bp-cmc .bp-cmc-labelled .bp-oc-bus { top: calc(var(--mm) * 14); }
-.bp-cmc-label { position: absolute; left: 0; right: 0; top: calc(var(--mm) * 3); margin: 0; text-align: center; }
-.bp-oc-first > .bp-cmc-label { top: 0; }
-.bp-cmc-label span {
-  display: inline-block; padding: calc(var(--mm) * 1) calc(var(--mm) * 4); background: var(--m-head-bg); color: var(--m-head-color);
-  border: calc(var(--mm) * .4) solid var(--m-head-accent); font-family: var(--m-title-font); font-weight: 700;
-  font-size: calc(var(--pt) * 7); letter-spacing: .05em; text-transform: uppercase;
 }
 
 /* Senarai guru */
@@ -319,80 +253,105 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 
+/* ===== Carta organisasi & carta jawatankuasa BPPS =====
+   Satu bahasa visual: kad putih bergaris halus dengan jalur emas di atas.
+   - Kad bergambar (Guru Besar & pentadbir): gambar bulat separuh bertindih pada tepi atas kad.
+   - Kad nama (ahli lain & kumpulan): kad yang sama tanpa gambar.
+   Tipografi tunggal untuk semua kad (JAWATAN -> NAMA -> keterangan); semua saiz & jarak ialah pembolehubah
+   --oc-*, jadi mod padat (bp-dense-1..3) hanya menukar nilai, bukan peraturan. */
+.bp-oc {
+  --oc-photo: calc(var(--mm) * 16);      --oc-photo-lead: calc(var(--mm) * 22);
+  --oc-drop: calc(var(--mm) * 3.6);      --oc-label: calc(var(--mm) * 7.5);
+  --oc-pad-y: calc(var(--mm) * 1.3);     --oc-pad-x: calc(var(--mm) * 1.5);
+  --oc-name: calc(var(--pt) * 6.6);      --oc-name-lead: calc(var(--pt) * 8.6);
+  --oc-role: calc(var(--pt) * 5.2);      --oc-role-lead: calc(var(--pt) * 6.2);
+  --oc-sub: calc(var(--pt) * 5);
+  --oc-ink: var(--m-title-color);
+  --oc-gold: color-mix(in srgb, var(--m-accent) 82%, #000);   /* emas lebih gelap: kontras teks kecil */
+  --oc-line: calc(var(--mm) * .4) solid color-mix(in srgb, var(--m-head-bg) 60%, transparent);
+  padding-top: calc(var(--mm) * 3);
+}
+.bp-cmc { --oc-photo: calc(var(--mm) * 13); --oc-photo-lead: calc(var(--mm) * 18); }
 
-/* ===== Templat carta organisasi BPPS: kemas, elegan dan ikut warna tema =====
-   Kad bergambar (bulat, bingkai berganda) untuk Guru Besar dan pentadbir sahaja; ahli lain berkad nama. */
-.bp-oc { --oc-line: calc(var(--mm) * .4) solid color-mix(in srgb, var(--m-head-bg) 60%, transparent); }
-.bp-oc .bp-oc-photo {
-  /* Bingkai bulat ringkas & elegan: jurang putih nipis, gelang emas halus, bayang lembut */
-  width: calc(var(--mm) * 20); aspect-ratio: 1; border-radius: 50%; overflow: visible; background: #fff; margin-top: calc(var(--mm) * 2.4);
-  box-shadow: 0 0 0 calc(var(--mm) * .9) #fff, 0 0 0 calc(var(--mm) * 1.6) var(--m-accent), 0 calc(var(--mm) * 1) calc(var(--mm) * 2.4) rgba(10,30,45,.24);
-}
-.bp-oc .bp-oc-photo > img, .bp-oc .bp-oc-photo > svg { width: 100%; height: 100%; border-radius: 50%; border: 0; object-fit: cover; object-position: center center; display: block; }
-.bp-oc .bp-oc-lead .bp-oc-photo { width: calc(var(--mm) * 27); }
-.bp-cmc .bp-oc-photo { width: calc(var(--mm) * 15); }
-.bp-cmc .bp-oc-lead .bp-oc-photo { width: calc(var(--mm) * 22); }
-.bp-oc .bp-oc-focus .bp-oc-photo { transform: scale(1.16); transform-origin: 50% 0; }
-.bp-oc .bp-oc-focus .bp-plate { margin-top: calc(var(--mm) * 6); }
-.bp-plate {
-  box-sizing: border-box; width: 94%; margin: calc(var(--mm) * 4) auto 0; padding: calc(var(--mm) * 1.6) calc(var(--mm) * 1.8) calc(var(--mm) * 1.7);
-  background: var(--m-head-bg); color: var(--m-head-color); text-align: center; border-radius: calc(var(--mm) * 2.2);
-  border-bottom: calc(var(--mm) * .8) solid var(--m-accent); box-shadow: 0 calc(var(--mm) * .8) calc(var(--mm) * 2) rgba(10,30,45,.22);
-}
-.bp-plate-name { margin: 0; font-family: var(--m-title-font); font-weight: 700; font-size: calc(var(--pt) * 7.2); line-height: 1.2; text-transform: uppercase; color: var(--m-head-color); }
-.bp-plate-role { margin: calc(var(--mm) * .8) 0 0; font-weight: 600; font-size: calc(var(--pt) * 5.8); letter-spacing: .07em; text-transform: uppercase; color: var(--m-accent); line-height: 1.2; }
-.bp-plate-pos { margin: calc(var(--mm) * .3) 0 0; font-size: calc(var(--pt) * 5.6); letter-spacing: .04em; text-transform: uppercase; color: var(--m-head-color); line-height: 1.2; }
-.bp-oc-lead .bp-plate { width: 78%; }
-.bp-oc-lead .bp-plate-name { font-size: calc(var(--pt) * 9.5); }
-.bp-oc-lead .bp-plate-role { font-size: calc(var(--pt) * 7); }
-.bp-chip {
-  box-sizing: border-box; width: 94%; margin: 0 auto; padding: calc(var(--mm) * 1.5) calc(var(--mm) * 2) calc(var(--mm) * 1.7); background: #fff; text-align: left;
-  border: calc(var(--mm) * .25) solid color-mix(in srgb, var(--m-head-bg) 22%, transparent); border-left: calc(var(--mm) * 1.2) solid var(--m-accent);
-  border-radius: calc(var(--mm) * 1.6); box-shadow: 0 calc(var(--mm) * .5) calc(var(--mm) * 1.4) rgba(10,30,45,.12);
-}
-.bp-chip-role { margin: 0; font-weight: 700; font-size: calc(var(--pt) * 5.6); letter-spacing: .07em; text-transform: uppercase; color: var(--m-accent); line-height: 1.2; }
-.bp-chip-name { margin: calc(var(--mm) * .5) 0 0; font-family: var(--m-title-font); font-weight: 600; font-size: calc(var(--pt) * 6.8); line-height: 1.22; text-transform: uppercase; color: var(--m-title-color); }
-.bp-chip-multi .bp-chip-name { font-size: calc(var(--pt) * 6.2); margin-top: calc(var(--mm) * .35); }
-.bp-chip-multi .bp-chip-name + .bp-chip-name { margin-top: calc(var(--mm) * .15); }
+/* Baris & penyambung */
+.bp-oc-row { position: relative; padding-top: calc(var(--oc-drop) * 2); }
+.bp-oc-row.bp-oc-first { padding-top: 0; }
+.bp-oc-drop { position: absolute; left: 50%; top: 0; height: var(--oc-drop); border-left: var(--oc-line); }
+.bp-oc-bus { position: absolute; top: var(--oc-drop); border-top: var(--oc-line); }
+.bp-oc-cards { display: flex; justify-content: center; align-items: stretch; }
+.bp-oc-card { position: relative; box-sizing: border-box; padding: 0 calc(var(--mm) * 1.2); display: flex; flex-direction: column; align-items: center; }
+.bp-oc-stub { position: absolute; top: calc(var(--oc-drop) * -1); left: 50%; height: var(--oc-drop); border-left: var(--oc-line); }
+.bp-cmc .bp-oc-row.bp-cmc-cont { padding-top: calc(var(--oc-drop) * .8); }
+.bp-oc-lead { --oc-photo: var(--oc-photo-lead); --oc-name: var(--oc-name-lead); --oc-role: var(--oc-role-lead); }
 
-/* Carta jawatankuasa dipadatkan supaya muat satu halaman (density 1-3) */
-.bp-dense-1 .bp-cmc .bp-oc-photo { width: calc(var(--mm) * 13); margin-top: calc(var(--mm) * 1.8); }
-.bp-dense-1 .bp-cmc .bp-oc-lead .bp-oc-photo { width: calc(var(--mm) * 19); }
-.bp-dense-1 .bp-cmc .bp-plate { margin-top: calc(var(--mm) * 3); padding: calc(var(--mm) * 1.1) calc(var(--mm) * 1.4); }
-.bp-dense-1 .bp-cmc .bp-oc-row { padding-top: calc(var(--mm) * 7); }
-.bp-dense-1 .bp-cmc .bp-oc-row.bp-cmc-cont { padding-top: calc(var(--mm) * 3); }
-.bp-dense-1 .bp-cmc .bp-oc-drop, .bp-dense-1 .bp-cmc .bp-oc-stub { height: calc(var(--mm) * 3.5); }
-.bp-dense-1 .bp-cmc .bp-oc-bus { top: calc(var(--mm) * 3.5); }
-.bp-dense-1 .bp-cmc .bp-oc-stub { top: calc(var(--mm) * -3.5); }
-.bp-dense-1 .bp-cmc .bp-cmc-labelled { padding-top: calc(var(--mm) * 13); }
-.bp-dense-1 .bp-cmc .bp-cmc-labelled .bp-oc-drop { height: calc(var(--mm) * 9); }
-.bp-dense-1 .bp-cmc .bp-cmc-labelled .bp-oc-bus { top: calc(var(--mm) * 9); }
-.bp-dense-1 .bp-cmc .bp-chip { padding: calc(var(--mm) * 1.1) calc(var(--mm) * 1.6) calc(var(--mm) * 1.2); }
-.bp-dense-2 .bp-cmc .bp-oc-photo { width: calc(var(--mm) * 11); margin-top: calc(var(--mm) * 1.5); }
-.bp-dense-2 .bp-cmc .bp-oc-lead .bp-oc-photo { width: calc(var(--mm) * 16); }
-.bp-dense-2 .bp-cmc .bp-plate { margin-top: calc(var(--mm) * 2.4); padding: calc(var(--mm) * .8) calc(var(--mm) * 1.2); }
-.bp-dense-2 .bp-cmc .bp-oc-row { padding-top: calc(var(--mm) * 5.5); }
-.bp-dense-2 .bp-cmc .bp-oc-row.bp-cmc-cont { padding-top: calc(var(--mm) * 2.5); }
-.bp-dense-2 .bp-cmc .bp-oc-drop, .bp-dense-2 .bp-cmc .bp-oc-stub { height: calc(var(--mm) * 2.8); }
-.bp-dense-2 .bp-cmc .bp-oc-bus { top: calc(var(--mm) * 2.8); }
-.bp-dense-2 .bp-cmc .bp-oc-stub { top: calc(var(--mm) * -2.8); }
-.bp-dense-2 .bp-cmc .bp-cmc-labelled { padding-top: calc(var(--mm) * 11); }
-.bp-dense-2 .bp-cmc .bp-cmc-labelled .bp-oc-drop { height: calc(var(--mm) * 7.5); }
-.bp-dense-2 .bp-cmc .bp-cmc-labelled .bp-oc-bus { top: calc(var(--mm) * 7.5); }
-.bp-dense-2 .bp-cmc .bp-chip { padding: calc(var(--mm) * .8) calc(var(--mm) * 1.4) calc(var(--mm) * .9); }
-.bp-dense-2 .bp-cmc .bp-chip-role { font-size: calc(var(--pt) * 5.2); }
-.bp-dense-2 .bp-cmc .bp-chip-name, .bp-dense-2 .bp-chip-multi .bp-chip-name { font-size: calc(var(--pt) * 5.8); }
-.bp-dense-3 .bp-cmc .bp-oc-photo { width: calc(var(--mm) * 9.5); margin-top: calc(var(--mm) * 1.2); }
-.bp-dense-3 .bp-cmc .bp-oc-lead .bp-oc-photo { width: calc(var(--mm) * 13); }
-.bp-dense-3 .bp-cmc .bp-plate { margin-top: calc(var(--mm) * 2); padding: calc(var(--mm) * .6) calc(var(--mm) * 1); }
-.bp-dense-3 .bp-cmc .bp-oc-row { padding-top: calc(var(--mm) * 4.5); }
-.bp-dense-3 .bp-cmc .bp-oc-row.bp-cmc-cont { padding-top: calc(var(--mm) * 2); }
-.bp-dense-3 .bp-cmc .bp-oc-drop, .bp-dense-3 .bp-cmc .bp-oc-stub { height: calc(var(--mm) * 2.2); }
-.bp-dense-3 .bp-cmc .bp-oc-bus { top: calc(var(--mm) * 2.2); }
-.bp-dense-3 .bp-cmc .bp-oc-stub { top: calc(var(--mm) * -2.2); }
-.bp-dense-3 .bp-cmc .bp-cmc-labelled { padding-top: calc(var(--mm) * 9.5); }
-.bp-dense-3 .bp-cmc .bp-cmc-labelled .bp-oc-drop { height: calc(var(--mm) * 6.5); }
-.bp-dense-3 .bp-cmc .bp-cmc-labelled .bp-oc-bus { top: calc(var(--mm) * 6.5); }
-.bp-dense-3 .bp-cmc .bp-chip { padding: calc(var(--mm) * .6) calc(var(--mm) * 1.2) calc(var(--mm) * .7); }
-.bp-dense-3 .bp-cmc .bp-chip-role { font-size: calc(var(--pt) * 4.8); }
-.bp-dense-3 .bp-cmc .bp-chip-name, .bp-dense-3 .bp-chip-multi .bp-chip-name { font-size: calc(var(--pt) * 5.2); }
+/* Kad */
+.bp-card {
+  box-sizing: border-box; width: 100%; flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; text-align: center;
+  padding: var(--oc-pad-y) var(--oc-pad-x) calc(var(--oc-pad-y) * 1.1); background: #fff;
+  border: calc(var(--mm) * .25) solid color-mix(in srgb, var(--m-head-bg) 20%, transparent);
+  border-top: calc(var(--mm) * .8) solid var(--m-accent); border-radius: calc(var(--mm) * 1.6);
+  box-shadow: 0 calc(var(--mm) * .5) calc(var(--mm) * 1.4) rgba(10,30,45,.1);
+}
+.bp-oc-lead .bp-card { width: min(100%, calc(var(--mm) * 56)); flex: 0 0 auto; }
+.bp-oc-focus .bp-card { border-color: color-mix(in srgb, var(--m-accent) 65%, transparent); border-top-color: var(--m-accent); box-shadow: 0 calc(var(--mm) * .6) calc(var(--mm) * 1.8) rgba(10,30,45,.2); }
+
+/* Kad bergambar: gambar bulat separuh bertindih; hujung atas gambar bertemu penyambung.
+   Bingkai timbul: gelang emas logam bergradien (bevel: highlight atas-kiri, bayang bawah-kanan), bayang jatuh lembut,
+   dan alur dalam (inset) di sekeliling gambar supaya gambar kelihatan terbenam di dalam gelang. */
+.bp-card-leader { margin-top: calc(var(--oc-photo) * .5); padding-top: 0; }
+.bp-oc-photo {
+  --oc-ring: calc(var(--oc-photo) * .075);
+  position: relative; z-index: 1; flex: none; box-sizing: border-box; width: var(--oc-photo); aspect-ratio: 1; border-radius: 50%;
+  margin: calc(var(--oc-photo) * -.5 - var(--mm) * .8) auto calc(var(--mm) * 1.6);
+  background: conic-gradient(from 210deg, #FFE9A8, #E0A52E 18%, #9A6200 38%, #E9BB55 55%, #FFF0BF 68%, #C58A14 84%, #FFE9A8);
+  box-shadow:
+    inset 0 calc(var(--mm) * .35) calc(var(--mm) * .5) rgba(255,255,255,.75),
+    inset 0 calc(var(--mm) * -.4) calc(var(--mm) * .6) rgba(90,50,0,.55),
+    0 calc(var(--mm) * .3) 0 rgba(120,70,0,.35),
+    0 calc(var(--mm) * 1.1) calc(var(--mm) * 2.4) rgba(10,30,45,.38);
+}
+.bp-oc-photo > img, .bp-oc-photo > svg { position: absolute; inset: var(--oc-ring); width: calc(100% - 2 * var(--oc-ring)); height: calc(100% - 2 * var(--oc-ring)); border-radius: 50%; border: 0; object-fit: cover; object-position: center; display: block; }
+.bp-oc-photo::after {
+  content: ''; position: absolute; inset: var(--oc-ring); border-radius: 50%; pointer-events: none;
+  box-shadow: inset 0 calc(var(--mm) * .5) calc(var(--mm) * .9) rgba(0,0,0,.5), inset 0 calc(var(--mm) * -.25) calc(var(--mm) * .5) rgba(255,255,255,.28), 0 0 0 calc(var(--mm) * .22) rgba(255,255,255,.85);
+}
+
+/* Tipografi kad: JAWATAN (label) -> NAMA -> keterangan */
+.bp-card-role {
+  align-self: stretch; margin: 0 0 calc(var(--mm) * .7); padding: 0 0 calc(var(--mm) * .55);
+  border-bottom: calc(var(--mm) * .2) solid color-mix(in srgb, var(--m-head-bg) 16%, transparent);
+  font-family: var(--m-body-font); font-weight: 700; font-size: var(--oc-role); line-height: 1.2; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--oc-gold); text-wrap: balance;
+}
+.bp-card-names { margin-top: auto; display: grid; gap: calc(var(--mm) * .45); width: 100%; }
+.bp-card-name {
+  margin: 0; font-family: var(--m-title-font); font-weight: 700; font-size: var(--oc-name); line-height: 1.22; letter-spacing: .01em;
+  text-transform: uppercase; color: var(--oc-ink); text-wrap: balance; overflow-wrap: anywhere;
+}
+.bp-card-multi .bp-card-name + .bp-card-name { padding-top: calc(var(--mm) * .45); border-top: calc(var(--mm) * .15) dotted color-mix(in srgb, var(--m-head-bg) 30%, transparent); }
+.bp-card-plain .bp-card-names { margin: auto 0; }                /* kad nama: nama di tengah menegak ruang di bawah label */
+.bp-card-name.bp-one { white-space: nowrap; overflow-wrap: normal; text-wrap: nowrap; }   /* nama pentadbir: satu baris jika muat */
+.bp-card-empty { color: #7B8892; font-weight: 600; }
+.bp-card-sub, .bp-card-note {
+  margin: calc(var(--mm) * .6) 0 0; font-family: var(--m-body-font); font-weight: 500; font-size: var(--oc-sub); line-height: 1.2;
+  letter-spacing: .04em; color: #4F5F69;
+}
+.bp-card-sub { text-transform: uppercase; }
+
+/* Label kumpulan (cth. KETUA GURU PENASIHAT) pada carta jawatankuasa */
+.bp-cmc .bp-cmc-labelled { padding-top: calc(var(--oc-drop) * 2 + var(--oc-label)); }
+.bp-cmc .bp-cmc-labelled.bp-oc-first { padding-top: var(--oc-label); }
+.bp-cmc .bp-cmc-labelled .bp-oc-drop { height: calc(var(--oc-drop) + var(--oc-label)); }
+.bp-cmc .bp-cmc-labelled .bp-oc-bus { top: calc(var(--oc-drop) + var(--oc-label)); }
+.bp-cmc-label { position: absolute; left: 0; right: 0; top: calc(var(--oc-drop) * .6); margin: 0; text-align: center; }
+.bp-oc-first > .bp-cmc-label { top: 0; }
+.bp-cmc-label span {
+  display: inline-block; padding: calc(var(--mm) * .9) calc(var(--mm) * 4); background: var(--m-head-bg); color: var(--m-head-color);
+  border: calc(var(--mm) * .35) solid var(--m-head-accent); border-radius: calc(var(--mm) * 1.2); font-family: var(--m-body-font);
+  font-weight: 700; font-size: calc(var(--pt) * 5.8); letter-spacing: .1em; text-transform: uppercase;
+}
+
+/* Mod padat: carta jawatankuasa mesti muat satu halaman (density 1-3) - hanya nilai pembolehubah berubah */
+.bp-dense-1 .bp-cmc { --oc-photo: calc(var(--mm) * 11.5); --oc-photo-lead: calc(var(--mm) * 16); --oc-drop: calc(var(--mm) * 3); --oc-label: calc(var(--mm) * 6.5); --oc-pad-y: calc(var(--mm) * 1.1); --oc-pad-x: calc(var(--mm) * 1.3); --oc-name: calc(var(--pt) * 6.2); --oc-role: calc(var(--pt) * 4.9); --oc-sub: calc(var(--pt) * 4.7); }
+.bp-dense-2 .bp-cmc { --oc-photo: calc(var(--mm) * 10); --oc-photo-lead: calc(var(--mm) * 14); --oc-drop: calc(var(--mm) * 2.5); --oc-label: calc(var(--mm) * 6); --oc-pad-y: calc(var(--mm) * .9); --oc-pad-x: calc(var(--mm) * 1.1); --oc-name: calc(var(--pt) * 5.8); --oc-role: calc(var(--pt) * 4.6); --oc-sub: calc(var(--pt) * 4.4); }
+.bp-dense-3 .bp-cmc { --oc-photo: calc(var(--mm) * 9); --oc-photo-lead: calc(var(--mm) * 12); --oc-drop: calc(var(--mm) * 2); --oc-label: calc(var(--mm) * 5.5); --oc-pad-y: calc(var(--mm) * .7); --oc-pad-x: calc(var(--mm) * .9); --oc-name: calc(var(--pt) * 5.4); --oc-role: calc(var(--pt) * 4.3); --oc-sub: calc(var(--pt) * 4.1); }

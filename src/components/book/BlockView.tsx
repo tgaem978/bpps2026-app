@@ -1,7 +1,7 @@
 import type { AnyBlock, CommitteeBlock, OrgChartBlock } from '@/types/book';
 import type { Teacher } from '@/types/staff';
 import { kvPairs, listItems, paragraphParts, unitCount } from '@/lib/units';
-import { byPosition, committeeChartLines, nameOf, resolveMembers, resolveTokens, staffRows, valueText, type BookCtx } from '@/lib/resolve';
+import { byPosition, chartName, chartRole, committeeChartLines, nameOf, resolveMembers, resolveTokens, staffRows, valueText, type BookCtx } from '@/lib/resolve';
 import { arrangeFocus, isLeader } from '@/lib/orgLayout';
 import { fmtStyle } from '@/lib/format';
 
@@ -29,10 +29,47 @@ const chunk = <T,>(arr: T[], n: number) => Array.from({ length: Math.ceil(arr.le
 /** Kedudukan bas penyambung: dari tengah kad pertama ke tengah kad terakhir (kad selebar 100/slots %, berpusat). */
 const busInset = (n: number, slots: number) => `${(100 - (n * 100) / slots) / 2 + 50 / slots}%`;
 
+/**
+ * Nama pentadbir (kad bergambar) dipaparkan SATU baris jika muat: anggaran lebar huruf besar tebal (~0.74 em/huruf) berbanding
+ * lebar dalam kad (mm). Saiz nama diseragamkan dalam satu baris kad (skala sepunya, tidak kurang 82%); nama yang masih
+ * tidak muat pada skala itu dibalut dua baris pada saiz yang sama.
+ */
+const CONTENT_MM = 192;
+const MIN_SCALE = 0.82;
+interface NameFit { one: boolean; scale: number }
+function rowNameFit(names: string[], slotMm: number, lead: boolean): NameFit[] {
+  const basePt = lead ? 8.6 : 6.6;
+  const inner = (lead ? Math.min(slotMm - 2.4, 56) : slotMm - 2.4) - 3.4;
+  const raw = names.map((n) => Math.min(1, inner / Math.max(1, n.length * 0.74 * basePt * 0.3528)));
+  const common = Math.min(1, ...raw.filter((r) => r >= MIN_SCALE));
+  return raw.map((r) => ({ one: r >= MIN_SCALE, scale: common }));
+}
+
+/**
+ * Satu bahasa visual untuk semua kad carta (organisasi & jawatankuasa):
+ *  - kad bergambar (Guru Besar & pentadbir): gambar bulat separuh bertindih pada tepi atas kad;
+ *  - kad nama (semua ahli lain, kumpulan penyelaras): kad yang sama tanpa gambar.
+ * Susunan teks sentiasa: JAWATAN (label kecil) → NAMA (tebal) → keterangan kecil (jika ada).
+ */
+function Card({ role, names, sub, note, leader, photo, who, fit }: { role: string; names: string[]; sub?: string; note?: string; leader?: boolean; photo?: string; who?: string; fit?: NameFit }) {
+  return (
+    <div className={`bp-card ${leader ? 'bp-card-leader' : 'bp-card-plain'}${names.length > 1 ? ' bp-card-multi' : ''}`}>
+      {leader && <div className="bp-oc-photo">{photo ? <img src={photo} alt="" /> : <Avatar name={who ?? names[0] ?? ''} />}</div>}
+      <p className="bp-card-role">{chartRole(role)}</p>
+      <div className="bp-card-names">
+        {names.length ? names.map((nm, k) => <p key={k} className={`bp-card-name${leader && fit?.one ? ' bp-one' : ''}`} style={leader && fit && fit.scale < 1 ? { fontSize: `calc(var(--oc-name) * ${fit.scale.toFixed(3)})` } : undefined}>{nm}</p>) : <p className="bp-card-name bp-card-empty">—</p>}
+      </div>
+      {sub && <p className="bp-card-sub">{chartRole(sub)}</p>}
+      {note && <p className="bp-card-note">{note}</p>}
+    </div>
+  );
+}
+
 type OcPerson = { name: string; position: string; photo: string };
 type OcRow = { kind: 'person'; items: OcPerson[] } | { kind: 'group'; items: { position: string; people: Teacher[] }[] };
 
 function OrgChart({ block, ctx }: { block: OrgChartBlock; ctx: BookCtx }) {
+  const full = block.cleanNames === false;
   const rows = block.levels.flatMap((lv): OcRow[] => {
     if (lv.display === 'group') {
       const groups = lv.positions.map((p) => ({ position: p, people: byPosition(ctx, p, block.session) }));
@@ -40,7 +77,7 @@ function OrgChart({ block, ctx }: { block: OrgChartBlock; ctx: BookCtx }) {
     }
     const people = lv.positions.flatMap((p): OcPerson[] => {
       const list = byPosition(ctx, p, block.session);
-      return list.length ? list.map((t) => ({ name: nameOf(t), position: p, photo: t.photo })) : [{ name: `[ ${p.toUpperCase()} ]`, position: p, photo: '' }];
+      return list.length ? list.map((t) => ({ name: chartName(nameOf(t), full), position: p, photo: t.photo })) : [{ name: `[ ${p.toUpperCase()} ]`, position: p, photo: '' }];
     });
     return chunk(people, 5).map((g) => ({ kind: 'person', items: g }));
   }).map((r): OcRow => (r.kind === 'person' ? { ...r, items: arrangeFocus(r.items, block.focus).items } : r));
@@ -49,43 +86,27 @@ function OrgChart({ block, ctx }: { block: OrgChartBlock; ctx: BookCtx }) {
     <div className="bp-oc">
       {rows.map((r, ri) => {
         const n = r.items.length;
+        const slots = Math.max(n, 3);
+        const fits = r.kind === 'person' ? rowNameFit(r.items.map((m) => m.name), CONTENT_MM / slots, ri === 0 && n === 1) : [];
         return (
           <div key={ri} className={`bp-oc-row ${ri === 0 ? 'bp-oc-first' : ''} ${r.kind === 'person' && ri === 0 && n === 1 ? 'bp-oc-lead' : ''}`}>
             {ri > 0 && <span className="bp-oc-drop" />}
-            {ri > 0 && n > 1 && <span className="bp-oc-bus" style={{ left: busInset(n, Math.max(n, 3)), right: busInset(n, Math.max(n, 3)) }} />}
+            {ri > 0 && n > 1 && <span className="bp-oc-bus" style={{ left: busInset(n, slots), right: busInset(n, slots) }} />}
             <div className="bp-oc-cards">
               {r.kind === 'person'
                 ? r.items.map((m, i) => {
                     const focus = !!block.focus && m.position === block.focus && ri > 0 && n >= 3;
                     return (
-                      <div key={i} className={`bp-oc-card ${focus ? 'bp-oc-focus' : ''}`} style={{ width: `${100 / Math.max(n, 3)}%` }}>
-                        {ri > 0 && !focus && <span className="bp-oc-stub" />}
-                        {isLeader(m.position) ? (
-                          <>
-                            <div className="bp-oc-photo">{m.photo ? <img src={m.photo} alt="" /> : <Avatar name={m.name} />}</div>
-                            <div className="bp-plate">
-                              <p className="bp-plate-name">{m.name}</p>
-                              <p className="bp-plate-role">{m.position}</p>
-                            </div>
-                          </>
-                        ) : (
-                          <div className="bp-chip">
-                            <p className="bp-chip-role">{m.position}</p>
-                            <p className="bp-chip-name">{m.name}</p>
-                          </div>
-                        )}
+                      <div key={i} className={`bp-oc-card ${focus ? 'bp-oc-focus' : ''}`} style={{ width: `${100 / slots}%` }}>
+                        {ri > 0 && <span className="bp-oc-stub" />}
+                        <Card role={m.position} names={[m.name]} leader={isLeader(m.position)} photo={m.photo} who={m.name} fit={fits[i]} />
                       </div>
                     );
                   })
                 : r.items.map((g, i) => (
-                    <div key={i} className="bp-oc-card bp-oc-group" style={{ width: `${100 / Math.max(n, 3)}%` }}>
+                    <div key={i} className="bp-oc-card" style={{ width: `${100 / slots}%` }}>
                       {ri > 0 && <span className="bp-oc-stub" />}
-                      <div className="bp-oc-gbox">
-                        <p className="bp-oc-gtitle">{g.position}</p>
-                        {g.people.length
-                          ? g.people.map((t) => <p key={t.id} className="bp-oc-gname">{nameOf(t)}</p>)
-                          : <p className="bp-oc-gname bp-muted">—</p>}
-                      </div>
+                      <Card role={g.position} names={g.people.map((t) => chartName(nameOf(t), full))} />
                     </div>
                   ))}
             </div>
@@ -111,35 +132,33 @@ function CommitteeChart({ block, ctx, from, to, density = 0 }: { block: Committe
           const slots = Math.max(n, 4);
           // Penyambung hanya pada baris pertama setiap aras, dan bukan di atas halaman sambungan.
           const linked = ln.tierStart && li > 0;
+          const fits = rowNameFit(ln.cards.map((c) => c.name), ln.lead ? CONTENT_MM * 0.6 : CONTENT_MM / slots, ln.lead);
           const cls = ['bp-oc-row', 'u', li === 0 ? 'bp-oc-first' : '', ln.lead ? 'bp-oc-lead' : '', ln.tierStart ? '' : 'bp-cmc-cont', ln.label ? 'bp-cmc-labelled' : ''];
           return (
             <div key={li} className={cls.filter(Boolean).join(' ')}>
               {linked && <span className="bp-oc-drop" />}
               {linked && n > 1 && <span className="bp-oc-bus" style={{ left: busInset(n, slots), right: busInset(n, slots) }} />}
-              {ln.label && <p className="bp-cmc-label"><span>{t(ln.label)}</span></p>}
+              {ln.label && <p className="bp-cmc-label"><span>{chartRole(t(ln.label))}</span></p>}
               <div className="bp-oc-cards">
-                {ln.cards.map((c, i) => (
-                  <div key={i} className={`bp-oc-card ${arr.focusIndex === i ? 'bp-oc-focus' : ''}`} style={{ width: ln.lead ? '60%' : `${100 / slots}%` }}>
-                    {linked && arr.focusIndex !== i && <span className="bp-oc-stub" />}
-                    {c.person && isLeader(c.position) ? (
-                      <>
-                        <div className="bp-oc-photo">{c.photo ? <img src={c.photo} alt="" /> : <Avatar name={c.name} />}</div>
-                        <div className="bp-plate">
-                          <p className="bp-plate-name">{c.name}</p>
-                          <p className="bp-plate-role">{t(c.role)}</p>
-                          {c.position && t(c.role).toLowerCase() !== c.position.toLowerCase() && <p className="bp-plate-pos">{c.position}</p>}
-                        </div>
-                        {c.note && <p className="bp-cmc-note">{c.note}</p>}
-                      </>
-                    ) : (
-                      <div className={`bp-chip${c.names ? ' bp-chip-multi' : ''}`}>
-                        <p className="bp-chip-role">{t(c.role)}</p>
-                        {(c.names ?? [c.name]).map((nm, k) => <p key={k} className="bp-chip-name">{nm}</p>)}
-                        {c.note && <p className="bp-cmc-note">{c.note}</p>}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                {ln.cards.map((c, i) => {
+                  const leader = c.person && isLeader(c.position);
+                  const role = t(c.role);
+                  return (
+                    <div key={i} className={`bp-oc-card ${arr.focusIndex === i ? 'bp-oc-focus' : ''}`} style={{ width: ln.lead ? '60%' : `${100 / slots}%` }}>
+                      {linked && <span className="bp-oc-stub" />}
+                      <Card
+                        role={role}
+                        names={c.names ?? [c.name]}
+                        leader={leader}
+                        photo={c.photo}
+                        who={c.name}
+                        fit={fits[i]}
+                        sub={leader && c.position && role.toLowerCase() !== c.position.toLowerCase() ? c.position : undefined}
+                        note={c.note}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );

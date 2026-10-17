@@ -53,6 +53,8 @@ export interface OrgChartBlock extends BaseBlock {
   session: string;
   /** Jawatan pentadbir yang diletakkan di tengah (templat carta PPKI), cth. 'GPK Hal Ehwal Murid'. */
   focus?: string;
+  /** Nama pada kad: lalai tanpa bin/binti/a/l/a/p; `false` = kekalkan nama penuh. */
+  cleanNames?: boolean;
 }
 
 /** Ahli jawatankuasa: rujukan guru (dengan nota tugas pilihan), rujukan jawatan (automatik) atau teks bebas. */
@@ -72,7 +74,7 @@ export interface CommitteeBlock extends BaseBlock {
   display?: 'list' | 'chart';
   /** Papar kategori jawatan di sebelah nama (lalai: ya) */
   showPosition?: boolean;
-  /** Carta bergambar: buang bin/binti/a/l/a/p daripada nama pada kad. */
+  /** Carta bergambar: lalai buang bin/binti/a/l/a/p daripada nama pada kad; `false` = kekalkan nama penuh. */
   cleanNames?: boolean;
   /** Carta bergambar: mesti muat dalam SATU halaman (dipadatkan automatik jika perlu). */
   onePage?: boolean;
