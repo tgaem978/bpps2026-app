@@ -14,14 +14,7 @@ const pageImg = (title: string, file: string): SectionContent => ({
 export const partPengenalanSections = (): Record<string, SectionContent> => ({
   'b-rukun-negara': pageImg('RUKUN NEGARA & FALSAFAH PENDIDIKAN KEBANGSAAN', 'isi-03.jpg'),
   'b-aku-janji': pageImg('SURAT AKU JANJI', 'isi-04.jpg'),
-  'b-teras': pageImg('TERAS PERKHIDMATAN AWAM & BUDAYA KERJA SEKOLAH', 'isi-05.jpg'),
   'b-ikrar': pageImg('IKRAR PERKHIDMATAN AWAM & IKRAR INTEGRITI', 'isi-06.jpg'),
-  'b-fokus': pageImg('FOKUS PENGURUSAN PENDIDIKAN', 'isi-07.jpg'),
-  'b-ithink': pageImg('KBAT: PETA PEMIKIRAN i-THINK', 'isi-08.jpg'),
-  'b-5c': pageImg('PAK-21: KEMAHIRAN 5C', 'isi-09.jpg'),
-  'b-aspirasi': pageImg('ASPIRASI PENDIDIKAN', 'isi-10.jpg'),
-  'b-dpd': pageImg('DASAR PENDIDIKAN DIGITAL', 'isi-11.jpg'),
-  'b-ts25': pageImg('PROGRAM TRANSFORMASI SEKOLAH 2025 (TS25)', 'isi-12.jpg'),
   'b-spi': pageImg('SURAT PEKELILING IKHTISAS', 'isi-13.jpg'),
   'b-visi-kpm': pageImg('VISI DAN MISI KPM', 'isi-14.jpg'),
 });

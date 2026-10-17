@@ -5,6 +5,7 @@ import { kokuTopics, ppkiChildren } from '@/config/partKoku';
 import { HEM_TUGAS_ORDER, hemIds, hemTopics } from '@/config/partHEM';
 import { defaultCover, defaultOutline, defaultSections, newSection } from '@/config/defaultContent';
 import { pentadbiranTopics } from '@/config/partPentadbiran';
+import { OVERRIDES, REMOVED_IDS, partRujukanSections } from '@/config/partRujukan';
 import { createBlock, uid } from '@/lib/blocks';
 import { allIds } from '@/lib/outline';
 
@@ -218,7 +219,7 @@ function migrateV5(p: Partial<BookState>) {
   };
   swapIfUntouched('p-maklumat', ['kata-aluan', 'maklumat-sekolah']);
   const takwimSwapped = swapIfUntouched('p-takwim', ['takwim']);
-  if (!p.outline.some((x) => x.id === 'p-sekolah')) {
+  if (!p.outline.some((x) => x.id === 'p-sekolah') && defs.some((d) => d.id === 'p-sekolah')) {
     const present = new Set(p.outline.flatMap((x) => x.topics.flatMap((t) => [t.id, ...t.children])));
     // Profil sekolah dipindah ke bahagian Maklumat Sekolah
     p.outline = p.outline.map((x) => ({ ...x, topics: x.topics.filter((t) => t.id !== 'maklumat-sekolah') }));
@@ -257,6 +258,46 @@ function migrateV15(p: Partial<BookState>) {
     for (const t of pentadbiranTopics()) if (!present.has(t.id)) part.topics.push({ id: t.id, children: t.children.filter((c) => !present.has(c)) });
   }
   if (p.sections) for (const id of ['carta-organisasi', 'jk-pengurusan']) if (p.sections[id] && p.sections[id].updatedAt === null) delete p.sections[id];
+}
+
+/**
+ * v16: Susunan mengikut senarai KANDUNGAN dokumen rujukan (Maklumat Am → Pentadbiran → Kurikulum → HEM → Kokurikulum → Takwim).
+ * Halaman Pengenalan yang tidak perlu dipadam. Struktur baharu menggantikan struktur lama; tajuk lama yang telah disunting
+ * (atau tajuk/bahagian tambahan pengguna) TIDAK dipadam - diletakkan di hujung bahagian asal. Halaman lalai yang berubah
+ * tajuk/susunan dimuat semula (hanya jika belum disunting).
+ */
+function migrateV16(p: Partial<BookState>) {
+  const edited = (id: string) => !!p.sections?.[id] && p.sections[id].updatedAt !== null;
+  const defs = defaultOutline();
+  const old = p.outline;
+  if (p.sections) {
+    const refresh = [...REMOVED_IDS, ...Object.keys(OVERRIDES), ...Object.keys(partRujukanSections()), 'maklumat-sekolah', 'b-rukun-negara', 'b-ikrar', 'b-aku-janji', 'b-spi', 'b-visi-kpm'];
+    for (const id of refresh) if (p.sections[id] && p.sections[id].updatedAt === null) delete p.sections[id];
+    for (const id of REMOVED_IDS) if (p.sections[id] && p.sections[id].updatedAt === null) delete p.sections[id];
+  }
+  if (!old) return; // tiada struktur tersimpan → struktur lalai baharu digunakan
+  const fresh = new Set(defs.flatMap((d) => d.topics.flatMap((t) => [t.id, ...t.children])));
+  const removed = new Set(REMOVED_IDS);
+  // Tajuk lama yang tiada dalam struktur baharu: kekalkan jika disunting atau bukan tajuk lalai yang dipadam.
+  const leftovers: { part: string; id: string; children: string[] }[] = [];
+  for (const part of old) {
+    const home = part.id === 'p-sekolah' ? 'p-maklumat' : part.id;
+    for (const t of part.topics) {
+      const kids = t.children.filter((c) => !fresh.has(c) && (edited(c) || !removed.has(c)));
+      if (!fresh.has(t.id) && (edited(t.id) || !removed.has(t.id))) leftovers.push({ part: home, id: t.id, children: kids });
+      else if (kids.length) leftovers.push(...kids.map((c) => ({ part: home, id: c, children: [] as string[] })));
+    }
+  }
+  const result = defs.map((d) => ({ ...d, topics: d.topics.map((t) => ({ ...t, children: [...t.children] })) }));
+  for (const lf of leftovers) {
+    if (removed.has(lf.id) && !edited(lf.id)) continue;
+    const target = result.find((x) => x.id === lf.part) ?? result.find((x) => x.id === 'p-lampiran')!;
+    target.topics.push({ id: lf.id, children: lf.children });
+  }
+  // Bahagian tambahan pengguna (ID bukan lalai) dikekalkan di hujung.
+  for (const part of old) if (!result.some((x) => x.id === part.id) && part.id !== 'p-sekolah') result.push(part);
+  // Tajuk lalai yang dipadam tetapi telah disunting: kekal dalam Maklumat Am.
+  p.outline = result;
 }
 
 export const useBookStore = create<BookState>()(
@@ -369,7 +410,7 @@ export const useBookStore = create<BookState>()(
     },
     {
       name: 'bpps2026-book',
-      version: 15,
+      version: 16,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -387,6 +428,7 @@ export const useBookStore = create<BookState>()(
         if (version < 13) migrateV13(p);
         if (version < 14) migrateV14(p);
         if (version < 15) migrateV15(p);
+        if (version < 16) migrateV16(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

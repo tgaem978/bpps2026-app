@@ -165,6 +165,7 @@ export const pentadbiranTopics = (): OutlineTopic[] => [
   { id: 'guru-kelas', children: [] },
   { id: 'pp-jk-tertinggi', children: JK_IDS.slice(1) },
   { id: 'pp-pencerapan', children: ['pp-erph', 'pp-pencerapan-guru', 'pp-semakan-hasil'] },
+  { id: 'pp-bilik-khas', children: [] },
   { id: 'pp-program-kurikulum', children: ['pp-program-hem', 'pp-program-koku'] },
   { id: 'kumpulan-bertugas', children: ['jadual-bertugas-1', 'jadual-bertugas-2', 'jadual-bertugas-ppki'] },
   { id: 'panduan-am', children: [] },

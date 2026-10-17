@@ -7,11 +7,12 @@ import { partASections } from '@/config/partA';
 import { partKKSections } from '@/config/partKK';
 import { partBSections } from '@/config/partB';
 import { partPengenalanSections } from '@/config/partPengenalan';
-import { kokuTopics, partKokuSections, ppkiChildren } from '@/config/partKoku';
+import { partKokuSections, ppkiChildren } from '@/config/partKoku';
 import { hemTopics, partHemSections } from '@/config/partHEM';
 import { partPpkiSections } from '@/config/partPPKI';
 import { partMaklumatSections } from '@/config/partMaklumat';
 import { partPentadbiranSections, pentadbiranTopics } from '@/config/partPentadbiran';
+import { OVERRIDES, REMOVED_IDS, hemOrder, kokuOrder, kurikulumTopics, maklumatAmTopics, partRujukanSections } from '@/config/partRujukan';
 
 const p = (text: string): Block => ({ id: uid(), type: 'paragraph', text });
 const ul = (items: string[], ordered = false): Block => ({ id: uid(), type: 'list', ordered, items });
@@ -35,23 +36,8 @@ export const defaultCover = (): CoverContent => ({
 /** Struktur kandungan lalai: bahagian utama → tajuk → subtajuk (ID tajuk = ID kandungan). */
 export const defaultOutline = (): OutlinePart[] => [
   {
-    id: 'p-maklumat', title: 'PENGENALAN', note: '', divider: true,
-    topics: ['kata-aluan', 'b-rukun-negara', 'b-aku-janji', 'b-teras', 'b-ikrar', 'b-fokus', 'b-ithink', 'b-5c', 'b-aspirasi', 'b-dpd', 'b-ts25', 'b-spi', 'b-visi-kpm']
-      .map((id) => ({ id, children: [] })),
-  },
-  {
-    id: 'p-sekolah', title: 'MAKLUMAT SEKOLAH', note: '{{nama_pendek}}', divider: true,
-    topics: ['b-sejarah', 'b-latar', 'maklumat-sekolah', 'b-logo', 'b-visi-sekolah', 'b-matlamat', 'b-lagu', 'b-pelan', 'b-pelan-kecemasan']
-      .map((id) => ({ id, children: [] })),
-  },
-  {
-    id: 'p-takwim', title: 'KALENDAR & TAKWIM SEKOLAH', note: '', divider: true,
-    topics: [
-      { id: 't-kalendar', children: [] },
-      { id: 't-cuti', children: [] },
-      { id: 't-akademik', children: [] },
-      { id: 'takwim-01', children: ['takwim-02', 'takwim-03', 'takwim-04', 'takwim-05', 'takwim-06', 'takwim-07', 'takwim-08', 'takwim-09', 'takwim-10', 'takwim-11', 'takwim-12'] },
-    ],
+    id: 'p-maklumat', title: 'MAKLUMAT AM', note: '{{nama_pendek}}', divider: true,
+    topics: maklumatAmTopics(),
   },
   {
     id: 'p-pentadbiran', title: 'PENGURUSAN & PENTADBIRAN', note: '{{jawatan:Guru Besar}}', divider: true,
@@ -59,20 +45,19 @@ export const defaultOutline = (): OutlinePart[] => [
   },
   {
     id: 'p-kurikulum', title: 'PENGURUSAN KURIKULUM', note: '{{jawatan:GPK Pentadbiran}}', divider: true,
-    topics: [
-      { id: 'k-visi', children: [] },
-      { id: 'k-objektif', children: [] },
-      { id: 'k-pengenalan', children: [] },
-      { id: 'k-panitia', children: [] },
-      { id: 'k-bidang-tugas', children: [] },
-      { id: 'k-jk-induk', children: ['k-ketua-panitia', 'k-jk-unit', 'k-bilik-khas'] },
-      { id: 'k-takwim', children: [] },
-    ],
+    topics: kurikulumTopics(),
   },
-  { id: 'p-hem', title: 'PENGURUSAN HAL EHWAL MURID', note: '{{jawatan:GPK Hal Ehwal Murid}}', divider: true, topics: hemTopics() },
+  { id: 'p-hem', title: 'PENGURUSAN HAL EHWAL MURID', note: '{{jawatan:GPK Hal Ehwal Murid}}', divider: true, topics: hemOrder(hemTopics()) },
   {
     id: 'p-koku', title: 'PENGURUSAN KOKURIKULUM', note: '{{jawatan:GPK Kokurikulum}}', divider: true,
-    topics: kokuTopics(),
+    topics: kokuOrder(),
+  },
+  {
+    id: 'p-takwim', title: 'TAKWIM SEKOLAH 2026', note: '', divider: true,
+    topics: [
+      { id: 't-kalendar', children: [] },
+      { id: 'takwim-01', children: ['takwim-02', 'takwim-03', 'takwim-04', 'takwim-05', 'takwim-06', 'takwim-07', 'takwim-08', 'takwim-09', 'takwim-10', 'takwim-11', 'takwim-12'] },
+    ],
   },
   { id: 'p-pkhas', title: 'PENDIDIKAN KHAS (PPKI)', note: '{{jawatan:GPK Pendidikan Khas}}', divider: true, topics: [{ id: 'pendidikan-khas', children: ppkiChildren }] },
   { id: 'p-prasekolah', title: 'PRASEKOLAH', note: '', divider: true, topics: [{ id: 'prasekolah', children: [] }] },
@@ -85,7 +70,7 @@ const staffList = (filterField: string, filterValues: string[], sort: 'hierarki'
   columns: withOption ? [F_NAME, F_TASK, 'gred', 'opsyen', 'telefon'] : [F_NAME, F_TASK, 'gred', 'telefon'],
 });
 
-export const defaultSections = (): Record<string, SectionContent> => ({
+const baseSections = (): Record<string, SectionContent> => ({
   ...partASections(),
   ...partPentadbiranSections(),
   ...partKKSections(),
@@ -95,6 +80,7 @@ export const defaultSections = (): Record<string, SectionContent> => ({
   ...partKokuSections(),
   ...partHemSections(),
   ...partPpkiSections(),
+  ...partRujukanSections(),
   'maklumat-sekolah': section('PROFIL SEKOLAH', 'MAKLUMAT SEKOLAH', [
     kv([
       ['Nama Sekolah', '{{nama_sekolah}}'],
@@ -121,6 +107,14 @@ export const defaultSections = (): Record<string, SectionContent> => ({
   ]),
   catatan: section('CATATAN', '', [], 'notes'),
 });
+
+/** Kandungan lalai: halaman Pengenalan yang tidak perlu dipadam; tajuk/lencana mengikut susunan Maklumat Am. */
+export const defaultSections = (): Record<string, SectionContent> => {
+  const all = baseSections();
+  for (const id of REMOVED_IDS) delete all[id];
+  for (const [id, patch] of Object.entries(OVERRIDES)) if (all[id]) all[id] = { ...all[id], ...patch };
+  return all;
+};
 
 /** Kandungan kosong untuk tajuk/subtajuk baharu. */
 export const newSection = (title: string): SectionContent => section(title, '', []);
