@@ -5,7 +5,7 @@ import { kokuTopics, ppkiChildren } from '@/config/partKoku';
 import { HEM_TUGAS_ORDER, hemIds, hemTopics } from '@/config/partHEM';
 import { defaultCover, defaultOutline, defaultSections, newSection } from '@/config/defaultContent';
 import { pentadbiranTopics } from '@/config/partPentadbiran';
-import { OVERRIDES, REMOVED_IDS, partRujukanSections } from '@/config/partRujukan';
+import { FLAT_TOC_PARTS, OVERRIDES, REMOVED_IDS, partRujukanSections, unitTopicIds } from '@/config/partRujukan';
 import { createBlock, uid } from '@/lib/blocks';
 import { allIds } from '@/lib/outline';
 
@@ -300,6 +300,37 @@ function migrateV16(p: Partial<BookState>) {
   p.outline = result;
 }
 
+/**
+ * v17: (1) halaman "Guru & Anggota Kumpulan Pelaksana" bergambar selepas Kata Pengantar dipadam;
+ * (2) Kurikulum, HEM dan Kokurikulum mengikut senarai KANDUNGAN rujukan (satu jawatankuasa = satu tajuk/halaman, Isi Kandungan rata).
+ * Halaman lama yang telah disunting (atau ditambah pengguna) TIDAK dipadam - dikekalkan sebagai halaman sambungan di hujung bahagian.
+ * Halaman lalai yang belum disunting dimuat semula dengan tajuk/kandungan baharu.
+ */
+function migrateV17(p: Partial<BookState>) {
+  const edited = (id: string) => !!p.sections?.[id] && p.sections[id].updatedAt !== null;
+  if (p.sections) {
+    delete p.sections['ma-guru-pelaksana'];
+    const fresh = new Set(unitTopicIds());
+    for (const id of Object.keys(p.sections)) if ((fresh.has(id) || REMOVED_IDS.includes(id)) && p.sections[id].updatedAt === null) delete p.sections[id];
+  }
+  if (!p.outline) return; // tiada struktur tersimpan → struktur lalai baharu digunakan
+  const defs = defaultOutline();
+  const knownDefault = new Set([...Object.keys(defaultSections()), ...REMOVED_IDS]);
+  p.outline = p.outline.map((part) => {
+    if (part.id === 'p-maklumat') {
+      return { ...part, topics: part.topics.filter((t) => t.id !== 'ma-guru-pelaksana').map((t) => ({ ...t, children: t.children.filter((c) => c !== 'ma-guru-pelaksana') })) };
+    }
+    if (!FLAT_TOC_PARTS.includes(part.id)) return part;
+    const def = defs.find((d) => d.id === part.id);
+    if (!def) return part;
+    const freshIds = new Set(def.topics.flatMap((t) => [t.id, ...t.children]));
+    const leftovers = part.topics.flatMap((t) => [t.id, ...t.children]).filter((id) => !freshIds.has(id) && (edited(id) || !knownDefault.has(id)));
+    const topics = def.topics.map((t) => ({ ...t, children: [...t.children] }));
+    if (leftovers.length && topics.length) topics[topics.length - 1].children.push(...leftovers);
+    return { ...part, topics, tocChildren: false };
+  });
+}
+
 export const useBookStore = create<BookState>()(
   persist(
     (set) => {
@@ -410,7 +441,7 @@ export const useBookStore = create<BookState>()(
     },
     {
       name: 'bpps2026-book',
-      version: 16,
+      version: 17,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -429,6 +460,7 @@ export const useBookStore = create<BookState>()(
         if (version < 14) migrateV14(p);
         if (version < 15) migrateV15(p);
         if (version < 16) migrateV16(p);
+        if (version < 17) migrateV17(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

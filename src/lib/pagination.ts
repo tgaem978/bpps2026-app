@@ -226,11 +226,13 @@ export function useBookPlan(): PagePlan[] {
     const body: Pending[] = [];
     const tocRows: TocRowsBlock['rows'] = [];
     const tocIndex: { row: number; at: number }[] = []; // baris TOC → indeks dalam body
-    const pushSection = (id: string, level: 1 | 2) => {
+    const pushSection = (id: string, level: 1 | 2, inToc = true) => {
       const sec = sections[id];
       if (!sec) return;
-      tocRows.push({ level, title: sec.subtitle ? `${sec.title} — ${sec.subtitle}` : sec.title, page: 0 });
-      tocIndex.push({ row: tocRows.length - 1, at: body.length });
+      if (inToc) {
+        tocRows.push({ level, title: sec.subtitle ? `${sec.title} — ${sec.subtitle}` : sec.title, page: 0 });
+        tocIndex.push({ row: tocRows.length - 1, at: body.length });
+      }
       const layout = sec.layout ?? 'standard';
       const first = sec.blocks[0];
       const fullImg = first && first.type === 'image' && (first.fullPage || first.frameFill) ? first : null;
@@ -247,7 +249,7 @@ export function useBookPlan(): PagePlan[] {
       if (part.divider) body.push({ kind: 'divider', key: `d-${part.id}`, partId: part.id });
       for (const t of part.topics) {
         pushSection(t.id, 1);
-        t.children.forEach((c) => pushSection(c, 2));
+        t.children.forEach((c) => pushSection(c, 2, part.tocChildren !== false));
       }
     }
 

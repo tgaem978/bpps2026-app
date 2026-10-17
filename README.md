@@ -33,6 +33,9 @@ Kandungan lalai diimport daripada dokumen sebenar sekolah (dijana, jangan suntin
 Ahli jawatankuasa dipautkan kepada Pangkalan Data Guru (ejaan nama berbeza dipadankan), dengan nota tugas
 pilihan seperti "SU Peperiksaan". Jawatankuasa boleh dipaparkan sebagai *senarai peranan* atau *carta bergambar*.
 
+## Susunan mengikut dokumen rujukan
+Kurikulum, HEM dan Kokurikulum mengikut senarai KANDUNGAN rujukan (Isi Kandungan rata, satu jawatankuasa = satu halaman). Lihat `docs/NOTA_susunan_kandungan_unit.md`.
+
 ## Cloudflare Workers (Git)
 Projek Workers Builds: **bpps2026-app** (nama mesti sama dengan `name` dalam `wrangler.toml`).
 - Build command: `npm run build`

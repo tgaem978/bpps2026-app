@@ -159,6 +159,8 @@ export interface OutlinePart {
   note: string;
   divider: boolean;
   topics: OutlineTopic[];
+  /** `false` = subtajuk (halaman sambungan) tidak disenaraikan dalam Isi Kandungan; hanya tajuk aras 1 (cth. Kurikulum, HEM, Kokurikulum). */
+  tocChildren?: boolean;
 }
 
 export interface CoverContent {

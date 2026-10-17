@@ -8,11 +8,11 @@ import { partKKSections } from '@/config/partKK';
 import { partBSections } from '@/config/partB';
 import { partPengenalanSections } from '@/config/partPengenalan';
 import { partKokuSections, ppkiChildren } from '@/config/partKoku';
-import { hemTopics, partHemSections } from '@/config/partHEM';
+import { partHemSections } from '@/config/partHEM';
 import { partPpkiSections } from '@/config/partPPKI';
 import { partMaklumatSections } from '@/config/partMaklumat';
 import { partPentadbiranSections, pentadbiranTopics } from '@/config/partPentadbiran';
-import { OVERRIDES, REMOVED_IDS, hemOrder, kokuOrder, kurikulumTopics, maklumatAmTopics, partRujukanSections } from '@/config/partRujukan';
+import { OVERRIDES, REMOVED_IDS, hemOrder, kokuOrder, kurikulumTopics, maklumatAmTopics, partRujukanSections, unitTopicIds } from '@/config/partRujukan';
 
 const p = (text: string): Block => ({ id: uid(), type: 'paragraph', text });
 const ul = (items: string[], ordered = false): Block => ({ id: uid(), type: 'list', ordered, items });
@@ -44,12 +44,12 @@ export const defaultOutline = (): OutlinePart[] => [
     topics: pentadbiranTopics(),
   },
   {
-    id: 'p-kurikulum', title: 'PENGURUSAN KURIKULUM', note: '{{jawatan:GPK Pentadbiran}}', divider: true,
+    id: 'p-kurikulum', title: 'PENGURUSAN KURIKULUM', note: '{{jawatan:GPK Pentadbiran}}', divider: true, tocChildren: false,
     topics: kurikulumTopics(),
   },
-  { id: 'p-hem', title: 'PENGURUSAN HAL EHWAL MURID', note: '{{jawatan:GPK Hal Ehwal Murid}}', divider: true, topics: hemOrder(hemTopics()) },
+  { id: 'p-hem', title: 'PENGURUSAN HAL EHWAL MURID', note: '{{jawatan:GPK Hal Ehwal Murid}}', divider: true, tocChildren: false, topics: hemOrder() },
   {
-    id: 'p-koku', title: 'PENGURUSAN KOKURIKULUM', note: '{{jawatan:GPK Kokurikulum}}', divider: true,
+    id: 'p-koku', title: 'PENGURUSAN KOKURIKULUM', note: '{{jawatan:GPK Kokurikulum}}', divider: true, tocChildren: false,
     topics: kokuOrder(),
   },
   {
@@ -113,6 +113,8 @@ export const defaultSections = (): Record<string, SectionContent> => {
   const all = baseSections();
   for (const id of REMOVED_IDS) delete all[id];
   for (const [id, patch] of Object.entries(OVERRIDES)) if (all[id]) all[id] = { ...all[id], ...patch };
+  // Kurikulum / HEM / Kokurikulum: tiada lencana kecil (lencana = nama bahagian) dan tajuk Isi Kandungan sama dengan rujukan.
+  for (const id of unitTopicIds()) if (all[id]) all[id] = { ...all[id], subtitle: '' };
   return all;
 };
 
