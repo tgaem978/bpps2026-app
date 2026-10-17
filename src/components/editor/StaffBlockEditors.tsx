@@ -1,5 +1,5 @@
 import { ArrowDown, ArrowUp, Plus, X } from 'lucide-react';
-import type { CommitteeBlock, MemberRef, OrgChartBlock, StaffListBlock } from '@/types/book';
+import type { CommitteeBlock, MemberRef, OrgChartBlock, OrgTreeBlock, StaffListBlock } from '@/types/book';
 import { useStaffStore } from '@/stores/staffStore';
 import { F_POSITION } from '@/types/staff';
 import { nameOf, positionOf } from '@/lib/resolve';
@@ -80,6 +80,63 @@ export function OrgChartEditor({ block, onChange }: { block: OrgChartBlock; onCh
         onClick={() => onChange({ ...block, levels: [...block.levels, { id: uid(), label: `Aras ${block.levels.length + 1}`, positions: [], display: 'group' }] })}
       >
         <Plus size={13} /> Aras
+      </button>
+    </div>
+  );
+}
+
+/** Carta struktur: puncak + lajur pentadbir, setiap lajur ada kotak unit/bidang tugas (satu baris = satu titik). */
+export function OrgTreeEditor({ block, onChange }: { block: OrgTreeBlock; onChange: (b: OrgTreeBlock) => void }) {
+  const positions = usePositions();
+  const setCol = (i: number, patch: Partial<OrgTreeBlock['columns'][number]>) =>
+    onChange({ ...block, columns: block.columns.map((c, j) => (j === i ? { ...c, ...patch } : c)) });
+  const setBox = (ci: number, bi: number, patch: Partial<OrgTreeBlock['columns'][number]['boxes'][number]>) =>
+    setCol(ci, { boxes: block.columns[ci].boxes.map((b, j) => (j === bi ? { ...b, ...patch } : b)) });
+  return (
+    <div className="grid gap-3">
+      <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+        <input className={field} placeholder="Tajuk carta" value={block.title} onChange={(e) => onChange({ ...block, title: e.target.value })} aria-label="Tajuk carta" />
+        <select className={field} value={block.root} onChange={(e) => onChange({ ...block, root: e.target.value })} aria-label="Jawatan puncak carta">
+          {positions.map((p) => <option key={p} value={p}>{p}</option>)}
+        </select>
+      </div>
+      <label className="grid gap-1 text-xs text-muted">
+        Kotak sisi di puncak (satu baris = satu kotak, cth. PIBG)
+        <textarea className={`${field} resize-y`} rows={Math.max(1, block.side.length)} value={block.side.join('\n')} onChange={(e) => onChange({ ...block, side: e.target.value.split('\n') })} aria-label="Kotak sisi" />
+      </label>
+      <p className="text-xs text-muted">Nama & gambar pentadbir diambil automatik daripada <b>Tetapan → Pangkalan Data Guru</b> mengikut jawatan. Teks dalam kotak boleh disunting bebas.</p>
+      {block.columns.map((c, ci) => (
+        <div key={c.id} className="rounded-md border border-border bg-surface-2 p-3">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-fg">{ci + 1}</span>
+            <select className={`${field} py-1.5`} value={c.position} onChange={(e) => setCol(ci, { position: e.target.value })} aria-label="Jawatan pentadbir lajur">
+              {positions.map((p) => <option key={p} value={p}>{p}</option>)}
+            </select>
+            <button className={iconBtn} disabled={ci === 0} onClick={() => onChange({ ...block, columns: swap(block.columns, ci, ci - 1) })} aria-label="Lajur ke kiri"><ArrowUp size={14} className="-rotate-90" /></button>
+            <button className={iconBtn} disabled={ci === block.columns.length - 1} onClick={() => onChange({ ...block, columns: swap(block.columns, ci, ci + 1) })} aria-label="Lajur ke kanan"><ArrowDown size={14} className="-rotate-90" /></button>
+            <button className={iconBtn} onClick={() => onChange({ ...block, columns: block.columns.filter((_, j) => j !== ci) })} aria-label="Buang lajur"><X size={14} /></button>
+          </div>
+          <div className="grid gap-2">
+            {c.boxes.map((b, bi) => (
+              <div key={b.id} className="grid gap-1.5 rounded-md border border-border bg-surface p-2">
+                <div className="flex items-center gap-1.5">
+                  <input className={`${field} py-1.5 font-medium`} placeholder="Tajuk kotak (cth. PENTADBIRAN AM)" value={b.title} onChange={(e) => setBox(ci, bi, { title: e.target.value })} aria-label="Tajuk kotak" />
+                  <button className={iconBtn} disabled={bi === 0} onClick={() => setCol(ci, { boxes: swap(c.boxes, bi, bi - 1) })} aria-label="Naik"><ArrowUp size={14} /></button>
+                  <button className={iconBtn} disabled={bi === c.boxes.length - 1} onClick={() => setCol(ci, { boxes: swap(c.boxes, bi, bi + 1) })} aria-label="Turun"><ArrowDown size={14} /></button>
+                  <button className={iconBtn} onClick={() => setCol(ci, { boxes: c.boxes.filter((_, j) => j !== bi) })} aria-label="Buang kotak"><X size={14} /></button>
+                </div>
+                <textarea className={`${field} resize-y`} rows={Math.max(2, b.items.length)} placeholder="Senarai titik, satu baris satu perkara (kosong = kotak tajuk sahaja)" value={b.items.join('\n')} onChange={(e) => setBox(ci, bi, { items: e.target.value.split('\n') })} aria-label="Senarai titik" />
+              </div>
+            ))}
+            <button className={`${smallBtn} justify-self-start`} onClick={() => setCol(ci, { boxes: [...c.boxes, { id: uid(), title: 'KOTAK BAHARU', items: [] }] })}><Plus size={13} /> Kotak</button>
+          </div>
+        </div>
+      ))}
+      <button
+        className={`${smallBtn} justify-self-start`}
+        onClick={() => onChange({ ...block, columns: [...block.columns, { id: uid(), position: positions[1] ?? positions[0] ?? '', boxes: [] }] })}
+      >
+        <Plus size={13} /> Lajur pentadbir
       </button>
     </div>
   );

@@ -1,7 +1,7 @@
-import type { Block, CommitteeRow, CoverContent, MemberRef, OrgLevel, OutlinePart, SectionContent, SectionLayout } from '@/types/book';
+import type { Block, CoverContent, OutlinePart, SectionContent, SectionLayout } from '@/types/book';
 import { uid } from '@/lib/blocks';
 import { templateAssets } from '@/templates/bpps';
-import { ADMIN_POSITIONS, AKP_POSITIONS } from '@/config/defaultStaff';
+import { AKP_POSITIONS } from '@/config/defaultStaff';
 import { F_NAME, F_POSITION, F_SESSION, F_TASK } from '@/types/staff';
 import { partASections } from '@/config/partA';
 import { partKKSections } from '@/config/partKK';
@@ -11,21 +11,16 @@ import { kokuTopics, partKokuSections, ppkiChildren } from '@/config/partKoku';
 import { hemTopics, partHemSections } from '@/config/partHEM';
 import { partPpkiSections } from '@/config/partPPKI';
 import { partMaklumatSections } from '@/config/partMaklumat';
+import { partPentadbiranSections, pentadbiranTopics } from '@/config/partPentadbiran';
 
 const p = (text: string): Block => ({ id: uid(), type: 'paragraph', text });
 const ul = (items: string[], ordered = false): Block => ({ id: uid(), type: 'list', ordered, items });
 const kv = (pairs: [string, string][]): Block => ({ id: uid(), type: 'keyvalue', pairs: pairs.map(([key, value]) => ({ key, value })) });
 
-const pos = (...values: string[]): MemberRef[] => values.map((value) => ({ kind: 'position', value }));
-const row = (role: string, members: MemberRef[]): CommitteeRow => ({ id: uid(), role, members });
-const committee = (title: string, rows: CommitteeRow[]): Block => ({ id: uid(), type: 'committee', title, rows });
-const level = (label: string, positions: string[], display: OrgLevel['display'] = 'person'): OrgLevel => ({ id: uid(), label, positions, display });
 
 const section = (title: string, subtitle: string, blocks: Block[], layout: SectionLayout = 'standard'): SectionContent => ({
   title, subtitle, layout, blocks, updatedAt: null,
 });
-
-const [GB, PKP, PKHEM, PKKO, PKPTG, PKPK] = ADMIN_POSITIONS;
 
 export const defaultCover = (): CoverContent => ({
   image: templateAssets.cover,
@@ -59,20 +54,8 @@ export const defaultOutline = (): OutlinePart[] => [
     ],
   },
   {
-    id: 'p-pentadbiran', title: 'PENTADBIRAN SEKOLAH', note: '{{jawatan:Guru Besar}}', divider: true,
-    topics: [
-      { id: 'carta-organisasi', children: [] },
-      { id: 'senarai-pagi', children: [] },
-      { id: 'senarai-petang', children: [] },
-      { id: 'senarai-akp', children: [] },
-      { id: 'jk-pengurusan', children: [] },
-      { id: 'panduan-am', children: [] },
-      { id: 'akuan', children: [] },
-      { id: 'bidang-tugas-guru', children: [] },
-      { id: 'bidang-tugas-akp', children: [] },
-      { id: 'guru-kelas', children: [] },
-      { id: 'kumpulan-bertugas', children: ['jadual-bertugas-1', 'jadual-bertugas-2', 'jadual-bertugas-ppki'] },
-    ],
+    id: 'p-pentadbiran', title: 'PENGURUSAN & PENTADBIRAN', note: '{{jawatan:Guru Besar}}', divider: true,
+    topics: pentadbiranTopics(),
   },
   {
     id: 'p-kurikulum', title: 'PENGURUSAN KURIKULUM', note: '{{jawatan:GPK Pentadbiran}}', divider: true,
@@ -104,6 +87,7 @@ const staffList = (filterField: string, filterValues: string[], sort: 'hierarki'
 
 export const defaultSections = (): Record<string, SectionContent> => ({
   ...partASections(),
+  ...partPentadbiranSections(),
   ...partKKSections(),
   ...partBSections(),
   ...partMaklumatSections(),
@@ -121,28 +105,9 @@ export const defaultSections = (): Record<string, SectionContent> => ({
       ['Bilangan Guru', '{{jumlah_guru}}'],
     ]),
   ]),
-  'carta-organisasi': section('CARTA ORGANISASI INDUK PENTADBIRAN', 'PENTADBIRAN SEKOLAH', [
-    {
-      id: uid(), type: 'orgchart', title: 'CARTA ORGANISASI INDUK PENTADBIRAN SEKOLAH', session: '',
-      levels: [
-        level('Guru Besar', [GB]),
-        level('Guru Penolong Kanan', [PKP, PKHEM, PKKO, PKPTG, PKPK]),
-        level('Penyelaras', ['Guru Penyelaras Bestari', 'Guru Perpustakaan dan Media', 'Guru Data', 'Guru Bimbingan dan Kaunseling', 'Guru Prasekolah'], 'group'),
-      ],
-    },
-  ], 'open'),
   'senarai-pagi': section('SENARAI NAMA GURU & AKP', 'GURU SESI PAGI', [staffList(F_SESSION, ['Pagi'], 'pentadbir')]),
   'senarai-petang': section('SENARAI NAMA GURU & AKP', 'GURU SESI PETANG', [staffList(F_SESSION, ['Petang'], 'pentadbir')]),
   'senarai-akp': section('SENARAI NAMA GURU & AKP', 'AKP', [staffList(F_POSITION, [...AKP_POSITIONS], 'hierarki', false)]),
-  'jk-pengurusan': section('JAWATANKUASA PENGURUSAN SEKOLAH', '', [
-    committee('JAWATANKUASA PENGURUSAN SEKOLAH', [
-      row('Pengerusi', pos(GB)),
-      row('Naib Pengerusi', pos(PKP)),
-      row('Penolong Naib Pengerusi', pos(PKHEM, PKKO, PKPTG, PKPK)),
-      row('Setiausaha', []),
-      row('Ahli Jawatankuasa', pos('Guru Penyelaras Bestari', 'Guru Data', 'Guru Perpustakaan dan Media')),
-    ]),
-  ]),
   'pendidikan-khas': section('PENDIDIKAN KHAS', 'PPKI', [
     p('Program ini menyediakan pendidikan yang inklusif dan bersesuaian dengan keperluan murid berkeperluan pendidikan khas (MBPK), ke arah kemenjadian murid dan kehidupan berdikari.'),
     kv([['Penyelaras', '{{jawatan:GPK Pendidikan Khas}}'], ['Bilangan Murid', ''], ['Bilangan Kelas', '']]),

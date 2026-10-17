@@ -4,6 +4,7 @@ import type { Block, BlockType, CoverContent, OutlinePart, SectionContent } from
 import { kokuTopics, ppkiChildren } from '@/config/partKoku';
 import { HEM_TUGAS_ORDER, hemIds, hemTopics } from '@/config/partHEM';
 import { defaultCover, defaultOutline, defaultSections, newSection } from '@/config/defaultContent';
+import { pentadbiranTopics } from '@/config/partPentadbiran';
 import { createBlock, uid } from '@/lib/blocks';
 import { allIds } from '@/lib/outline';
 
@@ -235,6 +236,29 @@ function migrateV5(p: Partial<BookState>) {
   }
 }
 
+/**
+ * v15: Bahagian Pentadbiran menjadi "PENGURUSAN & PENTADBIRAN" mengikut tajuk dokumen rujukan (carta struktur, JK, jadual).
+ * Struktur lama yang belum diubah susunannya diganti; tajuk lama yang telah disunting (carta induk, JK pengurusan) dikekalkan.
+ */
+function migrateV15(p: Partial<BookState>) {
+  const part = p.outline?.find((x) => x.id === 'p-pentadbiran');
+  if (!part) return;
+  const old = ['carta-organisasi', 'senarai-pagi', 'senarai-petang', 'senarai-akp', 'jk-pengurusan', 'panduan-am', 'akuan', 'bidang-tugas-guru', 'bidang-tugas-akp', 'guru-kelas', 'kumpulan-bertugas', 'jadual-bertugas-1', 'jadual-bertugas-2', 'jadual-bertugas-ppki'];
+  const have = new Set(part.topics.flatMap((t) => [t.id, ...t.children]));
+  const edited = (id: string) => !!p.sections?.[id] && p.sections[id].updatedAt !== null;
+  if ([...have].every((id) => old.includes(id))) {
+    const topics = pentadbiranTopics();
+    for (const id of ['carta-organisasi', 'jk-pengurusan']) if (have.has(id) && edited(id)) topics.push({ id, children: [] });
+    part.topics = topics;
+    if (part.title === 'PENTADBIRAN SEKOLAH') part.title = 'PENGURUSAN & PENTADBIRAN';
+  } else {
+    // Struktur sudah diubah pengguna: hanya tambah tajuk baharu yang belum ada.
+    const present = new Set((p.outline ?? []).flatMap((x) => x.topics.flatMap((t) => [t.id, ...t.children])));
+    for (const t of pentadbiranTopics()) if (!present.has(t.id)) part.topics.push({ id: t.id, children: t.children.filter((c) => !present.has(c)) });
+  }
+  if (p.sections) for (const id of ['carta-organisasi', 'jk-pengurusan']) if (p.sections[id] && p.sections[id].updatedAt === null) delete p.sections[id];
+}
+
 export const useBookStore = create<BookState>()(
   persist(
     (set) => {
@@ -345,7 +369,7 @@ export const useBookStore = create<BookState>()(
     },
     {
       name: 'bpps2026-book',
-      version: 14,
+      version: 15,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -362,6 +386,7 @@ export const useBookStore = create<BookState>()(
         if (version < 11) migrateV11(p);
         if (version < 13) migrateV13(p);
         if (version < 14) migrateV14(p);
+        if (version < 15) migrateV15(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

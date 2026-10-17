@@ -3,7 +3,7 @@ import type { Block } from '@/types/book';
 import { blockLabels, readImageFile } from '@/lib/blocks';
 import { useUiStore } from '@/stores/uiStore';
 import { tokenHelp } from '@/lib/resolve';
-import { CommitteeEditor, OrgChartEditor, StaffListEditor } from './StaffBlockEditors';
+import { CommitteeEditor, OrgChartEditor, OrgTreeEditor, StaffListEditor } from './StaffBlockEditors';
 import { TakwimEditor } from './TakwimEditor';
 import FmtBar from './FmtBar';
 import TableEditor from './TableEditor';
@@ -173,6 +173,8 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
       );
     case 'orgchart':
       return <OrgChartEditor block={block} onChange={onChange} />;
+    case 'orgtree':
+      return <OrgTreeEditor block={block} onChange={onChange} />;
     case 'committee':
       return <CommitteeEditor block={block} onChange={onChange} />;
     case 'stafflist':

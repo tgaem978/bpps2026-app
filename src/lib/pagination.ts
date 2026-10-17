@@ -122,7 +122,7 @@ export function paginate(blocks: AnyBlock[], ctx: BookCtx, o: PaginateOpts): Seg
   for (const block of blocks) {
     let m = measure(block, ctx, o.pt, colW, o.sig);
     let density = 0;
-    const onePageChart = block.type === 'committee' && block.display === 'chart' && !!block.onePage;
+    const onePageChart = block.type === 'orgtree' || (block.type === 'committee' && block.display === 'chart' && !!block.onePage);
     if (block.type === 'table' || block.type === 'takwim' || onePageChart) {
       // Satu jadual/carta satu halaman jika boleh: padatkan sedikit jika perlu, dan mula di halaman baharu
       // jika ia muat sepenuhnya di sana tetapi tidak dalam baki ruang halaman semasa.

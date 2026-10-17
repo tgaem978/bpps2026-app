@@ -23,6 +23,12 @@ const icons: Record<string, LucideIcon> = {
   pentadbiran: Users,
   'senarai-guru': UsersRound,
   'jk-pengurusan': ClipboardList,
+  'pp-carta-sekolah': Network,
+  'pp-carta-pentadbiran': Network,
+  'pp-carta-pusat-sumber': Network,
+  'pp-delima': UsersRound,
+  'pp-pencerapan': Eye,
+  'pp-program-kurikulum': Flag,
   kurikulum: GraduationCap,
   hem: HeartHandshake,
   kokurikulum: Flag,
@@ -33,4 +39,4 @@ const icons: Record<string, LucideIcon> = {
   catatan: NotebookPen,
 };
 
-export const iconFor = (id: string): LucideIcon => icons[id] ?? (id.startsWith('jk-') ? ClipboardList : FileText);
+export const iconFor = (id: string): LucideIcon => icons[id] ?? (id.startsWith('jk-') || id.startsWith('pp-jk') ? ClipboardList : FileText);

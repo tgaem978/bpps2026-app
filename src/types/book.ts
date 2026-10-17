@@ -1,6 +1,6 @@
 export type BlockType =
   | 'heading' | 'paragraph' | 'list' | 'table' | 'keyvalue' | 'image'
-  | 'orgchart' | 'committee' | 'stafflist' | 'takwim';
+  | 'orgchart' | 'orgtree' | 'committee' | 'stafflist' | 'takwim';
 
 interface BaseBlock {
   id: string;
@@ -53,6 +53,26 @@ export interface OrgChartBlock extends BaseBlock {
   session: string;
   /** Jawatan pentadbir yang diletakkan di tengah (templat carta PPKI), cth. 'GPK Hal Ehwal Murid'. */
   focus?: string;
+  /** Nama pada kad: lalai tanpa bin/binti/a/l/a/p; `false` = kekalkan nama penuh. */
+  cleanNames?: boolean;
+}
+
+/** Kotak dalam carta struktur: tajuk (huruf besar) + senarai titik pilihan (cth. "PENTADBIRAN AM" + bidang tugas). */
+export interface OrgTreeBox { id: string; title: string; items: string[] }
+/** Satu lajur carta struktur: kad bergambar pentadbir (automatik daripada Pangkalan Data Guru) + kotak di bawahnya. */
+export interface OrgTreeColumn { id: string; position: string; boxes: OrgTreeBox[] }
+/**
+ * Carta struktur (format carta "Pengurusan & Pentadbiran"): Guru Besar di atas (kotak sisi pilihan, cth. PIBG),
+ * pentadbir sebagai lajur, dan di bawah setiap pentadbir kotak-kotak unit/bidang tugas yang boleh disunting.
+ */
+export interface OrgTreeBlock extends BaseBlock {
+  type: 'orgtree';
+  title: string;
+  /** Jawatan di puncak carta (lalai Guru Besar). */
+  root: string;
+  /** Kotak sisi yang bersambung kepada puncak (cth. PIBG). */
+  side: string[];
+  columns: OrgTreeColumn[];
   /** Nama pada kad: lalai tanpa bin/binti/a/l/a/p; `false` = kekalkan nama penuh. */
   cleanNames?: boolean;
 }
@@ -115,7 +135,7 @@ export interface TocRowsBlock extends BaseBlock {
 
 export type Block =
   | HeadingBlock | ParagraphBlock | ListBlock | TableBlock | KeyValueBlock | ImageBlock
-  | OrgChartBlock | CommitteeBlock | StaffListBlock | TakwimBlock;
+  | OrgChartBlock | OrgTreeBlock | CommitteeBlock | StaffListBlock | TakwimBlock;
 export type AnyBlock = Block | TocRowsBlock;
 
 /** Jenis paparan halaman isi (layout). */

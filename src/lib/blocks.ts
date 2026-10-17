@@ -15,6 +15,7 @@ export const blockLabels: Record<BlockType, string> = {
   keyvalue: 'Maklumat',
   image: 'Gambar',
   orgchart: 'Carta Organisasi',
+  orgtree: 'Carta Struktur',
   committee: 'Jawatankuasa',
   stafflist: 'Senarai Guru',
   takwim: 'Takwim Bulanan',
@@ -35,6 +36,10 @@ export function createBlock(type: BlockType): Block {
         { id: uid(), label: 'Guru Besar', positions: ['Guru Besar'], display: 'person' },
         { id: uid(), label: 'Penolong Kanan', positions: ADMIN_POSITIONS.slice(1), display: 'person' },
       ],
+    };
+    case 'orgtree': return {
+      id, type, title: 'CARTA ORGANISASI', root: 'Guru Besar', side: [],
+      columns: ADMIN_POSITIONS.slice(1).map((position) => ({ id: uid(), position, boxes: [{ id: uid(), title: 'UNIT', items: [''] }] })),
     };
     case 'committee': return {
       id, type, title: 'JAWATANKUASA',
@@ -65,6 +70,7 @@ export function blockHasContent(b: Block): boolean {
     case 'keyvalue': return b.pairs.some((p) => p.value.trim() !== '');
     case 'image': return b.src !== '';
     case 'orgchart': return b.levels.some((l) => l.positions.length > 0);
+    case 'orgtree': return b.columns.length > 0;
     case 'committee': return b.rows.some((r) => r.members.length > 0);
     case 'stafflist': return b.columns.length > 0;
     case 'takwim': return b.rows.some((r) => (r.span ?? '').trim() !== '' || r.cells.some((c) => c.trim() !== ''));

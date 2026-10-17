@@ -1,4 +1,4 @@
-import type { AnyBlock, CommitteeBlock, OrgChartBlock } from '@/types/book';
+import type { AnyBlock, CommitteeBlock, OrgChartBlock, OrgTreeBlock } from '@/types/book';
 import type { Teacher } from '@/types/staff';
 import { kvPairs, listItems, paragraphParts, unitCount } from '@/lib/units';
 import { byPosition, chartName, chartRole, committeeChartLines, nameOf, resolveMembers, resolveTokens, staffRows, valueText, type BookCtx } from '@/lib/resolve';
@@ -113,6 +113,69 @@ function OrgChart({ block, ctx }: { block: OrgChartBlock; ctx: BookCtx }) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+/**
+ * Carta struktur (format carta "Pengurusan & Pentadbiran"): puncak (Guru Besar, kotak sisi pilihan seperti PIBG), pentadbir sebagai
+ * lajur kad bergambar, dan kotak unit / bidang tugas di bawah setiap pentadbir. Garis penyambung & kad sama seperti carta lain.
+ */
+function OrgTree({ block, ctx }: { block: OrgTreeBlock; ctx: BookCtx }) {
+  const t = (s: string) => resolveTokens(s, ctx);
+  const full = block.cleanNames === false;
+  const person = (position: string): OcPerson => {
+    const tch = byPosition(ctx, position)[0];
+    return tch ? { name: chartName(nameOf(tch), full), position, photo: tch.photo } : { name: `[ ${position.toUpperCase()} ]`, position, photo: '' };
+  };
+  const root = person(block.root);
+  const cols = block.columns.map((c) => ({ c, p: person(c.position) }));
+  const n = cols.length;
+  const slots = Math.max(n, 3);
+  const fits = rowNameFit(cols.map((x) => x.p.name), CONTENT_MM / slots, false);
+  const rootFit = rowNameFit([root.name], CONTENT_MM, true)[0];
+  const side = block.side.map((x) => x.trim()).filter(Boolean);
+  return (
+    <div className="bp-oc bp-ot">
+      <div className="bp-oc-row bp-oc-first bp-oc-lead bp-ot-top">
+        <div className="bp-oc-cards">
+          <div className="bp-oc-card" style={{ width: '100%' }}>
+            <Card role={root.position} names={[root.name]} leader photo={root.photo} who={root.name} fit={rootFit} />
+          </div>
+        </div>
+        {side.length > 0 && (
+          <>
+            <span className="bp-ot-sideline" />
+            <div className="bp-ot-side">{side.map((x, i) => <p key={i} className="bp-ot-sidebox">{chartRole(t(x))}</p>)}</div>
+          </>
+        )}
+      </div>
+      {n > 0 && (
+        <div className="bp-oc-row">
+          <span className="bp-oc-drop" />
+          {n > 1 && <span className="bp-oc-bus" style={{ left: busInset(n, slots), right: busInset(n, slots) }} />}
+          <div className="bp-oc-cards bp-ot-cols">
+            {cols.map(({ c, p }, i) => (
+              <div key={c.id} className="bp-oc-card bp-ot-col" style={{ width: `${100 / slots}%` }}>
+                <span className="bp-oc-stub" />
+                <Card role={p.position} names={[p.name]} leader photo={p.photo} who={p.name} fit={fits[i]} />
+                {c.boxes.map((b) => {
+                  const items = b.items.map((x) => x.trim()).filter(Boolean);
+                  return (
+                    <div key={b.id} className="bp-ot-boxwrap">
+                      <span className="bp-ot-link" />
+                      <div className="bp-ot-box">
+                        {b.title.trim() && <p className={`bp-ot-title${items.length ? ' bp-ot-title-sep' : ''}`}>{chartRole(t(b.title))}</p>}
+                        {items.length > 0 && <ul className="bp-ot-list">{items.map((it, k) => <li key={k}>{t(it)}</li>)}</ul>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -299,6 +362,15 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
           <div className="u">
             {block.title && <h3 className="bp-heading">{t(block.title)}</h3>}
             <OrgChart block={block} ctx={ctx} />
+          </div>
+        </div>
+      );
+    case 'orgtree':
+      return (
+        <div className={`bp-block${dense}`}>
+          <div className="u">
+            {block.title && <h3 className="bp-heading">{t(block.title)}</h3>}
+            <OrgTree block={block} ctx={ctx} />
           </div>
         </div>
       );
