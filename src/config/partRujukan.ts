@@ -8,6 +8,7 @@ import { ADMIN_POSITIONS } from '@/config/defaultStaff';
 import { partKKSections } from '@/config/partKK';
 import { partHemSections } from '@/config/partHEM';
 import { partKokuSections } from '@/config/partKoku';
+import { DASAR_HEM, DASAR_HEM_2, DASAR_KURI, JADUAL_PONTENG, TUGAS_HEM, TUGAS_KURI, teks } from '@/config/teksRujukan';
 
 const [GB, PKP, PKHEM, PKKO, PKPTG, PKPK] = ADMIN_POSITIONS;
 
@@ -38,9 +39,6 @@ const adminRows = (unit: string): CommitteeRow[] => [
 const blankRows = (ajk = 4): CommitteeRow[] => [
   r('Setiausaha'), r('Naib Setiausaha'), ...Array.from({ length: ajk }, (_, i) => r(`Ahli Jawatankuasa ${i + 1}`)),
 ];
-const jkPage = (title: string, subtitle: string, unit: string, tugas: string[] = []): SectionContent =>
-  sec(title, subtitle, [committee([...adminRows(unit), ...blankRows()]), ...(tugas.length ? [h('Bidang Tugas'), ul(tugas, true)] : [])]);
-
 
 /* ---------------------------------------------------------------- 1. MAKLUMAT AM */
 /** ID Pengenalan yang dipadam (tidak ada dalam senarai kekal). */
@@ -184,12 +182,18 @@ const KURI_HALAMAN: [string, string, string, string | null][] = [
   ['kx-jk-intervensi', 'JAWATANKUASA INTERVENSI TAHUN 1', PKP, 'INTERVENSI TAHUN 1'],
   ['kx-jk-celik-jawi', 'JAWATANKUASA PROGRAM CELIK JAWI', PKP, null],
 ];
-/** Halaman jawatankuasa Kurikulum: barisan pentadbir (automatik) + ahli daripada jawatankuasa unit sedia ada, atau ruang kosong. */
-const kuriPage = (title: string, unit: string, src?: CommitteeBlock): SectionContent => {
+/** Halaman jawatankuasa Kurikulum: barisan pentadbir (automatik) + ahli daripada jawatankuasa unit sedia ada, atau ruang kosong; Bidang Tugas mengikut rujukan. */
+const kuriPage = (id: string, title: string, unit: string, src?: CommitteeBlock): SectionContent => {
   const rows: CommitteeRow[] = src ? [...adminRows(unit), ...src.rows.map((row) => ({ ...row, id: uid() }))] : [...adminRows(unit), ...blankRows()];
   const block: CommitteeBlock = { id: uid(), type: 'committee', title: '', rows, ...(src?.showPosition === false ? { showPosition: false } : {}) };
-  return sec(title, '', [block]);
+  const tugas = TUGAS_KURI[id] ?? [];
+  return sec(title, '', [block, ...(tugas.length ? [h('Bidang Tugas'), ul(tugas, true)] : [])]);
 };
+
+/** Tambah Bidang Tugas (rujukan) pada halaman Kurikulum sedia ada. */
+const withTugas = (base: SectionContent, tugas: string[]): SectionContent => ({
+  ...base, blocks: [...base.blocks.map(cloneBlock), h('Bidang Tugas'), ul(tugas, true)], updatedAt: null,
+});
 
 export const kurikulumTopics = (): OutlineTopic[] => [
   topic('k-dasar', 'k-visi', 'k-objektif', 'k-pengenalan'),
@@ -231,22 +235,28 @@ export const hemOrder = (): OutlineTopic[] => [
   ...HEM_KOSONG.map(([id]) => topic(id)),
 ];
 
+/** Bidang Tugas HEM mengikut rujukan; jika rujukan tiada, kekalkan Bidang Tugas sedia ada sekolah. */
+const tg = (id: string, fallback: Block[] = []): Block[] => (TUGAS_HEM[id] ? teks(TUGAS_HEM[id]) : fallback);
+const hemKosong = (id: string, title: string): SectionContent =>
+  sec(title, '', [committee([...adminRows(PKHEM), ...blankRows()]), ...(TUGAS_HEM[id] ? [h('Bidang Tugas'), ...teks(TUGAS_HEM[id])] : [])]);
+
 const hemHalaman = (): Record<string, SectionContent> => ({
-  'hx-data': hemPage('JAWATANKUASA DATA HEM (IDME / APDM / SMPK)', [hb('hem-jk-2')[1]]),
-  'hx-disiplin': hemPage('JAWATANKUASA DISIPLIN & PENGAWAS', [hb('hem-jk-1')[1], hb('hem-jk-2')[0]], hb('hem-tugas-1')),
-  'hx-bk': hemPage('JAWATANKUASA BIMBINGAN & KAUNSELING', [hb('hem-jk-1')[0]], hb('hem-tugas-2')),
-  'hx-ppda': hemPage('JAWATANKUASA PENDIDIKAN PENCEGAHAN DADAH (PPDa)', [hb('hem-jk-8')[0]]),
-  'hx-spbt': hemPage('JAWATANKUASA SKIM PINJAMAN BUKU TEKS (SPBT)', [hb('hem-jk-6')[1], hb('hem-jk-6')[0]], hb('hem-tugas-6')),
-  'hx-kantin': hemPage('JAWATANKUASA KANTIN', [hb('hem-jk-4')[1]], hb('hem-tugas-5')),
-  'hx-kedai': hemPage('JAWATANKUASA KEDAI BUKU', [hb('hem-jk-9')[1]]),
-  'hx-3k-bersih': hemPage('JAWATANKUASA 3K (KEBERSIHAN & KECERIAAN SEKOLAH DAN TANDAS)', [hb('hem-jk-7')[0]], hb('hem-tugas-7', 2)),
-  'hx-3k-sihat': hemPage('JAWATANKUASA 3K (KESIHATAN & RAWATAN)', [hb('hem-jk-7')[1], hb('hem-jk-10')[0]], [...hb('hem-tugas-3'), ...hb('hem-tugas-4', 3)]),
-  'hx-3k-selamat': hemPage('JAWATANKUASA 3K (KESELAMATAN, BENCANA & PERHUBUNGAN SEKOLAH)', [hb('hem-jk-8')[1]], hb('hem-tugas-7', 0, 2)),
-  'hx-bantuan-kerajaan': hemPage('JAWATANKUASA BANTUAN KERAJAAN (BAP / KWAPM / EMK / TAKAFUL)', [hb('hem-jk-3')[1]], hb('hem-tugas-4', 0, 3)),
+  'hx-data': hemPage('JAWATANKUASA DATA HEM (IDME / APDM / SMPK)', [hb('hem-jk-2')[1]], tg('hx-data')),
+  'hx-disiplin': hemPage('JAWATANKUASA DISIPLIN & PENGAWAS', [hb('hem-jk-1')[1], hb('hem-jk-2')[0]], tg('hx-disiplin', hb('hem-tugas-1'))),
+  'hx-bk': hemPage('JAWATANKUASA BIMBINGAN & KAUNSELING', [hb('hem-jk-1')[0]], tg('hx-bk', hb('hem-tugas-2'))),
+  'hx-ppda': hemPage('JAWATANKUASA PENDIDIKAN PENCEGAHAN DADAH (PPDa)', [hb('hem-jk-8')[0]], tg('hx-ppda')),
+  'hx-spbt': hemPage('JAWATANKUASA SKIM PINJAMAN BUKU TEKS (SPBT)', [hb('hem-jk-6')[1], hb('hem-jk-6')[0]], tg('hx-spbt', hb('hem-tugas-6'))),
+  'hx-kantin': hemPage('JAWATANKUASA KANTIN', [hb('hem-jk-4')[1]], tg('hx-kantin', hb('hem-tugas-5'))),
+  'hx-kedai': hemPage('JAWATANKUASA KEDAI BUKU', [hb('hem-jk-9')[1]], tg('hx-kedai')),
+  'hx-3k-bersih': hemPage('JAWATANKUASA 3K (KEBERSIHAN & KECERIAAN SEKOLAH DAN TANDAS)', [hb('hem-jk-7')[0]], tg('hx-3k-bersih', hb('hem-tugas-7', 2))),
+  // COMBI (Pencegahan Denggi) ialah tambahan sekolah - dikekalkan selepas Bidang Tugas rujukan
+  'hx-3k-sihat': hemPage('JAWATANKUASA 3K (KESIHATAN & RAWATAN)', [hb('hem-jk-7')[1], hb('hem-jk-10')[0]], [...tg('hx-3k-sihat', hb('hem-tugas-3')), ...hb('hem-tugas-4', 3)]),
+  'hx-3k-selamat': hemPage('JAWATANKUASA 3K (KESELAMATAN, BENCANA & PERHUBUNGAN SEKOLAH)', [hb('hem-jk-8')[1]], tg('hx-3k-selamat', hb('hem-tugas-7', 0, 2))),
+  'hx-bantuan-kerajaan': hemPage('JAWATANKUASA BANTUAN KERAJAAN (BAP / KWAPM / EMK / TAKAFUL)', [hb('hem-jk-3')[1]], tg('hx-bantuan-kerajaan', hb('hem-tugas-4', 0, 3))),
   'hx-bantuan-ehsan': hemPage('JAWATANKUASA BANTUAN EHSAN', [hb('hem-jk-3')[0], hb('hem-jk-9')[0]]),
   'hx-rmt': hemPage('JAWATANKUASA RANCANGAN MAKANAN TAMBAHAN (RMT)', [hb('hem-jk-5')[0]], hb('hem-tugas-8')),
   'hx-pss': hemPage('JAWATANKUASA PROGRAM SUSU SEKOLAH (PSS)', [hb('hem-jk-4')[0]]),
-  ...Object.fromEntries(HEM_KOSONG.map(([id, title]) => [id, jkPage(title, '', PKHEM)])),
+  ...Object.fromEntries(HEM_KOSONG.map(([id, title]) => [id, hemKosong(id, title)])),
 });
 
 /* ----- Kokurikulum ----- */
@@ -310,10 +320,9 @@ export const partRujukanSections = (): Record<string, SectionContent> => {
       tbl(['BILIK KHAS', 'PENYELARAS SESI PAGI', 'PENYELARAS SESI PETANG'], BILIK_KHAS.map((b) => [b, '', '']), { colWidths: [40, 30, 30], colAlign: ['left', 'left', 'left'] }),
     ]),
 
-    'k-dasar': sec('KETETAPAN DASAR UNIT KURIKULUM', '', [
-      p('Ketetapan dasar Unit Kurikulum merangkumi visi dan misi, objektif dan matlamat serta pengenalan unit pada halaman-halaman berikut. Tambah ketetapan dasar tambahan unit pada halaman ini.'),
-      ul(['Visi dan Misi Unit Kurikulum', 'Objektif dan Matlamat Unit Kurikulum', 'Pengenalan Unit Kurikulum dan Pentadbiran Sekolah']),
-    ]),
+    'k-dasar': sec('KETETAPAN DASAR UNIT KURIKULUM', '', teks(DASAR_KURI)),
+    'k-jk-induk': withTugas(partKKSections()['k-jk-induk'], TUGAS_KURI['k-jk-induk']),
+    'k-panitia': withTugas(partKKSections()['k-panitia'], TUGAS_KURI['k-panitia']),
     'kx-carta-induk': sec('CARTA ORGANISASI JAWATANKUASA INDUK KURIKULUM', '', [{
       id: uid(), type: 'committee', title: '', display: 'chart', focus: PKP, onePage: true,
       rows: [
@@ -326,9 +335,11 @@ export const partRujukanSections = (): Record<string, SectionContent> => {
     // jawatankuasa unit sedia ada yang telah dipadankan ke halamannya sendiri tidak diulang di sini
     'k-jk-unit': sec('JAWATANKUASA UNIT KURIKULUM', '', partKKSections()['k-jk-unit'].blocks.filter((b) => b.type !== 'committee' || !used.some((n) => b.title.includes(n)))),
     'hem-dasar': sec('KETETAPAN DASAR UNIT HAL EHWAL MURID', '', [
-      p('Ketetapan dasar Unit Hal Ehwal Murid merangkumi pengenalan, misi, objektif dan matlamat unit pada halaman-halaman berikut. Tambah ketetapan dasar tambahan unit pada halaman ini.'),
-      ul(['Pengenalan Unit Hal Ehwal Murid', 'Misi Unit Hal Ehwal Murid', 'Objektif dan Matlamat Unit Hal Ehwal Murid']),
+      ...teks(DASAR_HEM),
+      tbl(JADUAL_PONTENG.columns, JADUAL_PONTENG.rows, { colWidths: [22, 39, 39], colAlign: ['left', 'center', 'center'] }),
+      ...teks(DASAR_HEM_2),
     ]),
+    'hem-jk-induk': { ...H['hem-jk-induk'], blocks: [...H['hem-jk-induk'].blocks.map(cloneBlock), h('Bidang Tugas'), ...teks(TUGAS_HEM['hem-jk-induk'])], updatedAt: null },
     'hx-carta': sec('CARTA ORGANISASI JAWATANKUASA HAL EHWAL MURID', '', [{
       id: uid(), type: 'orgtree', title: '', root: GB, side: [],
       columns: [col(PKHEM, [box('UNIT HAL EHWAL MURID', HEM_UNIT)])],
@@ -342,6 +353,6 @@ export const partRujukanSections = (): Record<string, SectionContent> => {
     ]),
     ...hemHalaman(),
   };
-  for (const [id, title, unit, needle] of KURI_HALAMAN) out[id] = kuriPage(title, unit, needle ? unitJk(needle) : undefined);
+  for (const [id, title, unit, needle] of KURI_HALAMAN) out[id] = kuriPage(id, title, unit, needle ? unitJk(needle) : undefined);
   return out;
 };

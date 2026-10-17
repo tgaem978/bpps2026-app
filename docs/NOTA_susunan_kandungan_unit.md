@@ -15,6 +15,12 @@ Data HEM, Disiplin & Pengawas, Bimbingan & Kaunseling, PPDa, SPBT (+BOSD), Kanti
 Lokar, Pembangunan Fizikal, Penempatan, Orientasi, SSDM, Aset Alih = ruang kosong (turutan rujukan).
 **Kokurikulum** - tajuk sedia ada ditukar nama mengikut rujukan; `kx-carta-koku` (Carta Organisasi Unit Kokurikulum) ditambah; Pembangunan Sukan dialih ke kedudukan ketiga.
 
+## Teks dasar & Bidang Tugas daripada rujukan (boleh disunting)
+Fail `src/config/teksRujukan.ts`. Hanya teks dasar/bidang tugas diambil; **nama orang tidak diambil** (pangkalan staf projek ialah staf sekolah ini - ahli jawatankuasa kekal mengikut kedudukan/data sedia ada).
+- **Kurikulum**: Ketetapan Dasar (21 perkara) pada `k-dasar`; Bidang Tugas pada halaman Induk, Prasekolah, Panitia, PBD & KSSR, PBD Bilik Darjah, Data, Jadual Waktu, KBAT, Pemulihan, HIP, Bertema, DELIMA, Sudut Pidato, Buku Kerja, Guru Muda, Peningkatan Akademik, Intervensi Tahun 1 dan Celik Jawi.
+- **HEM**: Ketetapan Dasar (14 perkara, termasuk jadual ponteng) pada `hem-dasar`; Bidang Tugas JK Induk (2 kumpulan), Data, Disiplin & Pengawas (28), Bimbingan & Kaunseling, PPDa, SPBT (10 kumpulan), Kantin, Kedai Buku, 3K (Kebersihan, Kesihatan, Keselamatan), Bantuan Kerajaan, Lokar, Pembangunan Fizikal dan Aset Alih. Bidang Tugas sekolah sedia ada dikekalkan bagi Bantuan Ehsan, RMT, PSS dan COMBI (rujukan tiada).
+- Bidang Tugas PPDa dalam rujukan sama dengan Bimbingan & Kaunseling - disalin seperti rujukan; sila semak.
+
 ## Halaman tambahan sekolah (tiada dalam rujukan) - TIDAK dipadam
 Dikekalkan sebagai sambungan: Kurikulum (`k-jk-unit`, `k-bidang-tugas`, `k-bilik-khas`, `k-takwim`) di hujung; HEM (`hem-aluan` di bawah Ketetapan Dasar, `hem-jk` di bawah JK Induk); Kokurikulum (aluan/pengenalan/visi/piagam/strategi/polisi di bawah Ketetapan Dasar; JK khas & takwim di hujung).
 
