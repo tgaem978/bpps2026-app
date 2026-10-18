@@ -27,7 +27,7 @@ const jk = (title: string, setiausaha: string, naibSetiausaha: string | string[]
   rows: [
     cmRow('Pengerusi', 'SHAMSUKAMAL BIN ANIFAR'),
     cmRow('Timbalan Pengerusi', 'HASRE ADHA BIN MOHD HASSAN'),
-    cmRow('Naib Pengerusi I', 'ZALEHA BINTI YUSOH'),
+    cmRow('Naib Pengerusi I', 'ZALENA BINTI YUSOH'),
     cmRow('Naib Pengerusi II', 'MUHAMMAD RIZAL BIN CHE DIN'),
     cmRow('Naib Pengerusi III', 'VINCENT NATHAN A/L IRATHAYA SAMI'),
     cmRow('Naib Pengerusi IV', 'SYAHIDA BINTI MOHAMED MOKHTAR'),

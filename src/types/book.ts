@@ -151,7 +151,11 @@ export interface SectionContent {
 }
 
 /** Struktur kandungan: bahagian utama → tajuk → subtajuk. */
-export interface OutlineTopic { id: string; children: string[] }
+export interface OutlineTopic {
+  id: string; children: string[];
+  /** `false` = subtajuk topik ini tidak disenaraikan dalam Isi Kandungan (halaman sambungan bertajuk sama). */
+  tocChildren?: boolean;
+}
 export interface OutlinePart {
   id: string;
   title: string;

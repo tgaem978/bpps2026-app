@@ -249,7 +249,7 @@ export function useBookPlan(): PagePlan[] {
       if (part.divider) body.push({ kind: 'divider', key: `d-${part.id}`, partId: part.id });
       for (const t of part.topics) {
         pushSection(t.id, 1);
-        t.children.forEach((c) => pushSection(c, 2, part.tocChildren !== false));
+        t.children.forEach((c) => pushSection(c, 2, part.tocChildren !== false && t.tocChildren !== false));
       }
     }
 

@@ -95,7 +95,7 @@ export const maklumatAmTopics = (): OutlineTopic[] => [
   topic('t-cuti'),
   topic('ma-minggu-akademik'),
   topic('ma-waktu'),
-  topic('ma-simulasi', 'ma-simulasi-2'),
+  { ...topic('ma-simulasi', 'ma-simulasi-2'), tocChildren: false }, // satu entri dalam Isi Kandungan (rujukan hlm. 22)
 ];
 
 /** Minggu persekolahan 2026 (Kumpulan B) dijana daripada tarikh penggal dalam Kalendar Akademik 2026. */
@@ -130,21 +130,11 @@ const peribadi = (): SectionContent => sec('MAKLUMAT PERIBADI', '', [
   kv([['Ikhtisas Opsyen 1', ''], ['Ikhtisas Opsyen 2', ''], ['Gred Jawatan Semasa', ''], ['Tarikh Lantikan Pertama', ''], ['Tarikh Pengesahan Pertama', ''], ['Tarikh Khidmat Sekolah Semasa', ''], ['Tarikh Kenaikan Pangkat Semasa', '']]),
 ]);
 
-const SIM_ROWS_T1: [string, string, string][] = [
-  ['Bahasa Melayu', '192', '9'], ['Bahasa Inggeris', '160', '8'], ['Matematik', '112', '5'], ['Pendidikan Islam / Moral', '112', '6'], ['Sains', '48', '3'],
-  ['Pendidikan Jasmani dan Kesihatan', '32', '3'], ['Pendidikan Seni Visual', '32', '2'], ['Pendidikan Muzik', '16', '1'], ['Bahasa Arab', '48', '3'],
-  ['Tasmik', '32', '2'], ['Perhimpunan', '16', '1'],
-];
-const SIM_ROWS_T2: [string, string, string][] = [
-  ['Bahasa Melayu', '160', '8'], ['Bahasa Inggeris', '160', '8'], ['Matematik', '112', '6'], ['Sains', '64', '4'], ['Pendidikan Islam / Moral', '112', '6'],
-  ['Pendidikan Jasmani', '32', '2'], ['Pendidikan Kesihatan', '16', '1'], ['Pendidikan Seni Visual', '32', '2'], ['Pendidikan Muzik', '16', '1'],
-  ['Reka Bentuk dan Teknologi', '32', '2'], ['Sejarah', '32', '2'], ['Bahasa Arab', '48', '3'], ['Tasmik', '32', '2'], ['Perhimpunan', '16', '1'],
-];
-const simTable = (rows: [string, string, string][]): Block => tbl(
-  ['MATA PELAJARAN', 'MINIMUM JAM / TAHUN', 'WAKTU (PETAK) / MINGGU'],
-  [...rows.map(([a, b, c]) => [a, b, c]), ['JUMLAH', String(rows.reduce((s, x) => s + +x[1], 0)), String(rows.reduce((s, x) => s + +x[2], 0))]],
-  { numbered: true, colWidths: [52, 24, 24], colAlign: ['left', 'center', 'center'] },
-);
+/** Simulasi Jadual Waktu: dikekalkan SAMA seperti dokumen rujukan (hlm. 22-23) sebagai imej (kandungan sahaja; pengepala/nombor halaman dijana sistem). */
+const BASE = import.meta.env.BASE_URL;
+const simImg = (file: string): SectionContent => sec('SIMULASI JADUAL WAKTU SEKOLAH', '', [
+  { id: uid(), type: 'image', src: `${BASE}simulasi/${file}`, caption: '', frameFill: true },
+]);
 
 /* ---------------------------------------------------------------- Pentadbiran & Pengurusan (tambahan) */
 const BILIK_KHAS = ['Makmal Sains', 'Makmal Komputer', 'Pusat Sumber Sekolah', 'Bilik Bimbingan dan Kaunseling', 'Bilik Muzik', 'Bilik Pendidikan Seni Visual',
@@ -307,14 +297,8 @@ export const partRujukanSections = (): Record<string, SectionContent> => {
       h('MINGGU PERSEKOLAHAN'),
       tbl(['TAHAP', 'MINGGU PERSEKOLAHAN SESI 2026', 'MINGGU AKADEMIK SESI 2026'], [['Tahap 1', '', ''], ['Tahap 2', '', '']]),
     ]),
-    'ma-simulasi': sec('SIMULASI JADUAL WAKTU SEKOLAH', 'TAHAP 1', [
-      p('Contoh simulasi jadual waktu Sekolah Kebangsaan Tahap 1 (Tahun 1–3) berdasarkan jumlah minggu PdP setiap mata pelajaran setahun = 39 minggu; satu petak = 30 minit.'),
-      simTable(SIM_ROWS_T1),
-    ]),
-    'ma-simulasi-2': sec('SIMULASI JADUAL WAKTU SEKOLAH', 'TAHAP 2', [
-      p('Contoh simulasi jadual waktu Sekolah Kebangsaan Tahap 2 (Tahun 4–6) berdasarkan jumlah minggu PdP setiap mata pelajaran setahun = 39 minggu; satu petak = 30 minit.'),
-      simTable(SIM_ROWS_T2),
-    ]),
+    'ma-simulasi': simImg('isi-22.png'),
+    'ma-simulasi-2': simImg('isi-23.png'),
 
     'pp-bilik-khas': sec('PENYELARAS BILIK-BILIK KHAS', '', [
       tbl(['BILIK KHAS', 'PENYELARAS SESI PAGI', 'PENYELARAS SESI PETANG'], BILIK_KHAS.map((b) => [b, '', '']), { colWidths: [40, 30, 30], colAlign: ['left', 'left', 'left'] }),

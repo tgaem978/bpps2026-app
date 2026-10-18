@@ -261,20 +261,22 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
    --oc-*, jadi mod padat (bp-dense-1..3) hanya menukar nilai, bukan peraturan. */
 .bp-oc {
   --oc-photo: calc(var(--mm) * 16);      --oc-photo-lead: calc(var(--mm) * 22);
-  --oc-drop: calc(var(--mm) * 3.6);      --oc-label: calc(var(--mm) * 7.5);
-  --oc-pad-y: calc(var(--mm) * 1.3);     --oc-pad-x: calc(var(--mm) * 1.5);
+  --oc-drop: calc(var(--mm) * 3);        --oc-label: calc(var(--mm) * 7.5);
+  --oc-pad-y: calc(var(--mm) * .8);      --oc-pad-x: calc(var(--mm) * 1.3);
   --oc-name: calc(var(--pt) * 6.6);      --oc-name-lead: calc(var(--pt) * 8.6);
   --oc-role: calc(var(--pt) * 5.2);      --oc-role-lead: calc(var(--pt) * 6.2);
   --oc-sub: calc(var(--pt) * 5);
-  --oc-ink: var(--m-title-color);
-  --oc-gold: color-mix(in srgb, var(--m-accent) 82%, #000);   /* emas lebih gelap: kontras teks kecil */
-  --oc-line: calc(var(--mm) * .4) solid color-mix(in srgb, var(--m-head-bg) 60%, transparent);
-  padding-top: calc(var(--mm) * 3);
+  /* Palet carta organisasi (Master Prompt reka bentuk semula): navy, biru terang, emas, kelabu lembut, hitam arang */
+  --oc-navy: #073B79;  --oc-blue: #1686D9;  --oc-gold-hi: #F5C84C;  --oc-grey: #E7EBEF;  --oc-charcoal: #252B33;
+  --oc-ink: var(--oc-navy);
+  --oc-gold: #B8860B;                                   /* emas gelap: hanya untuk teks kecil di atas putih */
+  --oc-line: calc(var(--mm) * .4) solid var(--oc-navy);  /* garisan hierarki: lurus, tanpa anak panah */
+  padding-top: calc(var(--mm) * 1.5);
 }
 .bp-cmc { --oc-photo: calc(var(--mm) * 13); --oc-photo-lead: calc(var(--mm) * 18); }
 
 /* Baris & penyambung */
-.bp-oc-row { position: relative; padding-top: calc(var(--oc-drop) * 2); }
+.bp-oc-row { position: relative; padding-top: calc(var(--oc-drop) * 1.7); }
 .bp-oc-row.bp-oc-first { padding-top: 0; }
 .bp-oc-drop { position: absolute; left: 50%; top: 0; height: var(--oc-drop); border-left: var(--oc-line); }
 .bp-oc-bus { position: absolute; top: var(--oc-drop); border-top: var(--oc-line); }
@@ -285,15 +287,16 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
 .bp-oc-lead { --oc-photo: var(--oc-photo-lead); --oc-name: var(--oc-name-lead); --oc-role: var(--oc-role-lead); }
 
 /* Kad */
-.bp-card {
+.bp-card {   /* kad timbul 3D: kecerunan lembut, tepi atas berkilau, tepi bawah bergelap, bayang jatuh */
   box-sizing: border-box; width: 100%; flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; text-align: center;
-  padding: var(--oc-pad-y) var(--oc-pad-x) calc(var(--oc-pad-y) * 1.1); background: #fff;
-  border: calc(var(--mm) * .25) solid color-mix(in srgb, var(--m-head-bg) 20%, transparent);
-  border-top: calc(var(--mm) * .8) solid var(--m-accent); border-radius: calc(var(--mm) * 1.6);
-  box-shadow: 0 calc(var(--mm) * .5) calc(var(--mm) * 1.4) rgba(10,30,45,.1);
+  padding: var(--oc-pad-y) var(--oc-pad-x) calc(var(--oc-pad-y) * 1.1);
+  background: #FFFFFF;
+  border: calc(var(--mm) * .25) solid color-mix(in srgb, var(--oc-navy) 42%, transparent);
+  border-bottom: calc(var(--mm) * .6) solid var(--oc-gold-hi); border-radius: calc(var(--mm) * 1.6);
+  box-shadow: 0 calc(var(--mm) * .5) calc(var(--mm) * 1.6) rgba(7,59,121,.16);
 }
 .bp-oc-lead .bp-card { width: min(100%, calc(var(--mm) * 56)); flex: 0 0 auto; }
-.bp-oc-focus .bp-card { border-color: color-mix(in srgb, var(--m-accent) 65%, transparent); border-top-color: var(--m-accent); box-shadow: 0 calc(var(--mm) * .6) calc(var(--mm) * 1.8) rgba(10,30,45,.2); }
+.bp-oc-focus .bp-card { border-color: var(--oc-navy); border-bottom-color: var(--oc-gold-hi); box-shadow: 0 calc(var(--mm) * .6) calc(var(--mm) * 1.8) rgba(7,59,121,.24); }
 
 /* Kad bergambar: gambar bulat separuh bertindih; hujung atas gambar bertemu penyambung.
    Bingkai timbul: gelang emas logam bergradien (bevel: highlight atas-kiri, bayang bawah-kanan), bayang jatuh lembut,
@@ -302,26 +305,25 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
 .bp-oc-photo {
   --oc-ring: calc(var(--oc-photo) * .075);
   position: relative; z-index: 1; flex: none; box-sizing: border-box; width: var(--oc-photo); aspect-ratio: 1; border-radius: 50%;
-  margin: calc(var(--oc-photo) * -.5 - var(--mm) * .8) auto calc(var(--mm) * 1.6);
-  background: conic-gradient(from 210deg, #FFE9A8, #E0A52E 18%, #9A6200 38%, #E9BB55 55%, #FFF0BF 68%, #C58A14 84%, #FFE9A8);
-  box-shadow:
-    inset 0 calc(var(--mm) * .35) calc(var(--mm) * .5) rgba(255,255,255,.75),
-    inset 0 calc(var(--mm) * -.4) calc(var(--mm) * .6) rgba(90,50,0,.55),
-    0 calc(var(--mm) * .3) 0 rgba(120,70,0,.35),
-    0 calc(var(--mm) * 1.1) calc(var(--mm) * 2.4) rgba(10,30,45,.38);
+  margin: calc(var(--oc-photo) * -.5 - var(--mm) * .8) auto calc(var(--mm) * .6);
+  background: linear-gradient(155deg, #FBD965 0%, #F5C84C 45%, #E2AE2C 100%);   /* gelang emas (gaya carta rujukan) */
+  box-shadow: 0 calc(var(--mm) * .6) calc(var(--mm) * 1.6) rgba(7,59,121,.22);
 }
 .bp-oc-photo > img, .bp-oc-photo > svg { position: absolute; inset: var(--oc-ring); width: calc(100% - 2 * var(--oc-ring)); height: calc(100% - 2 * var(--oc-ring)); border-radius: 50%; border: 0; object-fit: cover; object-position: center; display: block; }
-.bp-oc-photo::after {
+.bp-oc-photo::after {   /* alur dalam terbenam + cincin putih + garis navy + kilau kaca di atas gambar */
   content: ''; position: absolute; inset: var(--oc-ring); border-radius: 50%; pointer-events: none;
-  box-shadow: inset 0 calc(var(--mm) * .5) calc(var(--mm) * .9) rgba(0,0,0,.5), inset 0 calc(var(--mm) * -.25) calc(var(--mm) * .5) rgba(255,255,255,.28), 0 0 0 calc(var(--mm) * .22) rgba(255,255,255,.85);
+  box-shadow: inset 0 0 0 calc(var(--mm) * .45) #fff, inset 0 0 0 calc(var(--mm) * .6) var(--oc-navy), 0 0 0 calc(var(--mm) * .3) #fff;
 }
 
 /* Tipografi kad: JAWATAN (label) -> NAMA -> keterangan */
-.bp-card-role {
-  align-self: stretch; margin: 0 0 calc(var(--mm) * .7); padding: 0 0 calc(var(--mm) * .55);
-  border-bottom: calc(var(--mm) * .2) solid color-mix(in srgb, var(--m-head-bg) 16%, transparent);
-  font-family: var(--m-body-font); font-weight: 700; font-size: var(--oc-role); line-height: 1.2; letter-spacing: .08em;
-  text-transform: uppercase; color: var(--oc-gold); text-wrap: balance;
+.bp-card-role {   /* label jawatan: kapsul biru tema header timbul (bevel + kilau); teks putih bergaya lencana tajuk header */
+  align-self: stretch; margin: 0 0 calc(var(--mm) * .5); padding: calc(var(--mm) * .7) calc(var(--mm) * 1.2);
+  background: linear-gradient(180deg, #1E5CA8 0%, var(--oc-navy) 100%);
+  border: 0; border-radius: 999px;
+  box-shadow: inset 0 calc(var(--mm) * .25) 0 rgba(255,255,255,.28), 0 calc(var(--mm) * .4) calc(var(--mm) * .8) rgba(7,59,121,.25);
+  font-family: var(--m-title-font); font-weight: 800; font-size: var(--oc-role); line-height: 1.15; letter-spacing: .04em;
+  text-transform: uppercase; color: #fff; text-wrap: balance;
+  text-shadow: 0 calc(var(--mm) * .2) calc(var(--mm) * .3) rgba(0,20,60,.45);
 }
 .bp-card-names { margin-top: auto; display: grid; gap: calc(var(--mm) * .45); width: 100%; }
 .bp-card-name {
@@ -334,9 +336,9 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
 .bp-card-empty { color: #7B8892; font-weight: 600; }
 .bp-card-sub, .bp-card-note {
   margin: calc(var(--mm) * .6) 0 0; font-family: var(--m-body-font); font-weight: 500; font-size: var(--oc-sub); line-height: 1.2;
-  letter-spacing: .04em; color: #4F5F69;
+  letter-spacing: .04em; color: var(--oc-charcoal);
 }
-.bp-card-sub { text-transform: uppercase; }
+.bp-card-sub { text-transform: uppercase; color: #3C4B5C; }
 
 /* Label kumpulan (cth. KETUA GURU PENASIHAT) pada carta jawatankuasa */
 .bp-cmc .bp-cmc-labelled { padding-top: calc(var(--oc-drop) * 2 + var(--oc-label)); }
@@ -346,8 +348,9 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
 .bp-cmc-label { position: absolute; left: 0; right: 0; top: calc(var(--oc-drop) * .6); margin: 0; text-align: center; }
 .bp-oc-first > .bp-cmc-label { top: 0; }
 .bp-cmc-label span {
-  display: inline-block; padding: calc(var(--mm) * .9) calc(var(--mm) * 4); background: var(--m-head-bg); color: var(--m-head-color);
-  border: calc(var(--mm) * .35) solid var(--m-head-accent); border-radius: calc(var(--mm) * 1.2); font-family: var(--m-body-font);
+  display: inline-block; padding: calc(var(--mm) * .9) calc(var(--mm) * 4); background: linear-gradient(180deg, #1E5CA8 0%, var(--oc-navy) 100%); color: #fff; font-family: var(--m-title-font); text-shadow: 0 calc(var(--mm) * .2) calc(var(--mm) * .3) rgba(0,20,60,.45);
+  border: 0; border-radius: 999px; font-family: var(--m-body-font);
+  box-shadow: inset 0 calc(var(--mm) * .3) 0 rgba(255,255,255,.28), 0 calc(var(--mm) * .5) calc(var(--mm) * 1.1) rgba(7,59,121,.3);
   font-weight: 700; font-size: calc(var(--pt) * 5.8); letter-spacing: .1em; text-transform: uppercase;
 }
 
@@ -362,8 +365,8 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
 .bp-ot-sideline { position: absolute; top: var(--ot-y); left: calc(50% + var(--mm) * 28); right: calc(var(--mm) * 25); height: 0; border-top: var(--oc-line); }
 .bp-ot-side { position: absolute; right: 0; top: calc(var(--ot-y) - var(--mm) * 3.4); width: calc(var(--mm) * 25); display: grid; gap: calc(var(--mm) * 1.2); }
 .bp-ot-sidebox {
-  margin: 0; box-sizing: border-box; padding: calc(var(--mm) * 1.2) calc(var(--mm) * 1); text-align: center; background: var(--m-head-bg); color: var(--m-head-color);
-  border: calc(var(--mm) * .35) solid var(--m-head-accent); border-radius: calc(var(--mm) * 1.2); font-family: var(--m-body-font);
+  margin: 0; box-sizing: border-box; padding: calc(var(--mm) * 1.2) calc(var(--mm) * 1); text-align: center; background: linear-gradient(180deg, #1E5CA8 0%, var(--oc-navy) 100%); color: #fff; font-family: var(--m-title-font); text-shadow: 0 calc(var(--mm) * .2) calc(var(--mm) * .3) rgba(0,20,60,.45);
+  border: 0; border-radius: 999px; font-family: var(--m-body-font);
   font-weight: 700; font-size: calc(var(--pt) * 5.8); line-height: 1.2; letter-spacing: .1em; text-transform: uppercase;
 }
 .bp-ot-col { align-items: stretch; }
@@ -372,18 +375,19 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
 .bp-ot-link { display: block; height: var(--ot-gap); border-left: var(--oc-line); }
 .bp-ot-box {
   box-sizing: border-box; width: 100%; background: #fff; padding: var(--ot-pad);
-  border: calc(var(--mm) * .25) solid color-mix(in srgb, var(--m-head-bg) 20%, transparent);
-  border-top: calc(var(--mm) * .7) solid var(--m-accent); border-radius: calc(var(--mm) * 1.4);
-  box-shadow: 0 calc(var(--mm) * .4) calc(var(--mm) * 1.2) rgba(10,30,45,.09);
+  border: calc(var(--mm) * .25) solid color-mix(in srgb, var(--oc-navy) 32%, transparent);
+  border-bottom: calc(var(--mm) * .6) solid var(--oc-gold-hi); border-radius: calc(var(--mm) * 1.6);
+  background: #fff;
+  box-shadow: 0 calc(var(--mm) * .5) calc(var(--mm) * 1.6) rgba(7,59,121,.16);
 }
 .bp-ot-title {
   margin: 0; text-align: center; font-family: var(--m-body-font); font-weight: 700; font-size: var(--ot-title); line-height: 1.25;
   letter-spacing: .07em; text-transform: uppercase; color: var(--oc-ink); text-wrap: balance;
 }
-.bp-ot-title-sep { padding-bottom: calc(var(--mm) * .7); margin-bottom: calc(var(--mm) * .9); border-bottom: calc(var(--mm) * .2) solid color-mix(in srgb, var(--m-head-bg) 16%, transparent); color: var(--oc-gold); }
-.bp-ot-list { margin: 0; padding: 0 0 0 calc(var(--mm) * 2.8); list-style: disc; text-align: left; font-family: var(--m-body-font); font-size: var(--ot-fs); line-height: 1.28; color: #26363F; }
+.bp-ot-title-sep { padding-bottom: calc(var(--mm) * .7); margin-bottom: calc(var(--mm) * .9); border-bottom: calc(var(--mm) * .2) solid color-mix(in srgb, var(--oc-navy) 22%, transparent); color: var(--oc-navy); }
+.bp-ot-list { margin: 0; padding: 0 0 0 calc(var(--mm) * 2.8); list-style: disc; text-align: left; font-family: var(--m-body-font); font-size: var(--ot-fs); line-height: 1.28; color: var(--oc-charcoal); }
 .bp-ot-list li { margin: 0 0 calc(var(--mm) * .35); text-wrap: pretty; overflow-wrap: anywhere; }
-.bp-ot-list li::marker { color: var(--oc-gold); }
+.bp-ot-list li::marker { color: var(--oc-blue); }
 .bp-dense-1 .bp-ot { --oc-photo: calc(var(--mm) * 13); --oc-photo-lead: calc(var(--mm) * 18); --oc-drop: calc(var(--mm) * 3); --oc-pad-y: calc(var(--mm) * 1.1); --ot-fs: calc(var(--pt) * 5); --ot-title: calc(var(--pt) * 4.8); --ot-gap: calc(var(--mm) * 2); --ot-pad: calc(var(--mm) * 1.1); --oc-name: calc(var(--pt) * 6.2); --oc-role: calc(var(--pt) * 4.9); }
 .bp-dense-2 .bp-ot { --oc-photo: calc(var(--mm) * 11); --oc-photo-lead: calc(var(--mm) * 15); --oc-drop: calc(var(--mm) * 2.5); --oc-pad-y: calc(var(--mm) * .9); --ot-fs: calc(var(--pt) * 4.6); --ot-title: calc(var(--pt) * 4.5); --ot-gap: calc(var(--mm) * 1.6); --ot-pad: calc(var(--mm) * .9); --oc-name: calc(var(--pt) * 5.8); --oc-role: calc(var(--pt) * 4.6); }
 .bp-dense-3 .bp-ot { --oc-photo: calc(var(--mm) * 9.5); --oc-photo-lead: calc(var(--mm) * 13); --oc-drop: calc(var(--mm) * 2); --oc-pad-y: calc(var(--mm) * .7); --ot-fs: calc(var(--pt) * 4.2); --ot-title: calc(var(--pt) * 4.2); --ot-gap: calc(var(--mm) * 1.2); --ot-pad: calc(var(--mm) * .7); --oc-name: calc(var(--pt) * 5.4); --oc-role: calc(var(--pt) * 4.3); }

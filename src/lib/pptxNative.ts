@@ -147,11 +147,11 @@ class PageConverter {
     const name = el.className && typeof el.className === 'string' ? el.className.split(' ')[0] : el.tagName;
     if (el.classList.contains('bp-oc-photo')) {
       // Bingkai bulat berganda mengikut warna tema (emas + biru gelap) dan latar putih untuk gambar
-      const gold = hexVar(this.page, '--m-accent') ?? 'C99A2E';
+      const gold = 'F5C84C';   // emas carta organisasi (sama dengan --oc-gold-hi)
       // gelang emas (tebal = 7.5% diameter, sama seperti CSS) dan gambar di dalamnya
-      const rw = Math.min(r.width, r.height) * 0.075;
+      const rw = Math.min(r.width, r.height) * 0.06;
       slide.addShape('ellipse', { ...b, objectName: 'Bingkai gambar', fill: { color: gold }, line: { color: 'FFFFFF', width: 0.75 } } as never);
-      slide.addShape('ellipse', { ...this.box(new DOMRect(r.left + rw, r.top + rw, r.width - 2 * rw, r.height - 2 * rw)), objectName: name, fill: { color: 'FFFFFF' }, line: { color: 'B07A12', width: 0.75 } } as never);
+      slide.addShape('ellipse', { ...this.box(new DOMRect(r.left + rw, r.top + rw, r.width - 2 * rw, r.height - 2 * rw)), objectName: name, fill: { color: 'FFFFFF' }, line: { color: '073B79', width: 0.75 } } as never);
       return;
     }
     if (fill || uniform || ring) {
@@ -164,7 +164,7 @@ class PageConverter {
         ...bb,
         objectName: name,
         fill: fill ? { color: fill.hex, transparency: transparency(fill.alpha) } : { type: 'none' },
-        line: uniform ? { color: sides[0].c!.hex, width: this.pt(lw) } : ring && accent ? { color: accent, width: 1.2 } : { type: 'none' },
+        line: uniform ? { color: sides[0].c!.hex, width: this.pt(lw) } : ring && accent ? { color: 'F5C84C', width: 1.2 } : { type: 'none' },
         rectRadius: radius > 1 ? Math.min(0.5, (radius / Math.min(r.width, r.height))) : undefined,
       } as never);
     }

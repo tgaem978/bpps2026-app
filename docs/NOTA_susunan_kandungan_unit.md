@@ -29,3 +29,6 @@ Dikekalkan sebagai sambungan: Kurikulum (`k-jk-unit`, `k-bidang-tugas`, `k-bilik
 
 ## Migrasi v17 (data tersimpan dalam pelayar)
 Halaman lalai yang belum disunting dimuat semula (tajuk/kandungan baharu). Halaman lama yang telah disunting, atau ditambah pengguna, dikekalkan sebagai sambungan di hujung bahagian berkenaan.
+
+## Simulasi Jadual Waktu Sekolah (migrasi v18)
+Dua halaman Simulasi (`ma-simulasi`, `ma-simulasi-2`) kini **sama seperti dokumen rujukan hlm. 22-23** - dikekalkan sebagai imej (`public/simulasi/isi-22.png`, `isi-23.png`; kandungan sahaja, pengepala/nombor halaman dijana sistem), dengan cara yang sama seperti halaman Pengenalan. Tiada apa-apa diubah daripada kandungan asal (termasuk label "Sesi Pagi 2025/2026" dan warna mata pelajaran). Isi Kandungan memaparkan satu entri (`OutlineTopic.tocChildren = false`). Halaman yang telah disunting pengguna tidak ditimpa.

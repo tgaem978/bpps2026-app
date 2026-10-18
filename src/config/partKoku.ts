@@ -51,7 +51,7 @@ const jkUnit = (title: string, pen: [string, string], penPen: [string, string]):
   rows: [
     cmRow('Pengerusi', 'SHAMSUKAMAL BIN ANIFAR'),
     cmRow('Naib Pengerusi I', 'MUHAMMAD RIZAL BIN CHE DIN'),
-    cmRow('Naib Pengerusi II', 'ZALEHA BINTI YUSOH'),
+    cmRow('Naib Pengerusi II', 'ZALENA BINTI YUSOH'),
     cmRow('Naib Pengerusi III', 'HASRE ADHA BIN MOHD HASSAN'),
     cmRow('Naib Pengerusi IV', 'VINCENT NATHAN A/L IRATHAYA SAMI'),
     cmRow('Naib Pengerusi V', 'SYAHIDA BINTI MOHAMED MOKHTAR'),
@@ -88,7 +88,7 @@ const tbl = (columns: string[], rows: string[][]): Block => ({ id: uid(), type: 
 const ADMINS: string[][] = [
   ['PENGERUSI', 'SHAMSUKAMAL BIN ANIFAR (GURU BESAR)'],
   ['NAIB PENGERUSI', 'MUHAMMAD RIZAL BIN CHE DIN (GPK KOKURIKULUM)'],
-  ['', 'ZALEHA BINTI YUSOH (GPK PENTADBIRAN)'],
+  ['', 'ZALENA BINTI YUSOH (GPK PENTADBIRAN)'],
   ['', 'HASRE ADHA BIN MOHD HASSAN (GPK HEM)'],
   ['', 'VINCENT NATHAN A/L IRATHAYA SAMI (GPK PETANG)'],
   ['', 'SYAHIDA BINTI MOHAMED MOKHTAR (GPK PPKI)'],
@@ -97,7 +97,7 @@ const khas = (title: string, rest: string[][]): SectionContent => sec(title, 'JA
 const SUKAN_JK: string[][] = [
   ['PENGERUSI (GURU BESAR)', 'SHAMSUKAMAL BIN ANIFAR'],
   ['TIMBALAN PENGERUSI (GPK KOKURIKULUM)', 'MUHAMMAD RIZAL BIN CHE DIN'],
-  ['NAIB PENGERUSI I (GPK PENTADBIRAN)', 'ZALEHA BINTI YUSOH'],
+  ['NAIB PENGERUSI I (GPK PENTADBIRAN)', 'ZALENA BINTI YUSOH'],
   ['NAIB PENGERUSI II (GPK HEM)', 'HASRE ADHA BIN MOHD HASSAN'],
   ['NAIB PENGERUSI III (GPK PETANG)', 'VINCENT NATHAN A/L IRATHAYA SAMI'],
   ['NAIB PENGERUSI IV (GPK PPKI)', 'SYAHIDA BINTI MOHAMED MOKHTAR'],

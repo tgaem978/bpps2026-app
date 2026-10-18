@@ -331,6 +331,12 @@ function migrateV17(p: Partial<BookState>) {
   });
 }
 
+/** v18: Simulasi Jadual Waktu = halaman rujukan (imej). Halaman lalai yang belum disunting dimuat semula; satu entri Isi Kandungan. */
+function migrateV18(p: Partial<BookState>) {
+  if (p.sections) for (const id of ['ma-simulasi', 'ma-simulasi-2']) if (p.sections[id] && p.sections[id].updatedAt === null) delete p.sections[id];
+  if (p.outline) p.outline = p.outline.map((part) => (part.id !== 'p-maklumat' ? part : { ...part, topics: part.topics.map((t) => (t.id === 'ma-simulasi' ? { ...t, tocChildren: false } : t)) }));
+}
+
 export const useBookStore = create<BookState>()(
   persist(
     (set) => {
@@ -441,7 +447,7 @@ export const useBookStore = create<BookState>()(
     },
     {
       name: 'bpps2026-book',
-      version: 17,
+      version: 18,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -461,6 +467,7 @@ export const useBookStore = create<BookState>()(
         if (version < 15) migrateV15(p);
         if (version < 16) migrateV16(p);
         if (version < 17) migrateV17(p);
+        if (version < 18) migrateV18(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),
