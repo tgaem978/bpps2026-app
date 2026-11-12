@@ -181,6 +181,11 @@ export function paginate(blocks: AnyBlock[], ctx: BookCtx, o: PaginateOpts): Seg
 
 let fontsVersion = 0;
 
+/** Tema buku sebagai atribut <html data-book-theme> supaya pengukur halaman & paparan guna gaya yang sama. */
+export function applyTheme(theme: string | undefined) {
+  if (typeof document !== 'undefined') document.documentElement.dataset.bookTheme = theme ?? 'klasik';
+}
+
 /**
  * Gantian kandungan halaman untuk pratonton (cth. versi cadangan daripada Portal Kemas Kini dalam peti masuk).
  * Nilai mesti stabil (useMemo) supaya pelan buku tidak dikira semula setiap render.
@@ -227,6 +232,7 @@ export function useBookPlan(): PagePlan[] {
   return useMemo(() => {
     void version;
     applyMasterCss((t) => resolveMaster(t, overrides));
+    applyTheme(ctx.profile.theme);
     const sigOf = (pt: PageType) => `${JSON.stringify(overrides[pt] ?? {})}|${rev}|${JSON.stringify(ctx.profile)}|${fontsVersion}`;
     const optsOf = (pt: PageType, columns = 1): PaginateOpts => {
       const m = resolveMaster(pt, overrides);
@@ -257,7 +263,7 @@ export function useBookPlan(): PagePlan[] {
       );
     };
     for (const part of outline) {
-      tocRows.push({ level: 0, title: part.title, page: 0 });
+      tocRows.push({ level: 0, title: part.title, page: 0, no: outline.indexOf(part) + 1 });
       tocIndex.push({ row: tocRows.length - 1, at: body.length });
       if (part.divider) body.push({ kind: 'divider', key: `d-${part.id}`, partId: part.id });
       for (const t of part.topics) {

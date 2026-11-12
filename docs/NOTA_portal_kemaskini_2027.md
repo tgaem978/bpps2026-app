@@ -59,3 +59,13 @@ Dalam mod portal, stor pelayar disimpan dalam memori sahaja - membuka portal dal
 - Ujian API (curl) dan ujian hujung-ke-hujung Playwright pada `wrangler dev`: cipta edisi 2027 → arkib dimuat turun → log masuk → terbit → unit lalai →
   portal di telefon (390px) → sunting & hantar → peti masuk (diff + pratonton) → terima → halaman dalam buku dikemas kini & ditandakan siap → portal melihat "Diterima". Tiada ralat konsol.
 - Migrasi v19 diuji pada data tersimpan v18: halaman baharu ditambah, halaman disunting & halaman tambahan pengguna dikekalkan.
+
+## 6. Tema "Biru Navy & Emas" (edisi 2027)
+- Tema disimpan bagi setiap edisi (`SchoolProfile.theme`): `klasik` (2026, header/footer imej asal) atau `biru-emas`. *Cipta edisi 2027* menetapkan `biru-emas`; boleh ditukar di halaman **Projek → Tema reka bentuk buku**.
+- Rujukan: PDF *Muka Hadapan & Pembahagi BPPS SKBTS* (kulit + 9 pembahagi navy/emas dengan tab indeks) dan gaya imej rujukan (navy, emas, garisan pelan bangunan). Imej rujukan bertanda air pencipta lain **tidak** disalin - semua grafik dilukis semula sebagai SVG/CSS asal (`src/components/book/themeArt.tsx`).
+- **Kulit**: logo KPM & sekolah, nama sekolah, BUKU PENGURUSAN SEKOLAH, pil *SESI AKADEMIK 2027*, moto, bangunan sekolah garis pelan, jalur kaki (kod, alamat, e-mel daripada Profil Sekolah). Kulit imej templat 2026 dikosongkan semasa cipta edisi supaya kulit 2027 dijana; muat naik imej sendiri untuk menggantikannya.
+- **Pembahagi**: BAHAGIAN + nombor besar, reben navy (PENGURUSAN / tajuk / sub), ikon bulatan bersilang, **tab indeks 01–09** di tepi kanan (bahagian semasa ditonjolkan), jalur kaki navy.
+- **Halaman isi**: kepala navy dengan tajuk putih condong + lencana berbingkai emas, kaki navy dengan nombor halaman pada jalur emas (cermin halaman genap/ganjil), latar kertas pelan.
+- **Blok**: tajuk = reben emas dengan blok navy; tajuk VISI / MISI / OBJEKTIF / MOTO / SLOGAN / MATLAMAT → reben berpusat + kad navy (gaya Dasar PPKI / Hala Tuju); senarai bertitik = petak ✓; Maklumat (kunci-nilai) = kad dengan ikon navy (gaya Maklumat Sekolah, tanpa corak bunga); Isi Kandungan = bahagian bernombor 01, 02…
+- Geometri bingkai sama dengan tema klasik → penomboran halaman tidak berubah. Fon tambahan: Montserrat italik, Oswald.
+- Had: eksport PPTX *boleh disunting* masih menggunakan imej header/footer klasik; mod PPTX *gambar* dan PDF mengikut tema.

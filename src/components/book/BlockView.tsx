@@ -4,6 +4,7 @@ import { kvPairs, listItems, paragraphParts, unitCount } from '@/lib/units';
 import { byPosition, chartName, chartRole, committeeChartLines, nameOf, resolveMembers, resolveTokens, staffRows, valueText, type BookCtx } from '@/lib/resolve';
 import { arrangeFocus, isLeader } from '@/lib/orgLayout';
 import { fmtStyle } from '@/lib/format';
+import { PANEL_HEADINGS, kvIcon } from './themeArt';
 
 /** Siluet potret elegan bila tiada gambar. */
 export function Avatar({ name }: { name: string }) {
@@ -281,7 +282,9 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
           </div>
         );
       }
-      return <div className="bp-block"><h3 className="bp-heading u kn" style={fmtStyle({ ...block, bold: undefined })}>{parts[0]}</h3></div>;
+      // VISI / MISI / OBJEKTIF …: tema Biru-Emas memaparkan tajuk ini sebagai reben emas dan blok seterusnya sebagai kad navy.
+      const panel = PANEL_HEADINGS.test(parts[0].trim());
+      return <div className={`bp-block${panel ? ' bp-hp-wrap' : ''}`}><h3 className={`bp-heading u kn${panel ? ' bp-hp' : ''}`} style={fmtStyle({ ...block, bold: undefined })}>{parts[0]}</h3></div>;
     }
     case 'paragraph': {
       const parts = paragraphParts(block.text).slice(from, end);
@@ -340,7 +343,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
           <dl className="bp-kv">
             {kvPairs(block.pairs).slice(from, end).map((p, i) => (
               <div key={i} className="u">
-                <dt>{t(p.key)}</dt>
+                <dt>{(() => { const Ico = kvIcon(p.key); return <span className="bp-kv-ico" aria-hidden><Ico strokeWidth={1.8} /></span>; })()}<span className="bp-kv-key">{t(p.key)}</span></dt>
                 <dd style={fmtStyle(block)}>{t(p.value) || ' '}</dd>
               </div>
             ))}
@@ -483,7 +486,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
             <tbody>
               {block.rows.slice(from, end).map((r, i) => (
                 <tr key={i} className={`u bp-toc-l${r.level}`}>
-                  <td><span className="bp-toc-text">{r.title}</span></td>
+                  <td>{r.level === 0 && r.no !== undefined && <span className="bp-toc-no">{String(r.no).padStart(2, '0')}</span>}<span className="bp-toc-text">{r.title}</span></td>
                   <td className="bp-toc-page">{r.page}</td>
                 </tr>
               ))}

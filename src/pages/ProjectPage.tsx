@@ -47,6 +47,14 @@ export default function ProjectPage() {
           </label>
         </div>
       </div>
+      <label className="mt-4 block text-sm font-medium">
+        Tema reka bentuk buku
+        <select className={field} value={profile.theme ?? 'klasik'} onChange={(e) => updateProfile({ theme: e.target.value as 'klasik' | 'biru-emas' })}>
+          <option value="klasik">Klasik (header/footer imej BPPS 2026)</option>
+          <option value="biru-emas">Biru Navy &amp; Emas (pelan bangunan, tab bahagian)</option>
+        </select>
+        <span className="mt-1 block text-xs font-normal text-muted">Tema disimpan bagi setiap edisi. Tema Biru Navy &amp; Emas menggunakan kulit dijana daripada teks jika tiada imej kulit dimuat naik.</span>
+      </label>
       <button onClick={resetProfile} className="mt-6 rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-surface-2">
         Set semula ke default
       </button>

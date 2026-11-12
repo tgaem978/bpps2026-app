@@ -130,7 +130,7 @@ export interface TakwimBlock extends BaseBlock { type: 'takwim'; title: string; 
 /** Blok dalaman (tidak boleh ditambah pengguna): baris isi kandungan. */
 export interface TocRowsBlock extends BaseBlock {
   type: 'tocrows';
-  rows: { level: 0 | 1 | 2; title: string; page: number }[];
+  rows: { level: 0 | 1 | 2; title: string; page: number; no?: number }[];
 }
 
 export type Block =

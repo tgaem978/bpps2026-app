@@ -391,3 +391,196 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
 .bp-dense-1 .bp-ot { --oc-photo: calc(var(--mm) * 13); --oc-photo-lead: calc(var(--mm) * 18); --oc-drop: calc(var(--mm) * 3); --oc-pad-y: calc(var(--mm) * 1.1); --ot-fs: calc(var(--pt) * 5); --ot-title: calc(var(--pt) * 4.8); --ot-gap: calc(var(--mm) * 2); --ot-pad: calc(var(--mm) * 1.1); --oc-name: calc(var(--pt) * 6.2); --oc-role: calc(var(--pt) * 4.9); }
 .bp-dense-2 .bp-ot { --oc-photo: calc(var(--mm) * 11); --oc-photo-lead: calc(var(--mm) * 15); --oc-drop: calc(var(--mm) * 2.5); --oc-pad-y: calc(var(--mm) * .9); --ot-fs: calc(var(--pt) * 4.6); --ot-title: calc(var(--pt) * 4.5); --ot-gap: calc(var(--mm) * 1.6); --ot-pad: calc(var(--mm) * .9); --oc-name: calc(var(--pt) * 5.8); --oc-role: calc(var(--pt) * 4.6); }
 .bp-dense-3 .bp-ot { --oc-photo: calc(var(--mm) * 9.5); --oc-photo-lead: calc(var(--mm) * 13); --oc-drop: calc(var(--mm) * 2); --oc-pad-y: calc(var(--mm) * .7); --ot-fs: calc(var(--pt) * 4.2); --ot-title: calc(var(--pt) * 4.2); --ot-gap: calc(var(--mm) * 1.2); --ot-pad: calc(var(--mm) * .7); --oc-name: calc(var(--pt) * 5.4); --oc-role: calc(var(--pt) * 4.3); }
+
+/* ======================================================================
+   Tema "Biru Navy & Emas" (edisi 2027) - aktif apabila <html data-book-theme="biru-emas">.
+   Navy #0B2A5B, emas #C9A13B, kertas pelan (grid). Geometri bingkai sama dengan tema klasik.
+   ====================================================================== */
+.bp-kv-ico, .bp-toc-no { display: none; }
+
+:root[data-book-theme="biru-emas"] {
+  --be-navy: #0B2A5B; --be-navy-2: #163E7A; --be-gold: #C9A13B; --be-gold-2: #E8C766; --be-paper: #F5F8FD; --be-grid: rgba(11, 42, 91, .07);
+}
+:root[data-book-theme="biru-emas"] .be-page,
+:root[data-book-theme="biru-emas"] .be-divider,
+:root[data-book-theme="biru-emas"] .be-cover {
+  background-color: var(--be-paper);
+  background-image: linear-gradient(var(--be-grid) 1px, transparent 1px), linear-gradient(90deg, var(--be-grid) 1px, transparent 1px);
+  background-size: calc(var(--mm) * 6) calc(var(--mm) * 6);
+}
+
+/* ----- halaman isi ----- */
+.be-head-art { position: absolute; left: 0; top: 0; width: 100%; height: calc(var(--mm) * 18.5); }
+.be-title {
+  position: absolute; left: calc(var(--mm) * 6); top: 0; width: calc(var(--mm) * 104); height: calc(var(--mm) * 16.4);
+  display: flex; flex-direction: column; justify-content: center; color: #fff; font-family: Montserrat, sans-serif; font-weight: 900; font-style: italic;
+  line-height: 1.04; letter-spacing: -.01em; text-shadow: 0 calc(var(--mm) * .35) calc(var(--mm) * .5) rgba(0, 0, 0, .35);
+}
+.be-title span { display: block; white-space: nowrap; }
+.be-badge {
+  position: absolute; left: calc(var(--mm) * 140); top: calc(var(--mm) * 5.3); width: calc(var(--mm) * 50); height: calc(var(--mm) * 7.4);
+  display: flex; align-items: center; justify-content: center; transform: skewX(-14deg);
+  background: linear-gradient(180deg, var(--be-navy-2), var(--be-navy)); border: calc(var(--mm) * .45) solid var(--be-gold);
+  border-radius: calc(var(--mm) * 1.2); box-shadow: 0 calc(var(--mm) * .5) calc(var(--mm) * 1) rgba(11, 42, 91, .3);
+}
+.be-badge span { transform: skewX(14deg); color: #fff; font-family: Montserrat, sans-serif; font-weight: 800; white-space: nowrap; letter-spacing: .02em; }
+:root[data-book-theme="biru-emas"] .be-page .bp-frame {
+  border-color: var(--be-navy); border-radius: calc(var(--mm) * 2.2); background: rgba(255, 255, 255, .94);
+  box-shadow: 0 0 0 calc(var(--mm) * .5) rgba(201, 161, 59, .55), 0 calc(var(--mm) * .8) calc(var(--mm) * 2) rgba(11, 42, 91, .12);
+}
+.be-foot-art { position: absolute; left: 0; top: calc(var(--mm) * 285.67); width: 100%; height: calc(var(--mm) * 11.33); }
+.be-foot-text {
+  position: absolute; left: calc(var(--mm) * 8); right: calc(var(--mm) * 40); top: calc(var(--mm) * 286.27); height: calc(var(--mm) * 10.73);
+  display: flex; align-items: center; color: #fff; font-family: "Arial Narrow", "Roboto Condensed", Arial, sans-serif; font-weight: 700; letter-spacing: .04em; white-space: nowrap;
+}
+.be-page-no {
+  position: absolute; right: calc(var(--mm) * 6); top: calc(var(--mm) * 286.27); height: calc(var(--mm) * 10.73); min-width: calc(var(--mm) * 20);
+  display: flex; align-items: center; justify-content: center; color: var(--be-navy); font-family: Oswald, Montserrat, sans-serif; font-weight: 700; font-size: calc(var(--pt) * 15);
+}
+.be-mirror .be-foot-text { left: calc(var(--mm) * 40); right: calc(var(--mm) * 8); justify-content: flex-end; }
+.be-mirror .be-page-no { right: auto; left: calc(var(--mm) * 4); }
+
+/* ----- blok kandungan ----- */
+:root[data-book-theme="biru-emas"] .bp-heading {
+  position: relative; display: inline-block; max-width: 100%; box-sizing: border-box; color: var(--be-navy); font-style: italic; font-weight: 800;
+  padding: calc(var(--mm) * 1.1) calc(var(--mm) * 6) calc(var(--mm) * 1.1) calc(var(--mm) * 8.5);
+  background: linear-gradient(180deg, #F3DC8E, var(--be-gold) 55%, #B88E2B); clip-path: polygon(0 0, 100% 0, calc(100% - var(--mm) * 3) 100%, 0 100%);
+  border: 0; text-shadow: none;
+}
+:root[data-book-theme="biru-emas"] .bp-heading::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--mm) * 5.5);
+  background: linear-gradient(180deg, var(--be-navy-2), var(--be-navy)); clip-path: polygon(0 0, 100% 0, calc(100% - var(--mm) * 2) 100%, 0 100%);
+}
+:root[data-book-theme="biru-emas"] .bp-heading-split .bp-heading { display: block; }
+/* Visi / Misi / Objektif: reben emas berpusat + kad navy */
+:root[data-book-theme="biru-emas"] .bp-hp-wrap { text-align: center; margin-bottom: 0; position: relative; z-index: 1; }
+:root[data-book-theme="biru-emas"] .bp-heading.bp-hp {
+  padding: calc(var(--mm) * 1.3) calc(var(--mm) * 12); letter-spacing: .06em;
+  clip-path: polygon(calc(var(--mm) * 3) 0, 100% 0, calc(100% - var(--mm) * 3) 100%, 0 100%);
+}
+:root[data-book-theme="biru-emas"] .bp-heading.bp-hp::before { display: none; }
+:root[data-book-theme="biru-emas"] .bp-hp-wrap + .bp-block {
+  margin-top: calc(var(--mm) * -3); padding: calc(var(--mm) * 5) calc(var(--mm) * 6) calc(var(--mm) * 4);
+  background: linear-gradient(160deg, var(--be-navy-2), var(--be-navy) 70%); color: #fff; border-radius: calc(var(--mm) * 2.5);
+  border: calc(var(--mm) * .4) solid var(--be-gold); text-align: center; font-weight: 600;
+}
+:root[data-book-theme="biru-emas"] .bp-hp-wrap + .bp-block .bp-para { text-align: center !important; font-style: italic; }
+:root[data-book-theme="biru-emas"] .bp-hp-wrap + .bp-block .bp-list { text-align: left; }
+:root[data-book-theme="biru-emas"] .bp-hp-wrap + .bp-block .bp-list > li::before { background: var(--be-gold); color: var(--be-navy); }
+/* Senarai bertitik: tanda ✓ dalam petak navy (senarai bernombor kekal bernombor, nombor emas tebal) */
+:root[data-book-theme="biru-emas"] .bp-list.list-disc { list-style: none; padding-left: calc(var(--mm) * 7); }
+:root[data-book-theme="biru-emas"] .bp-list.list-disc > li { position: relative; }
+:root[data-book-theme="biru-emas"] .bp-list.list-disc > li::before {
+  content: '✓'; position: absolute; left: calc(var(--mm) * -6.2); top: .15em; width: 1.15em; height: 1.15em; border-radius: .22em;
+  display: flex; align-items: center; justify-content: center; font-size: .8em; font-weight: 900; line-height: 1;
+  background: var(--be-navy); color: var(--be-gold-2); box-shadow: inset 0 0 0 .08em var(--be-gold);
+}
+:root[data-book-theme="biru-emas"] .bp-list.list-decimal > li::marker { color: var(--be-gold); font-weight: 800; }
+/* Kad maklumat (gaya Maklumat Sekolah, tanpa corak bunga) */
+:root[data-book-theme="biru-emas"] .bp-kv { display: grid; gap: calc(var(--mm) * 1.6); }
+:root[data-book-theme="biru-emas"] .bp-kv > div {
+  display: grid; grid-template-columns: minmax(0, 38%) 1fr; align-items: center; gap: calc(var(--mm) * 2); border: 0 !important;
+  background: linear-gradient(90deg, #EAF0FA, #fff); border-radius: calc(var(--mm) * 2.5); box-shadow: inset 0 0 0 calc(var(--mm) * .3) rgba(201, 161, 59, .6);
+  padding: calc(var(--mm) * .8) calc(var(--mm) * 3) calc(var(--mm) * .8) 0;
+}
+:root[data-book-theme="biru-emas"] .bp-kv dt { display: flex; align-items: center; gap: calc(var(--mm) * 2); color: var(--be-navy); }
+:root[data-book-theme="biru-emas"] .bp-kv-ico {
+  display: inline-flex; flex: none; align-items: center; justify-content: center; width: calc(var(--mm) * 8); height: calc(var(--mm) * 6.4);
+  margin: calc(var(--mm) * -.8) 0; border-radius: calc(var(--mm) * 2.5) 0 0 calc(var(--mm) * 2.5);
+  background: linear-gradient(180deg, var(--be-navy-2), var(--be-navy)); color: var(--be-gold-2);
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--mm) * 1.5) 100%, 0 100%);
+}
+:root[data-book-theme="biru-emas"] .bp-kv-ico svg { width: 55%; height: 55%; }
+:root[data-book-theme="biru-emas"] .bp-kv dd { border-left: calc(var(--mm) * .3) solid rgba(11, 42, 91, .2); padding-left: calc(var(--mm) * 2.5); }
+/* Jadual: kepala navy dengan garis emas */
+:root[data-book-theme="biru-emas"] .bp-table thead th { border-bottom: calc(var(--mm) * .6) solid var(--be-gold); }
+/* Isi kandungan: bahagian bernombor (lencana navy-emas) */
+:root[data-book-theme="biru-emas"] .bp-toc-l0 td { background: linear-gradient(90deg, var(--be-navy), var(--be-navy-2)); color: #fff; font-style: italic; }
+:root[data-book-theme="biru-emas"] .bp-toc-l0 .bp-toc-page { color: var(--be-gold-2); }
+:root[data-book-theme="biru-emas"] .bp-toc-no {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 2.1em; margin-right: .7em; padding: 0 .3em;
+  background: linear-gradient(180deg, #F3DC8E, var(--be-gold)); color: var(--be-navy); font-family: Oswald, Montserrat, sans-serif; font-weight: 700; font-style: italic;
+  clip-path: polygon(.35em 0, 100% 0, calc(100% - .35em) 100%, 0 100%);
+}
+
+/* ----- pembahagi (partition) - mengikut reka bentuk Muka Hadapan & Pembahagi BPPS SKBTS ----- */
+.be-corner { position: absolute; top: 0; width: calc(var(--mm) * 60); height: calc(var(--mm) * 60); }
+.be-corner-l { left: 0; }
+.be-corner-r { right: 0; }
+.be-dv-label { position: absolute; left: 0; right: 0; top: calc(var(--mm) * 46); display: flex; justify-content: center; }
+.be-dv-label span {
+  display: flex; align-items: center; gap: calc(var(--mm) * 4); color: var(--be-navy); font-family: Montserrat, sans-serif; font-weight: 700;
+  font-size: calc(var(--pt) * 11); letter-spacing: .55em;
+}
+.be-dv-label span::before, .be-dv-label span::after { content: ''; width: calc(var(--mm) * 18); height: calc(var(--mm) * .4); background: var(--be-gold); }
+.be-dv-no {
+  position: absolute; left: 0; right: 0; top: calc(var(--mm) * 52); text-align: center; color: var(--be-navy);
+  font-family: Oswald, "Roboto Condensed", sans-serif; font-weight: 700; font-style: italic; font-size: calc(var(--pt) * 108); line-height: 1; letter-spacing: -.02em;
+}
+.be-dv-banner {
+  position: absolute; left: calc(var(--mm) * 22); right: calc(var(--mm) * 22); top: calc(var(--mm) * 98); min-height: calc(var(--mm) * 30);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--mm) * .8);
+  background: linear-gradient(180deg, var(--be-navy-2), var(--be-navy)); color: #fff;
+  clip-path: polygon(calc(var(--mm) * 5) 0, 100% 0, calc(100% - var(--mm) * 5) 100%, 0 100%);
+  box-shadow: inset 0 calc(var(--mm) * -1.4) 0 var(--be-gold);
+  padding: calc(var(--mm) * 3) calc(var(--mm) * 10) calc(var(--mm) * 4.4);
+}
+.be-dv-pre { color: var(--be-gold-2); font-family: Montserrat, sans-serif; font-weight: 700; font-size: calc(var(--pt) * 10.5); letter-spacing: .4em; }
+.be-dv-main { font-family: Oswald, Montserrat, sans-serif; font-weight: 700; font-style: italic; line-height: 1.02; text-align: center; letter-spacing: .01em; }
+.be-dv-sub { color: var(--be-gold-2); font-family: Montserrat, sans-serif; font-weight: 700; font-size: calc(var(--pt) * 10); letter-spacing: .3em; }
+.be-dv-line {
+  position: absolute; left: 0; right: 0; top: calc(var(--mm) * 133); margin: 0; text-align: center; color: var(--be-navy-2);
+  font-family: Montserrat, sans-serif; font-weight: 600; font-size: calc(var(--pt) * 7.5); letter-spacing: .25em;
+}
+.be-dv-note { position: absolute; left: 0; right: 0; top: calc(var(--mm) * 139); margin: 0; text-align: center; color: var(--be-navy); font-family: Montserrat, sans-serif; font-weight: 700; font-size: calc(var(--pt) * 9); letter-spacing: .06em; }
+.be-dv-icon { position: absolute; left: calc(50% - var(--mm) * 32); top: calc(var(--mm) * 158); width: calc(var(--mm) * 64); height: calc(var(--mm) * 64); }
+.be-dv-ring { position: absolute; inset: 0; border-radius: 50%; border: calc(var(--mm) * .35) dashed rgba(22, 62, 122, .45); }
+.be-dv-cross-h, .be-dv-cross-v { position: absolute; background: rgba(22, 62, 122, .45); }
+.be-dv-cross-h { left: calc(var(--mm) * -8); right: calc(var(--mm) * -8); top: 50%; height: calc(var(--mm) * .3); }
+.be-dv-cross-v { top: calc(var(--mm) * -8); bottom: calc(var(--mm) * -8); left: 50%; width: calc(var(--mm) * .3); }
+.be-dv-disc {
+  position: absolute; inset: calc(var(--mm) * 9); border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center;
+  border: calc(var(--mm) * .9) solid var(--be-gold); box-shadow: 0 0 0 calc(var(--mm) * 1.2) #fff, 0 0 0 calc(var(--mm) * 1.6) var(--be-navy), 0 calc(var(--mm) * 2) calc(var(--mm) * 4) rgba(11, 42, 91, .25);
+  color: var(--be-navy);
+}
+.be-dv-disc svg { width: 46%; height: 46%; }
+.be-tabs { position: absolute; right: 0; top: calc(var(--mm) * 40); display: flex; flex-direction: column; gap: calc(var(--mm) * 3); }
+.be-tabs span {
+  display: flex; align-items: center; justify-content: center; width: calc(var(--mm) * 8); height: calc(var(--mm) * 13);
+  border: calc(var(--mm) * .3) solid rgba(22, 62, 122, .35); border-right: 0; border-radius: calc(var(--mm) * 1.5) 0 0 calc(var(--mm) * 1.5);
+  background: #fff; color: var(--be-navy-2); font-family: Oswald, Montserrat, sans-serif; font-weight: 600; font-size: calc(var(--pt) * 7.5);
+}
+.be-tabs span.on { width: calc(var(--mm) * 10.5); background: var(--be-navy); color: var(--be-gold-2); border-color: var(--be-navy); box-shadow: inset calc(var(--mm) * .8) 0 0 var(--be-gold); font-weight: 700; }
+.be-dv-foot, .be-cv-foot {
+  position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--mm) * 16); display: flex; align-items: center; justify-content: space-between;
+  padding: calc(var(--mm) * 2) calc(var(--mm) * 12) 0; box-sizing: border-box; color: #fff; font-family: Montserrat, sans-serif; font-weight: 600; font-size: calc(var(--pt) * 6.8); letter-spacing: .14em;
+  background: var(--be-navy); clip-path: polygon(0 calc(var(--mm) * 4), 32% calc(var(--mm) * 4), 36% 0, 100% 0, 100% 100%, 0 100%);
+  box-shadow: inset 0 calc(var(--mm) * .8) 0 var(--be-gold);
+}
+
+/* ----- muka hadapan ----- */
+.be-cv-logos { position: absolute; left: 0; right: 0; top: calc(var(--mm) * 16); display: flex; justify-content: center; gap: calc(var(--mm) * 6); }
+.be-cv-logos img { height: calc(var(--mm) * 17); width: auto; object-fit: contain; }
+.be-cv-kpm { position: absolute; left: 0; right: 0; top: calc(var(--mm) * 36); margin: 0; text-align: center; color: var(--be-navy); font-family: Montserrat, sans-serif; font-weight: 700; font-size: calc(var(--pt) * 6.5); letter-spacing: .3em; }
+.be-cv-pre { position: absolute; left: 0; right: 0; top: calc(var(--mm) * 45); margin: 0; text-align: center; color: var(--be-navy-2); font-family: Montserrat, sans-serif; font-weight: 600; font-size: calc(var(--pt) * 9.5); letter-spacing: .45em; }
+.be-cv-school { position: absolute; left: calc(var(--mm) * 18); right: calc(var(--mm) * 18); top: calc(var(--mm) * 50); margin: 0; text-align: center; color: var(--be-navy); font-family: Oswald, Montserrat, sans-serif; font-weight: 700; line-height: 1.1; letter-spacing: .01em; }
+.be-cv-rule { position: absolute; left: calc(var(--mm) * 40); right: calc(var(--mm) * 40); top: calc(var(--mm) * 68); height: calc(var(--mm) * .4); background: linear-gradient(90deg, transparent, var(--be-gold), transparent); }
+.be-cv-buku { position: absolute; left: 0; right: 0; top: calc(var(--mm) * 74); margin: 0; text-align: center; color: var(--be-navy-2); font-family: Montserrat, sans-serif; font-weight: 700; font-size: calc(var(--pt) * 16); letter-spacing: .6em; padding-left: .6em; }
+.be-cv-title { position: absolute; left: calc(var(--mm) * 12); right: calc(var(--mm) * 12); top: calc(var(--mm) * 82); margin: 0; text-align: center; color: var(--be-navy); font-family: Oswald, Montserrat, sans-serif; font-weight: 700; line-height: 1.05; }
+.be-cv-pill { position: absolute; left: 0; right: 0; top: calc(var(--mm) * 104); display: flex; justify-content: center; align-items: center; gap: calc(var(--mm) * 3); }
+.be-cv-slash { color: var(--be-gold); font-family: Oswald, sans-serif; font-weight: 700; font-style: italic; font-size: calc(var(--pt) * 16); letter-spacing: -.1em; }
+.be-cv-pill-box {
+  display: flex; align-items: center; gap: calc(var(--mm) * 3); padding: calc(var(--mm) * 1.6) calc(var(--mm) * 8); transform: skewX(-12deg);
+  background: linear-gradient(180deg, var(--be-navy-2), var(--be-navy)); border: calc(var(--mm) * .5) solid var(--be-gold); border-radius: calc(var(--mm) * 1.4);
+}
+.be-cv-pill-box > * { transform: skewX(12deg); }
+.be-cv-sesi { color: #fff; font-family: Montserrat, sans-serif; font-weight: 700; font-size: calc(var(--pt) * 9); letter-spacing: .25em; }
+.be-cv-pill-box b { color: var(--be-gold-2); font-family: Oswald, Montserrat, sans-serif; font-weight: 700; font-style: italic; font-size: calc(var(--pt) * 24); line-height: 1; }
+.be-cv-motto { position: absolute; left: 0; right: 0; top: calc(var(--mm) * 122); margin: 0; text-align: center; color: var(--be-navy); font-family: Montserrat, sans-serif; font-weight: 700; font-size: calc(var(--pt) * 7.5); letter-spacing: .25em; }
+.be-cv-motto i { color: var(--be-gold); font-style: normal; margin: 0 .8em; }
+.be-cv-art { position: absolute; left: calc(var(--mm) * 10); right: calc(var(--mm) * 10); top: calc(var(--mm) * 140); width: calc(100% - var(--mm) * 20); height: auto; }
+.be-cv-foot { height: calc(var(--mm) * 24); align-items: flex-start; padding-top: calc(var(--mm) * 8); gap: calc(var(--mm) * 6); letter-spacing: .04em; }
+.be-cv-foot > div { display: flex; flex-direction: column; gap: calc(var(--mm) * 1); }
+.be-cv-foot-mid { flex: 1; text-align: center; }
+.be-cv-foot small { color: var(--be-gold-2); font-size: calc(var(--pt) * 5.6); letter-spacing: .25em; font-weight: 700; }
+.be-cv-foot span { font-size: calc(var(--pt) * 7); font-weight: 600; letter-spacing: .03em; }

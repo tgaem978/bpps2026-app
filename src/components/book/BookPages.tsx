@@ -4,7 +4,8 @@ import { useBookStore } from '@/stores/bookStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { useMaster, useMasterStore, resolveMaster } from '@/stores/masterStore';
 import { applyMasterCss, fonts, type PageType } from '@/templates/master';
-import { useBookCtx, useBookPlan, useSections, type PagePlan, type Segment } from '@/lib/pagination';
+import { applyTheme, useBookCtx, useBookPlan, useSections, type PagePlan, type Segment } from '@/lib/pagination';
+import { BuildingArt, partIcon } from './themeArt';
 import { resolveTokens, type BookCtx } from '@/lib/resolve';
 import { locate } from '@/lib/outline';
 import type { Block } from '@/types/book';
@@ -14,9 +15,13 @@ import { fitPt, widthOf } from '@/lib/fit';
 /** Gaya master semua jenis halaman sebagai CSS variables dalam <head>. */
 export function MasterStyles() {
   const overrides = useMasterStore((s) => s.overrides);
+  const theme = useProjectStore((s) => s.profile.theme);
   applyMasterCss((t) => resolveMaster(t, overrides));
+  applyTheme(theme);
   return null;
 }
+
+const useTheme = () => useProjectStore((s) => s.profile.theme ?? 'klasik');
 
 /** Halaman A4 potret. Saiz dalam unit --mm/--pt (diskala ikut lebar halaman). */
 function Sheet({ pt, children, className = '' }: { pt: PageType; children: ReactNode; className?: string }) {
@@ -51,7 +56,12 @@ export function splitTitle(title: string, font: string): string[] {
 }
 
 /** Templat halaman isi (BPPS 05 dan variasinya): jalur tajuk, bingkai, jalur kaki. */
-export function ContentFrame({ pt, title, badge, number, children }: { pt: PageType; title: string; badge?: string; number?: number; children: ReactNode }) {
+type FrameProps = { pt: PageType; title: string; badge?: string; number?: number; children: ReactNode };
+export function ContentFrame(props: FrameProps) {
+  return useTheme() === 'biru-emas' ? <BeContentFrame {...props} /> : <KlasikContentFrame {...props} />;
+}
+
+function KlasikContentFrame({ pt, title, badge, number, children }: FrameProps) {
   const m = useMaster(pt);
   const ctx = useBookCtx();
   const footer = useFooterText(m.footerText, ctx);
@@ -89,6 +99,10 @@ export function ContentFrame({ pt, title, badge, number, children }: { pt: PageT
 
 /** Templat BPPS 03: halaman partition bagi bahagian utama. */
 export function DividerPage({ partId }: { partId: string }) {
+  return useTheme() === 'biru-emas' ? <BeDividerPage partId={partId} /> : <KlasikDividerPage partId={partId} />;
+}
+
+function KlasikDividerPage({ partId }: { partId: string }) {
   const part = useBookStore((s) => s.outline.find((p) => p.id === partId));
   const m = useMaster('divider');
   const ctx = useBookCtx();
@@ -108,6 +122,13 @@ export function DividerPage({ partId }: { partId: string }) {
 
 /** Templat BPPS 01: muka hadapan - imej reka bentuk penuh, atau dijana daripada teks. */
 export function CoverPage({ forceGenerated = false }: { forceGenerated?: boolean }) {
+  const theme = useTheme();
+  const hasImage = useBookStore((s) => !!s.cover.image);
+  if (theme === 'biru-emas' && (forceGenerated || !hasImage)) return <BeCoverPage />;
+  return <KlasikCoverPage forceGenerated={forceGenerated} />;
+}
+
+function KlasikCoverPage({ forceGenerated = false }: { forceGenerated?: boolean }) {
   const cover = useBookStore((s) => s.cover);
   const profile = useProjectStore((s) => s.profile);
   const m = useMaster('cover');
@@ -239,4 +260,167 @@ export function FullBook() {
 
 export function usePageCount(): number {
   return useBookPlan().length;
+}
+
+/* ================================================================== Tema "Biru Navy & Emas" (edisi 2027)
+ * Gaya: navy + emas, latar kertas pelan (grid), jalur pepenjuru di bucu, bangunan sekolah garis pelan.
+ * Geometri bingkai kandungan SAMA dengan tema klasik (src/templates/bpps.ts) supaya penomboran tidak berubah. */
+
+const BASE_URL = import.meta.env.BASE_URL;
+const two = (n: number) => String(n).padStart(2, '0');
+
+/** Jalur pepenjuru navy + emas di bucu atas (kiri & kanan). */
+function BeCorners() {
+  return (
+    <>
+      <svg className="be-corner be-corner-l" viewBox="0 0 60 60" aria-hidden>
+        <path d="M0 0 H34 L0 34 Z" fill="#0B2A5B" />
+        <path d="M40 0 H46 L0 46 V40 Z" fill="#C9A13B" />
+        <path d="M52 0 H55 L0 55 V52 Z" fill="#0B2A5B" />
+      </svg>
+      <svg className="be-corner be-corner-r" viewBox="0 0 60 60" aria-hidden>
+        <path d="M60 0 V22 L38 0 Z" fill="#0B2A5B" />
+        <path d="M32 0 H27 L60 33 V28 Z" fill="#C9A13B" />
+      </svg>
+    </>
+  );
+}
+
+/** Pecah tajuk bahagian: "PENGURUSAN HAL EHWAL MURID" → pre "PENGURUSAN", utama "HAL EHWAL MURID"; "(PPKI)" / tahun → baris kecil. */
+function splitPartTitle(title: string) {
+  let main = title.toUpperCase().trim();
+  let pre = '';
+  let sub = '';
+  const tail = main.match(/^(.*?)\s*(\([^)]*\)|\b(?:19|20)\d{2})$/);
+  if (tail && tail[1]) { main = tail[1]; sub = tail[2]; }
+  const p = main.match(/^(PENGURUSAN(?:\s*&)?)\s+(.+)$/);
+  if (p) { pre = p[1]; main = p[2]; }
+  return { pre, main, sub };
+}
+
+function BeContentFrame({ pt, title, badge, number, children }: FrameProps) {
+  const m = useMaster(pt);
+  const ctx = useBookCtx();
+  const footer = useFooterText(m.footerText, ctx);
+  const badgeText = (badge || resolveTokens('BPPS {{tahun}}', ctx)).toUpperCase();
+  const lines = splitTitle(title.toUpperCase(), fonts['Montserrat']);
+  const titlePt = Math.min(...lines.map((ln) => fitPt(ln, fonts['Montserrat'], 100, 10.5 / lines.length, 15, 1.04, 7, 1, 900)));
+  const badgePt = fitPt(badgeText, fonts['Montserrat'], 44, 4.6, 8, 1, 5.5, 1, 800);
+  const mirror = isMirrored(number);
+  const footText = footer.trim().toUpperCase();
+  const footPt = fitPt(footText, FOOT_FONT, 150, 5, 8.5, 1, 6, 1, 700);
+  return (
+    <Sheet pt={pt} className={`bp-content-page bp-pt-${pt} be-page${mirror ? ' be-mirror' : ''}`}>
+      <svg className="be-head-art" viewBox="0 0 210 18.5" preserveAspectRatio="none" aria-hidden>
+        <path d="M0 0 H124 L114 18.5 H0 Z" fill="#0B2A5B" />
+        <path d="M0 16.6 H115 L114 18.5 H0 Z" fill="#C9A13B" />
+        <path d="M127 0 H132 L122 18.5 H117 Z" fill="#C9A13B" />
+        <path d="M135 0 H137 L127 18.5 H125 Z" fill="#0B2A5B" />
+        <path d="M196 0 H210 V9 L201 18.5 H187 Z" fill="#0B2A5B" opacity=".12" />
+      </svg>
+      <div className="be-title" style={{ fontSize: `calc(var(--pt) * ${titlePt})` }}>
+        {lines.map((ln, i) => <span key={i}>{ln}</span>)}
+      </div>
+      <div className="be-badge" style={{ fontSize: `calc(var(--pt) * ${badgePt})` }}><span>{badgeText}</span></div>
+      <div className="bp-frame">
+        <div className="bp-content">{children}</div>
+      </div>
+      <svg className="be-foot-art" viewBox="0 0 210 11.33" preserveAspectRatio="none" aria-hidden>
+        <rect x="0" y="0.6" width="210" height="10.73" fill="#0B2A5B" />
+        <rect x="0" y="0" width="210" height="0.6" fill="#C9A13B" />
+        {mirror ? <path d="M0 0.6 H30 L24 11.33 H0 Z" fill="#C9A13B" /> : <path d="M180 0.6 H210 V11.33 H174 Z" fill="#C9A13B" />}
+        {mirror ? <path d="M33 0.6 H35 L29 11.33 H27 Z" fill="#C9A13B" /> : <path d="M175 0.6 H177 L171 11.33 H169 Z" fill="#C9A13B" />}
+      </svg>
+      {footText && <div className="be-foot-text" style={{ fontSize: `calc(var(--pt) * ${footPt})` }}>{footText}</div>}
+      {m.showPageNo && number !== undefined && <div className="be-page-no">{number}</div>}
+    </Sheet>
+  );
+}
+
+function BeDividerPage({ partId }: { partId: string }) {
+  const outline = useBookStore((s) => s.outline);
+  const profile = useProjectStore((s) => s.profile);
+  const ctx = useBookCtx();
+  const idx = outline.findIndex((p) => p.id === partId);
+  const part = outline[idx];
+  if (!part) return null;
+  const { pre, main, sub } = splitPartTitle(part.title);
+  const Icon = partIcon(part.id);
+  const mainPt = fitPt(main, fonts['Montserrat'], 118, 13, 30, 1, 12, 1, 900);
+  const note = resolveTokens(part.note, ctx);
+  return (
+    <Sheet pt="divider" className="be-divider">
+      <BeCorners />
+      <div className="be-dv-label"><span>BAHAGIAN</span></div>
+      <div className="be-dv-no">{two(idx + 1)}</div>
+      <div className="be-dv-banner">
+        {pre && <span className="be-dv-pre">{pre}</span>}
+        <span className="be-dv-main" style={{ fontSize: `calc(var(--pt) * ${mainPt})` }}>{main}</span>
+        {sub && <span className="be-dv-sub">{sub}</span>}
+      </div>
+      <p className="be-dv-line">BUKU PENGURUSAN SEKOLAH · SESI AKADEMIK {profile.year}</p>
+      {note && <p className="be-dv-note">{note}</p>}
+      <div className="be-dv-icon">
+        <span className="be-dv-ring" />
+        <span className="be-dv-cross-h" />
+        <span className="be-dv-cross-v" />
+        <span className="be-dv-disc"><Icon strokeWidth={1.4} /></span>
+      </div>
+      <div className="be-tabs">
+        {outline.map((p, i) => <span key={p.id} className={i === idx ? 'on' : ''}>{two(i + 1)}</span>)}
+      </div>
+      <div className="be-dv-foot">
+        <span>BUKU PENGURUSAN SEKOLAH {profile.year}</span>
+        <span>{profile.shortName.toUpperCase()}</span>
+      </div>
+    </Sheet>
+  );
+}
+
+function BeCoverPage() {
+  const cover = useBookStore((s) => s.cover);
+  const info = useBookStore((s) => s.sections['maklumat-sekolah']);
+  const profile = useProjectStore((s) => s.profile);
+  const ctx = useBookCtx();
+  const kv = (re: RegExp) => {
+    for (const b of info?.blocks ?? []) if (b.type === 'keyvalue') for (const p of b.pairs) if (re.test(p.key)) return resolveTokens(p.value, ctx);
+    return '';
+  };
+  const name = profile.fullName.toUpperCase();
+  const pm = name.match(/^(SEKOLAH (?:KEBANGSAAN|JENIS KEBANGSAAN(?: \([A-Z]\))?|MENENGAH(?: KEBANGSAAN)?|RENDAH))\s+(.+)$/);
+  const schoolPre = pm ? pm[1] : '';
+  const schoolMain = pm ? pm[2] : name;
+  const title = cover.title.toUpperCase().trim();
+  const tm = title.match(/^(BUKU)\s+(.+)$/);
+  const ym = cover.subtitle.match(/^(.*?)\s*((?:19|20)\d{2})\s*$/);
+  const motto = cover.motto.split(/\s*[|•·]\s*/).filter(Boolean);
+  const schoolPt = fitPt(schoolMain, fonts['Montserrat'], 168, 14, 26, 1, 12, 1, 900);
+  const titlePt = fitPt(tm ? tm[2] : title, fonts['Montserrat'], 176, 16, 34, 1, 14, 1, 900);
+  return (
+    <Sheet pt="cover" className="be-cover">
+      <BeCorners />
+      <div className="be-cv-logos">
+        <img src={`${BASE_URL}content/logo-kpm.png`} alt="Kementerian Pendidikan Malaysia" />
+        <img src={cover.logo || `${BASE_URL}content/logo-skbts.png`} alt="Logo sekolah" />
+      </div>
+      <p className="be-cv-kpm">KEMENTERIAN PENDIDIKAN MALAYSIA</p>
+      {schoolPre && <p className="be-cv-pre">{schoolPre}</p>}
+      <h2 className="be-cv-school" style={{ fontSize: `calc(var(--pt) * ${schoolPt})` }}>{schoolMain}</h2>
+      <div className="be-cv-rule" />
+      {tm && <p className="be-cv-buku">{tm[1]}</p>}
+      <h1 className="be-cv-title" style={{ fontSize: `calc(var(--pt) * ${titlePt})` }}>{tm ? tm[2] : title}</h1>
+      <div className="be-cv-pill">
+        <span className="be-cv-slash">///</span>
+        <span className="be-cv-pill-box"><span className="be-cv-sesi">{(ym ? ym[1] : cover.subtitle).toUpperCase()}</span>{ym && <b>{ym[2]}</b>}</span>
+        <span className="be-cv-slash">///</span>
+      </div>
+      {motto.length > 0 && <p className="be-cv-motto">{motto.map((w, i) => <span key={i}>{i > 0 && <i>✦</i>}{w.toUpperCase()}</span>)}</p>}
+      <BuildingArt className="be-cv-art" />
+      <div className="be-cv-foot">
+        <div><small>KOD SEKOLAH</small><span>{kv(/kod/i) || '—'}</span></div>
+        <div className="be-cv-foot-mid"><small>ALAMAT</small><span>{cover.address}</span></div>
+        <div><small>E-MEL</small><span>{kv(/e-?mel/i) || '—'}</span></div>
+      </div>
+    </Sheet>
+  );
 }

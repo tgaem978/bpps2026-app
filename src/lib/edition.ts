@@ -4,6 +4,7 @@ import { exportJson } from '@/lib/exporter';
 import { rolloverBook, type RolloverSummary } from '@/lib/rollover';
 import { flattenOutline } from '@/lib/outline';
 import { putEdition, snapshotActive, useEditions } from '@/lib/editions';
+import { templateAssets } from '@/templates/bpps';
 
 /**
  * Cipta edisi tahun hadapan daripada buku semasa:
@@ -16,14 +17,16 @@ export async function startNewEdition(): Promise<RolloverSummary> {
   const { profile, updateProfile } = useProjectStore.getState();
   const from = profile.year;
   const to = from + 1;
+  useEditions.getState().markChosen();
   await putEdition(snapshotActive());
   exportJson(`arkib-${from}`);
   const { data, summary } = rolloverBook({ cover, sections, outline }, from, to);
+  // Edisi baharu menggunakan tema Biru Navy & Emas; kulit imej templat 2026 (tahun tertera pada imej) diganti kulit dijana daripada teks.
+  if (data.cover.image === templateAssets.cover) data.cover = { ...data.cover, image: '' };
   setEdition(data);
-  updateProfile({ year: to, projectCode: profile.projectCode.split(String(from)).join(String(to)) });
+  updateProfile({ year: to, projectCode: profile.projectCode.split(String(from)).join(String(to)), theme: 'biru-emas' });
   await putEdition(snapshotActive());
   await useEditions.getState().refresh();
-  useEditions.getState().markChosen();
   return summary;
 }
 
