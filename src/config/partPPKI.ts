@@ -1,6 +1,6 @@
 /* Pendidikan Khas (PPKI): carta organisasi ditaip semula sebagai carta jawatankuasa boleh sunting (gambar diambil daripada
  * Pangkalan Data Guru) dan jadual nama. Menggantikan halaman imej daripada PDF. */
-import type { Block, CommitteeRow, MemberRef, SectionContent } from '@/types/book';
+import type { Block, CommitteeRow, MemberRef, OutlineTopic, SectionContent } from '@/types/book';
 import { uid } from '@/lib/blocks';
 import { ADMIN_POSITIONS } from '@/config/defaultStaff';
 import { member } from '@/config/partKoku';
@@ -20,8 +20,151 @@ const chart = (rows: CommitteeRow[]): Block => ({ id: uid(), type: 'committee', 
 const h = (text: string): Block => ({ id: uid(), type: 'heading', text });
 const tbl = (columns: string[], rows: string[][], numbered = true): Block => ({ id: uid(), type: 'table', style: 'navy', numbered, columns, rows });
 const sec = (title: string, blocks: Block[]): SectionContent => ({ title, subtitle: SUB, layout: 'open', blocks, updatedAt: null });
+const p = (text: string): Block => ({ id: uid(), type: 'paragraph', text, align: 'justify' });
+const ul = (items: string[], ordered = true): Block => ({ id: uid(), type: 'list', ordered, items });
+const kv = (pairs: [string, string][]): Block => ({ id: uid(), type: 'keyvalue', pairs: pairs.map(([key, value]) => ({ key, value })) });
+const std = (title: string, blocks: Block[]): SectionContent => ({ ...sec(title, blocks), layout: 'standard' });
+
+/** Struktur bahagian PPKI: pengenalan → visi/misi → enrolmen → JPKS → carta → JK induk → bidang tugas → takwim. */
+export const ppkiTopics = (): OutlineTopic[] => [
+  { id: 'pendidikan-khas', children: ['pk-visi', 'pk-murid', 'pk-jpks', 'pk-carta', 'pk-jk-induk', 'pk-tugas', 'pk-takwim'] },
+];
+
+/** Program PPKI 2026 (lajur PPKI dalam Takwim Induk SKBTS 2026), disusun ikut bulan: [bulan, tarikh, program]. */
+const TAKWIM_PPKI: [string, string, string][] = [
+  ['JANUARI', '13 - 16 Jan', 'Minggu Riang Ria Sekolahku PPKI'],
+  ['', '22 Jan', 'Bimbingan Berkelompok Bil. 1 PPDBP (PKPK)'],
+  ['', '24 Jan', 'Taklimat Ibu Bapa (Program Pendidikan Inklusif, RPI, PAPR)'],
+  ['', '29 Jan', 'Bengkel Penyelarasan JU RPI (PKPK)'],
+  ['FEBRUARI', '3 Feb', 'PLC - Prasidang RPI Murid Baharu'],
+  ['', '5 Feb', 'Program LiPs Siri 1 PPDBP (GPKI BM)'],
+  ['', '10 Feb', 'Suai Kenal Inklusif & Pelantikan Rakan Inklusif'],
+  ['', '12 Feb', 'Bengkel Rancangan Pendidikan Individu (RPI)'],
+  ['', '24 Feb', 'Program Ihya Ramadhan (bermula)'],
+  ['', '28 Feb', 'Mesyuarat AJK Biro Pendidikan Khas'],
+  ['MAC', '9 Mac', 'Program LiPs Siri 2 PPDBP (PKPK & GPKI BM)'],
+  ['', '17 Mac', 'Penutup Ihya Ramadhan PPKI'],
+  ['APRIL', '1 - 2 Apr', 'Kursus Kejurulatihan Olahraga PK Bangsar/Pudu'],
+  ['', '6 - 10 Apr', 'Minggu Autisme'],
+  ['', '9 Apr', 'Sambutan Hari Raya & Hari Lahir'],
+  ['', '13 Apr', 'Bengkel Guru Data Pendidikan Khas Bil. 1'],
+  ['', '14 Apr', 'Mesyuarat JPKS Bil. 1'],
+  ['', '15 - 16 Apr', 'KLITC dan eNILAM'],
+  ['', '21 - 22 Apr', 'Bengkel Penyediaan Bahan Jadual Visual'],
+  ['MEI', '4 Mei', 'Pemeriksaan Kesihatan PPKI & Prasekolah; Bimbingan Berkelompok Bil. 3 PPDBP'],
+  ['', '7 Mei', 'Mesyuarat PPKI Bil. 2'],
+  ['', '12 Mei', 'STEM Fun Learning SK JPWPKL'],
+  ['', '14 Mei', 'Program Sokongan 1 (Rekreasi & Riadah)'],
+  ['', '15 Mei', 'Mesyuarat Perdana Biro Pendidikan Khas'],
+  ['', '18 Mei', 'Bengkel Bahan Bantu Mengajar STEM SR'],
+  ['', '21 Mei', 'Bimbingan Berkelompok Pendidikan Khas Bil. 2'],
+  ['', '22 Mei', 'Sambutan Hari Guru'],
+  ['JUN', '9 - 10 Jun', 'Kejohanan Mini Olahraga Pendidikan Khas Peringkat Daerah Bangsar/Pudu'],
+  ['', '11 Jun', 'Program Sokongan 2 (Boling & Mobiliti Pasar Raya)'],
+  ['', '18 - 19 Jun', 'Hari Urus Diri'],
+  ['', '25 Jun', 'Bengkel Pemantapan Penulisan Intervensi RPI'],
+  ['', '27 Jun', 'Mesyuarat AJK Biro Pendidikan Khas'],
+  ['JULAI', '2 - 17 Jul', 'Latihan Sukan'],
+  ['', '12 Jul', 'Karnival Kokurikulum Pendidikan Khas Kebangsaan'],
+  ['', '20 - 22 Jul', 'Pra Kejohanan; Bengkel Data Kebolehpasaran Bangsar/Pudu (20 Jul)'],
+  ['', '23 Jul', 'Sukaneka Tahap 1, Prasekolah dan PPKI'],
+  ['', '28 - 30 Jul', 'Kejohanan Olahraga Pendidikan Khas MSSWPKL'],
+  ['OGOS', '6 Ogos', 'Bimbingan Hari Inspirasi Pendidikan Khas Bil. 1'],
+  ['', '13 Ogos', 'Program Sokongan 3 (Boling & Membeli-belah)'],
+  ['', '15 Ogos', 'Karnival Kebolehpasaran MBPK'],
+  ['', '17 Ogos', 'Mesyuarat PPKI Bil. 3'],
+  ['', '18 Ogos', 'Bengkel DATAPINTAR Pendidikan Khas (Literasi & Numerasi dan PBD)'],
+  ['', '20 Ogos', 'Dialog Akademik Bersama Ibu Bapa / Penjaga PPKI (Fasa 1)'],
+  ['SEPTEMBER', '8 Sep', 'Pencerapan Kali Ke-2 & Semakan Buku Latihan'],
+  ['', '9 Sep', 'Bimbingan Hari Inspirasi Pendidikan Khas Bil. 2'],
+  ['', '11 - 12 Sep', 'Perkhemahan dan Kem Jati Diri PPKI'],
+  ['', '17 Sep', 'Sambutan Bulan Kebangsaan - Lawatan Sosial (Melaka)'],
+  ['', '21 Sep', 'Bimbingan Hari Inspirasi Pendidikan Khas Bil. 3'],
+  ['', '22 - 24 Sep', 'Karnival Mahabbah Pendidikan Khas JPWPKL'],
+  ['', '29 - 30 Sep', 'Hari Inspirasi Pendidikan Khas Bangsar/Pudu'],
+  ['OKTOBER', '6 Okt', 'Bengkel Guru Data Pendidikan Khas Bil. 2 PPDBP'],
+  ['', '7 Okt', 'Program Sokongan 4 (Berkuda)'],
+  ['', '9 Okt', 'Sambutan Hari Kanak-kanak PPKI'],
+  ['', '12 - 16 Okt', 'Minggu Pendidikan Khas (Usahawan Cilik); Bimbingan Berkelompok Bil. 3 PKPK Bangsar/Pudu (15 Okt)'],
+  ['', '20 Okt', 'Mesyuarat JPKS Bil. 2'],
+  ['', '22 Okt', 'Program Sokongan 5 (Memanah)'],
+  ['', '24 Okt', 'Hari Keluarga PPKI & Sambutan Hari Lahir Fasa 2'],
+  ['NOVEMBER', '2 Nov', 'Team Building PKPK Bangsar/Pudu'],
+  ['', '5 Nov', 'Program Sokongan 6'],
+  ['', '11 Nov', 'Mesyuarat PPKI Bil. 4'],
+  ['', '14 Nov', 'Fiesta Ria PPKI & Apresiasi'],
+  ['', '19 - 20 Nov', 'Dialog Akademik Bersama Ibu Bapa / Penjaga PPKI (Fasa 2)'],
+];
 
 export const partPpkiSections = (): Record<string, SectionContent> => ({
+  'pendidikan-khas': std('PENGENALAN PROGRAM PENDIDIKAN KHAS INTEGRASI', [
+    p('Program Pendidikan Khas Integrasi (PPKI) {{nama_pendek}} menyediakan pendidikan yang inklusif dan bersesuaian dengan keperluan murid berkeperluan pendidikan khas (MBPK), ke arah kemenjadian murid dan kehidupan berdikari.'),
+    p('PPKI diurus oleh {{jawatan:GPK Pendidikan Khas}} (Penolong Kanan Pendidikan Khas) dengan sokongan Jawatankuasa Pendidikan Khas Sekolah (JPKS), guru pendidikan khas, Pembantu Pengurusan Murid (PPM), ibu bapa / penjaga dan agensi berkaitan. Setiap murid mengikuti Rancangan Pendidikan Individu (RPI) yang disediakan berdasarkan tahap keupayaan murid.'),
+    h('MAKLUMAT PROGRAM'),
+    kv([
+      ['Penyelaras / Penolong Kanan', '{{jawatan:GPK Pendidikan Khas}}'],
+      ['Bilangan Guru Pendidikan Khas', '{{bilangan:jawatan=Guru Pendidikan Khas}}'],
+      ['Bilangan Pembantu Pengurusan Murid', ''],
+      ['Bilangan Kelas', ''],
+      ['Bilangan Murid', ''],
+      ['Kategori Murid', 'Masalah pembelajaran'],
+    ]),
+  ]),
+  'pk-visi': std('VISI, MISI & OBJEKTIF PPKI', [
+    h('VISI'),
+    p('Murid berkeperluan pendidikan khas yang berilmu, berkemahiran, berakhlak mulia dan mampu hidup berdikari.'),
+    h('MISI'),
+    p('Menyediakan pendidikan yang berkualiti, inklusif dan bersesuaian dengan potensi setiap MBPK melalui Rancangan Pendidikan Individu (RPI), kerjasama ibu bapa / penjaga dan sokongan komuniti.'),
+    h('OBJEKTIF'),
+    ul([
+      'Membantu MBPK menguasai kemahiran asas literasi dan numerasi mengikut tahap keupayaan masing-masing.',
+      'Membangunkan kemahiran urus diri, sosial dan kebolehpasaran ke arah kehidupan berdikari.',
+      'Melaksanakan dan memantau RPI bagi setiap murid secara berterusan.',
+      'Menggalakkan penyertaan MBPK dalam aktiviti kokurikulum dan Program Pendidikan Inklusif.',
+      'Memperkukuh jalinan kerjasama dengan ibu bapa / penjaga, PPD, JPN dan agensi luar.',
+    ]),
+  ]),
+  'pk-murid': std('ENROLMEN MURID & KELAS PPKI', [
+    tbl(['KELAS', 'GURU KELAS', 'PEMBANTU PENGURUSAN MURID', 'LELAKI', 'PEREMPUAN', 'JUMLAH'], [
+      ...Array.from({ length: 6 }, () => ['', '', '', '', '', '']),
+      ['**JUMLAH**', '', '', '', '', ''],
+    ], false),
+    h('Murid Program Pendidikan Inklusif'),
+    tbl(['NAMA MURID', 'KELAS ARUS PERDANA', 'MATA PELAJARAN INKLUSIF', 'GURU PENYELARAS'], Array.from({ length: 4 }, () => ['', '', '', ''])),
+  ]),
+  'pk-tugas': std('BIDANG TUGAS PPKI', [
+    h('Penolong Kanan Pendidikan Khas'),
+    ul([
+      'Merancang, menyelaras dan memantau pelaksanaan PPKI selaras dengan dasar dan garis panduan KPM.',
+      'Menjadi setiausaha Jawatankuasa Pendidikan Khas Sekolah (JPKS) dan menyelaras mesyuarat PPKI.',
+      'Mengurus pendaftaran, penempatan dan data MBPK termasuk dokumen pengesahan yang diperlukan.',
+      'Memantau pelaksanaan RPI, PdP dan pentaksiran MBPK serta melaksanakan pencerapan guru.',
+      'Mengurus peruntukan kewangan, aset dan perolehan PPKI mengikut peraturan.',
+      'Menyelaras Program Pendidikan Inklusif bersama guru arus perdana.',
+      'Menjalin hubungan dengan ibu bapa / penjaga, PPD, JPN dan agensi luar.',
+    ]),
+    h('Guru Pendidikan Khas'),
+    ul([
+      'Merancang dan melaksanakan PdP berdasarkan kurikulum pendidikan khas dan RPI murid.',
+      'Menyediakan, melaksanakan dan menilai RPI bagi setiap murid di bawah jagaan.',
+      'Melaksanakan pentaksiran dan merekod perkembangan murid secara berkala.',
+      'Menjaga keselamatan, kebajikan dan disiplin murid sepanjang berada di sekolah.',
+      'Berhubung dengan ibu bapa / penjaga tentang perkembangan murid.',
+      'Melaksanakan tugas lain seperti guru kelas, guru bertugas dan aktiviti kokurikulum.',
+    ]),
+    h('Pembantu Pengurusan Murid (PPM)'),
+    ul([
+      'Membantu guru dalam aktiviti PdP dan pengurusan bilik darjah.',
+      'Membantu murid dalam urus diri seperti makan, ke tandas dan kebersihan diri.',
+      'Menjaga keselamatan murid semasa ketibaan, rehat, aktiviti luar dan bersurai.',
+      'Menyediakan dan menyimpan bahan serta peralatan PdP.',
+      'Membantu pengurusan makanan murid serta kebersihan kelas.',
+      'Melaksanakan tugas lain yang diarahkan oleh Penolong Kanan Pendidikan Khas.',
+    ]),
+  ]),
+  'pk-takwim': std('TAKWIM TAHUNAN PPKI', [
+    tbl(['BULAN', 'TARIKH', 'PROGRAM / AKTIVITI'], TAKWIM_PPKI.map(([b, t, prog]) => [b, t, prog]), false),
+  ]),
   'pk-jpks': sec('JAWATANKUASA PENDIDIKAN KHAS SEKOLAH (JPKS) 2026', [
     chart([
       posRow('Pengerusi', GB),

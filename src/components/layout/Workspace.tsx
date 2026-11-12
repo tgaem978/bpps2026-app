@@ -4,6 +4,7 @@ import ProjectPage from '@/pages/ProjectPage';
 import SettingsPage from '@/pages/SettingsPage';
 import PreviewPage from '@/pages/PreviewPage';
 import SectionEditorPage from '@/pages/SectionEditorPage';
+import UpdateHubPage from '@/pages/UpdateHubPage';
 import { useNavigationStore } from '@/stores/navigationStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 
@@ -16,6 +17,7 @@ export default function Workspace() {
   if (route === '/project') content = <ProjectPage />;
   else if (route === '/settings') content = <SettingsPage />;
   else if (route === '/preview') content = <PreviewPage />;
+  else if (route === '/kemaskini') content = <UpdateHubPage />;
   else content = activeId ? <SectionEditorPage key={activeId} id={activeId} /> : <WelcomePage />;
 
   return (

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { appStorage } from '@/lib/storage';
 import type { SchoolProfile } from '@/types/school';
 import { defaultSchoolProfile } from '@/config/schoolProfile';
 
@@ -16,6 +17,6 @@ export const useProjectStore = create<ProjectState>()(
       updateProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
       resetProfile: () => set({ profile: defaultSchoolProfile }),
     }),
-    { name: 'bpps2026-project' },
+    { name: 'bpps2026-project', storage: appStorage() },
   ),
 );

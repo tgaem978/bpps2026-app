@@ -18,7 +18,7 @@ export default function ProjectPage() {
     <div className="mx-auto grid max-w-2xl gap-6">
     <div className="rounded-lg border border-border bg-surface p-6 shadow-card">
       <h2 className="font-display text-2xl font-bold">Projek</h2>
-      <p className="mt-1 text-sm text-muted">Profil sekolah untuk BPPS 2026.</p>
+      <p className="mt-1 text-sm text-muted">Profil sekolah untuk BPPS {profile.year}.</p>
       <div className="mt-6 grid gap-4">
         <label className="text-sm font-medium">
           Nama penuh sekolah
@@ -58,7 +58,7 @@ export default function ProjectPage() {
         Kandungan disimpan automatik dalam pelayar ini. Muat turun fail .json untuk sandaran atau untuk diteruskan di komputer lain.
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
-        <button className={btn} onClick={exportJson}><Download size={16} /> Muat turun (.json)</button>
+        <button className={btn} onClick={() => exportJson()}><Download size={16} /> Muat turun (.json)</button>
         <button className={btn} onClick={() => fileRef.current?.click()}><Upload size={16} /> Import (.json)</button>
         <button
           className={`${btn} text-red-600`}

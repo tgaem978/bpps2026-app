@@ -14,7 +14,7 @@ export default function PreviewPage() {
           <h2 className="font-display text-2xl font-bold">Pratonton Buku</h2>
           <p className="text-sm text-muted">Paparan penuh BPPS mengikut template - A4 potret, bernombor automatik.</p>
         </div>
-        <button className={btn} onClick={exportJson}><Download size={16} /> JSON</button>
+        <button className={btn} onClick={() => exportJson()}><Download size={16} /> JSON</button>
         <button className={btn} onClick={() => setPptOpen(true)}><Presentation size={16} /> PowerPoint</button>
         <button className={`${btn} !border-primary !bg-primary !text-primary-fg hover:opacity-90`} onClick={printBook}>
           <Printer size={16} /> Eksport PDF

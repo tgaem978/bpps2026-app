@@ -18,7 +18,8 @@ function download(filename: string, content: string, mime: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-export function exportJson(): void {
+/** Muat turun fail projek. `suffix` ditambah pada nama fail (cth. "arkib-2026"). */
+export function exportJson(suffix = ''): void {
   const { cover, sections, outline } = useBookStore.getState();
   const profile = useProjectStore.getState().profile;
   const { fields, teachers } = useStaffStore.getState();
@@ -26,8 +27,8 @@ export function exportJson(): void {
   const data: BookExport = {
     app: 'bpps2026', version: 2, exportedAt: new Date().toISOString(), profile, cover, sections, outline, staff: { fields, teachers }, master,
   };
-  download(`${profile.projectCode || 'bpps2026'}.json`, JSON.stringify(data, null, 2), 'application/json');
-  useUiStore.getState().toast('Fail projek (.json) dimuat turun.');
+  download(`${profile.projectCode || 'bpps2026'}${suffix ? `-${suffix}` : ''}.json`, JSON.stringify(data, null, 2), 'application/json');
+  if (!suffix) useUiStore.getState().toast('Fail projek (.json) dimuat turun.');
 }
 
 export async function importJson(file: File): Promise<void> {

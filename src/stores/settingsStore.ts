@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { appStorage } from '@/lib/storage';
 
 interface SettingsState {
   compactMode: boolean;
@@ -12,6 +13,6 @@ export const useSettingsStore = create<SettingsState>()(
       compactMode: false,
       setCompactMode: (compactMode) => set({ compactMode }),
     }),
-    { name: 'bpps2026-settings' },
+    { name: 'bpps2026-settings', storage: appStorage() },
   ),
 );

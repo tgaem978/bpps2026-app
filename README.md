@@ -11,6 +11,8 @@ Aplikasi interaktif untuk membina **Buku Panduan Pengurusan Sekolah 2026** dan m
 - **Muat turun PowerPoint (.pptx)** — keseluruhan buku, satu bahagian utama, satu tajuk (bersama subtajuk) atau halaman tertentu; satu halaman A4 = satu slaid potret. Format *boleh disunting* (teks, jadual, bentuk dan gambar sebagai objek PowerPoint; jalur kepala/kaki, bingkai dan placeholder tajuk dalam Slide Master) atau *gambar* (rupa tepat).
 - **Simpan automatik** dalam pelayar (localStorage); `Ctrl+S` untuk mengesahkan simpanan.
 - **Fail projek .json** — muat turun untuk sandaran dan import semula di halaman Projek.
+- **Edisi tahunan baharu** — *Portal Kemas Kini → Cipta edisi 2027*: buku disalin, tahun ditukar, Kalendar & Takwim Induk dijana semula untuk tahun baharu, tarikh lain dikosongkan, setiap halaman ditandakan *perlu dikemas kini* (arkib edisi lama dimuat turun dahulu).
+- **Portal Kemas Kini (dalam talian)** — pautan akses bagi setiap unit (`/portal#KOD`); penyelaras menyunting halaman unit di telefon/komputer dan menghantar kemas kini; pentadbir menyemak (perbezaan + pratonton) dan menerima terus ke dalam buku. Lihat `docs/NOTA_portal_kemaskini_2027.md`.
 
 ## Template halaman
 Reka bentuk halaman diambil daripada PPTX *final DRAF 1 - BPPS2026 SKBTS* (A4 potret):
@@ -38,6 +40,8 @@ Kurikulum, HEM dan Kokurikulum mengikut senarai KANDUNGAN rujukan (Isi Kandungan
 
 ## Cloudflare Workers (Git)
 Projek Workers Builds: **bpps2026-app** (nama mesti sama dengan `name` dalam `wrangler.toml`).
+- Worker `worker/index.ts` mengendalikan `/api/*` (Portal Kemas Kini) dengan satu Durable Object SQLite (`PortalStore`, dicipta automatik semasa deploy; pelan percuma).
+- **Tetapkan sekali**: Settings → Variables and Secrets → Add → *Secret* `ADMIN_PASSWORD` (kata laluan pentadbir portal).
 - Build command: `npm run build`
 - Deploy command: `npx wrangler deploy` (lalai)
 - Aset statik daripada `dist/`; laluan SPA dihidangkan oleh `index.html` (`not_found_handling`).
@@ -46,7 +50,9 @@ Projek Workers Builds: **bpps2026-app** (nama mesti sama dengan `name` dalam `wr
 ## Tempatan
 ```
 npm install
-npm run dev      # pelayan pembangunan
+npm run dev      # pelayan pembangunan (Vite)
 npm run build
+npm run dev:api  # penjana + portal + API di http://127.0.0.1:8787 (perlukan `npm run build` dan fail .dev.vars)
 npm run deploy
 ```
+Fail `.dev.vars` (tidak dikomit): `ADMIN_PASSWORD="kata-laluan-ujian"`.

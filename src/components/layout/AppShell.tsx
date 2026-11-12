@@ -7,8 +7,11 @@ import { PrintRoot, Toaster } from './Overlays';
 import PptExportDialog from '@/components/export/PptExportDialog';
 import { MasterStyles } from '@/components/book/BookPages';
 import { saveNow } from '@/lib/exporter';
+import { useProjectStore } from '@/stores/projectStore';
 
 export default function AppShell() {
+  const year = useProjectStore((s) => s.profile.year);
+  useEffect(() => { document.title = `BPPS ${year} Generator`; }, [year]);
   // Ctrl/Cmd + S = Simpan
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

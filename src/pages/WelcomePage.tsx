@@ -1,4 +1,5 @@
-import { ArrowRight, BookOpen, Eye, Printer, UsersRound } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowRight, BookOpen, CalendarClock, Eye, Printer, Send, UsersRound } from 'lucide-react';
 import { iconFor } from '@/config/sections';
 import { flattenOutline } from '@/lib/outline';
 import { useStaffStore } from '@/stores/staffStore';
@@ -9,6 +10,7 @@ import { useProjectStore } from '@/stores/projectStore';
 import { blockHasContent } from '@/lib/blocks';
 import { navigate } from '@/lib/router';
 import { printBook } from '@/lib/exporter';
+import { computeReview } from '@/lib/edition';
 
 const btn = 'inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-4 py-2 text-sm font-medium hover:bg-surface-2';
 
@@ -19,6 +21,12 @@ export default function WelcomePage() {
   const pageCount = usePageCount();
   const setActive = useNavigationStore((s) => s.setActiveSection);
   const setSettingsTab = useNavigationStore((s) => s.setSettingsTab);
+  const [onlyPending, setOnlyPending] = useState(false);
+  const review = computeReview(profile.year, cover.review, outline, sections);
+  const reviewOf = (id: string) => {
+    const r = id === 'kulit' ? cover.review : sections[id]?.review;
+    return r && r.year === profile.year ? r.status : null;
+  };
 
   const coverFilled = cover.image ? 5 : [cover.title, cover.subtitle, cover.address, cover.motto, cover.logo].filter((x) => x.trim() !== '').length;
   const stats = [
@@ -42,7 +50,13 @@ export default function WelcomePage() {
             <p className="text-xs text-muted">{s.level === 2 ? 'Subtajuk' : String(n).padStart(2, '0')}</p>
             <p className="truncate text-sm font-semibold">{s.label}</p>
           </div>
-          {s.edited && <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold uppercase text-accent">Disunting</span>}
+          {reviewOf(s.id) === 'perlu' ? (
+            <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase text-amber-700">Perlu kemas kini</span>
+          ) : reviewOf(s.id) === 'siap' ? (
+            <span className="rounded-full bg-green-600/10 px-2 py-0.5 text-[10px] font-semibold uppercase text-green-700">Siap</span>
+          ) : (
+            s.edited && <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold uppercase text-accent">Disunting</span>
+          )}
         </div>
         <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-2">
           <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${s.pct}%` }} />
@@ -69,6 +83,31 @@ export default function WelcomePage() {
         </div>
       </section>
 
+      {review.total > 0 ? (
+        <section className="mt-6 rounded-lg border border-amber-500/40 bg-surface p-4 shadow-card">
+          <div className="flex flex-wrap items-center gap-3">
+            <CalendarClock size={22} className="text-amber-600" aria-hidden />
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold">Kemas kini edisi {profile.year}: {review.done} / {review.total} halaman siap disemak</p>
+              <p className="text-xs text-muted">Halaman bertanda kuning disalin daripada edisi {profile.year - 1} dan perlu disemak. Unit boleh menghantar kemas kini melalui Portal.</p>
+            </div>
+            <button className={btn} onClick={() => setOnlyPending((v) => !v)} aria-pressed={onlyPending}>{onlyPending ? 'Tunjuk semua' : 'Tunjuk yang belum siap'}</button>
+            <button className={btn} onClick={() => navigate('/kemaskini')}><Send size={16} /> Portal Kemas Kini</button>
+          </div>
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface-2">
+            <div className="h-full rounded-full bg-green-600 transition-all" style={{ width: `${Math.round((review.done / review.total) * 100)}%` }} />
+          </div>
+        </section>
+      ) : (
+        <section className="mt-6 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-surface p-4 shadow-card">
+          <CalendarClock size={22} className="text-primary" aria-hidden />
+          <p className="min-w-0 flex-1 text-sm">
+            <b>Sedia untuk edisi {profile.year + 1}?</b> <span className="text-muted">Cipta edisi baharu daripada buku ini dan kumpul kemas kini daripada setiap unit melalui Portal Kemas Kini.</span>
+          </p>
+          <button className={btn} onClick={() => navigate('/kemaskini')}><Send size={16} /> Portal Kemas Kini</button>
+        </section>
+      )}
+
       <div className="mt-6 flex flex-wrap gap-2">
         <button className={btn} onClick={() => setActive('kulit')}>Mula menyunting <ArrowRight size={16} /></button>
         <button className={btn} onClick={() => navigate('/preview')}><Eye size={16} /> Pratonton buku</button>
@@ -77,7 +116,7 @@ export default function WelcomePage() {
       </div>
 
       {[{ id: '', title: 'Kulit Buku' }, ...outline].map((part, pi) => {
-        const items = stats.filter((s) => s.partId === part.id);
+        const items = stats.filter((s) => s.partId === part.id && (!onlyPending || reviewOf(s.id) === 'perlu'));
         if (!items.length) return null;
         return (
           <section key={part.id || 'kulit'} className="mt-8">

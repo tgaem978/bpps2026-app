@@ -141,6 +141,18 @@ export type AnyBlock = Block | TocRowsBlock;
 /** Jenis paparan halaman isi (layout). */
 export type SectionLayout = 'standard' | 'twocol' | 'open' | 'notes';
 
+/**
+ * Status semakan bagi edisi tahunan baharu (cth. edisi 2027 disalin daripada 2026).
+ * 'perlu' = halaman perlu dikemas kini untuk tahun tersebut; 'siap' = telah disemak / dikemas kini.
+ */
+export interface ReviewMark {
+  year: number;
+  status: 'perlu' | 'siap';
+  /** Siapa yang menandakan siap (cth. "Penjana" atau "Portal · Unit HEM (Cikgu Ali)"). */
+  by?: string;
+  at?: number;
+}
+
 export interface SectionContent {
   title: string;
   /** Dipaparkan sebagai lencana di jalur tajuk (cth. "SESI PAGI") */
@@ -148,6 +160,8 @@ export interface SectionContent {
   layout: SectionLayout;
   blocks: Block[];
   updatedAt: number | null;
+  /** Status kemas kini edisi tahunan (tiada = tiada semakan diperlukan). */
+  review?: ReviewMark;
 }
 
 /** Struktur kandungan: bahagian utama → tajuk → subtajuk. */
@@ -176,6 +190,7 @@ export interface CoverContent {
   address: string;
   logo: string;
   updatedAt: number | null;
+  review?: ReviewMark;
 }
 
 export interface BookExport {

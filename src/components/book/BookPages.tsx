@@ -4,7 +4,7 @@ import { useBookStore } from '@/stores/bookStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { useMaster, useMasterStore, resolveMaster } from '@/stores/masterStore';
 import { applyMasterCss, fonts, type PageType } from '@/templates/master';
-import { useBookCtx, useBookPlan, type PagePlan, type Segment } from '@/lib/pagination';
+import { useBookCtx, useBookPlan, useSections, type PagePlan, type Segment } from '@/lib/pagination';
 import { resolveTokens, type BookCtx } from '@/lib/resolve';
 import { locate } from '@/lib/outline';
 import type { Block } from '@/types/book';
@@ -157,7 +157,7 @@ function Segments({ segments, byId, ctx }: { segments: Segment[]; byId: Map<stri
 }
 
 function SectionContentPage({ page }: { page: Extract<PagePlan, { kind: 'content' }> }) {
-  const sec = useBookStore((s) => s.sections[page.sectionId]);
+  const sec = useSections()[page.sectionId];
   const outline = useBookStore((s) => s.outline);
   const partTitle = outline.find((p) => p.id === locate(outline, page.sectionId)?.partId)?.title;
   const m = useMaster(page.layout);

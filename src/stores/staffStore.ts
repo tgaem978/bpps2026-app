@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { appStorage } from '@/lib/storage';
 import type { FieldValue, StaffField, Teacher } from '@/types/staff';
 import { defaultFields, defaultTeachers } from '@/config/defaultStaff';
 import { uid } from '@/lib/blocks';
@@ -120,6 +121,7 @@ export const useStaffStore = create<StaffState>()(
     },
     {
       name: 'bpps2026-staff',
+      storage: appStorage(),
       version: 2,
       // v1: data contoh yang belum pernah disunting diganti dengan senarai sebenar; medan baharu ditambah.
       migrate: (persisted, version) => {

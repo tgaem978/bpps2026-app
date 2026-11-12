@@ -11,6 +11,8 @@ const btn =
 
 export default function Topbar() {
   const fullName = useProjectStore((s) => s.profile.fullName);
+  const year = useProjectStore((s) => s.profile.year);
+  const appName = import.meta.env.VITE_APP_NAME || (APP_NAME.includes('2026') ? `BPPS ${year} Generator` : APP_NAME);
   const setMobileOpen = useNavigationStore((s) => s.setMobileOpen);
   const setPptOpen = useUiStore((s) => s.setPptOpen);
 
@@ -20,7 +22,7 @@ export default function Topbar() {
         <Menu size={20} />
       </button>
       <div className="min-w-0 flex-1">
-        <h1 className="truncate font-display text-sm font-bold leading-tight md:text-base">{APP_NAME.toUpperCase()}</h1>
+        <h1 className="truncate font-display text-sm font-bold leading-tight md:text-base">{appName.toUpperCase()}</h1>
         <p className="truncate text-xs text-muted">{fullName}</p>
       </div>
       <div className="flex items-center gap-2">

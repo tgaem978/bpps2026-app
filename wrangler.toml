@@ -1,8 +1,25 @@
-# Cloudflare Workers (static assets) - nama mesti sama dengan projek Workers Builds: bpps2026-app
+# Cloudflare Workers - nama mesti sama dengan projek Workers Builds: bpps2026-app
+# Aset statik (penjana & portal) daripada dist/; /api/* dikendalikan oleh worker/index.ts (Portal Kemas Kini).
 name = "bpps2026-app"
+main = "worker/index.ts"
 compatibility_date = "2025-09-01"
 
 [assets]
 directory = "./dist"
-# Laluan SPA (/project, /settings, /preview) dihidangkan oleh index.html
+binding = "ASSETS"
+# Laluan SPA (/project, /settings, /preview, /kemaskini, /portal) dihidangkan oleh index.html
 not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+# Storan Portal Kemas Kini: satu Durable Object berasaskan SQLite (tersedia pada pelan percuma; dicipta automatik semasa deploy).
+[[durable_objects.bindings]]
+name = "PORTAL"
+class_name = "PortalStore"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["PortalStore"]
+
+# Kata laluan pentadbir portal ialah RAHSIA (bukan di sini):
+#   Cloudflare dashboard → Workers & Pages → bpps2026-app → Settings → Variables and Secrets → Add → Secret: ADMIN_PASSWORD
+#   atau: npx wrangler secret put ADMIN_PASSWORD

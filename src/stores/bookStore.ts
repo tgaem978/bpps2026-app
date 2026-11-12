@@ -1,13 +1,19 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Block, BlockType, CoverContent, OutlinePart, SectionContent } from '@/types/book';
+import type { Block, BlockType, CoverContent, OutlinePart, OutlineTopic, ReviewMark, SectionContent } from '@/types/book';
 import { kokuTopics, ppkiChildren } from '@/config/partKoku';
 import { HEM_TUGAS_ORDER, hemIds, hemTopics } from '@/config/partHEM';
 import { defaultCover, defaultOutline, defaultSections, newSection } from '@/config/defaultContent';
 import { pentadbiranTopics } from '@/config/partPentadbiran';
+import { ppkiTopics } from '@/config/partPPKI';
+import { prasekolahTopics } from '@/config/partPrasekolah';
+import { lampiranTopics } from '@/config/partLampiran';
 import { FLAT_TOC_PARTS, OVERRIDES, REMOVED_IDS, partRujukanSections, unitTopicIds } from '@/config/partRujukan';
 import { createBlock, uid } from '@/lib/blocks';
 import { allIds } from '@/lib/outline';
+import { defaultForYear } from '@/lib/rollover';
+import { appStorage } from '@/lib/storage';
+import { useProjectStore } from '@/stores/projectStore';
 
 interface BookState {
   cover: CoverContent;
@@ -32,6 +38,12 @@ interface BookState {
   moveTopicToPart: (id: string, partId: string) => void;
   resetAll: () => void;
   replaceAll: (cover: CoverContent, sections: Record<string, SectionContent>, outline?: OutlinePart[]) => void;
+  /** Tanda semakan edisi tahunan ('kulit' = muka hadapan). */
+  setReview: (id: string, status: ReviewMark['status'], by?: string) => void;
+  /** Ganti kandungan satu halaman (cth. kemas kini diterima daripada Portal) dan tandakan siap disemak. */
+  applySection: (id: string, content: SectionContent, by: string) => void;
+  /** Ganti seluruh buku (edisi tahunan baharu). */
+  setEdition: (data: Pick<BookState, 'cover' | 'sections' | 'outline'>) => void;
   markSaved: () => void;
 }
 
@@ -337,6 +349,32 @@ function migrateV18(p: Partial<BookState>) {
   if (p.outline) p.outline = p.outline.map((part) => (part.id !== 'p-maklumat' ? part : { ...part, topics: part.topics.map((t) => (t.id === 'ma-simulasi' ? { ...t, tocChildren: false } : t)) }));
 }
 
+/**
+ * v19: bahagian PPKI, Prasekolah dan Lampiran dilengkapkan (visi/misi, enrolmen, carta, rutin, bidang tugas, takwim, borang).
+ * Halaman baharu ditambah pada bahagian berkenaan tanpa mengubah susunan pengguna; halaman pengenalan lalai yang belum disunting dimuat semula.
+ */
+function migrateV19(p: Partial<BookState>) {
+  if (p.sections) for (const id of ['pendidikan-khas', 'prasekolah', 'lampiran']) if (p.sections[id] && p.sections[id].updatedAt === null) delete p.sections[id];
+  if (!p.outline) return;
+  const present = new Set(allIds(p.outline));
+  const merge = (partId: string, defs: OutlineTopic[]) => {
+    const part = p.outline!.find((x) => x.id === partId);
+    if (!part) return;
+    for (const def of defs) {
+      const cur = part.topics.find((t) => t.id === def.id);
+      if (cur) {
+        const extra = cur.children.filter((c) => !def.children.includes(c));
+        cur.children = [...def.children.filter((c) => cur.children.includes(c) || !present.has(c)), ...extra];
+      } else if (!present.has(def.id)) {
+        part.topics.push({ id: def.id, children: def.children.filter((c) => !present.has(c)) });
+      }
+    }
+  };
+  merge('p-pkhas', ppkiTopics());
+  merge('p-prasekolah', prasekolahTopics());
+  merge('p-lampiran', lampiranTopics());
+}
+
 export const useBookStore = create<BookState>()(
   persist(
     (set) => {
@@ -366,9 +404,15 @@ export const useBookStore = create<BookState>()(
           }),
         resetSection: (id) =>
           set((s) => {
-            if (id === 'kulit') return { cover: defaultCover() };
-            const d = defaultSections()[id] ?? { ...newSection(s.sections[id]?.title ?? ''), layout: s.sections[id]?.layout ?? 'standard' };
-            return { sections: { ...s.sections, [id]: d } };
+            const year = useProjectStore.getState().profile.year;
+            const review = id === 'kulit' ? s.cover.review : s.sections[id]?.review;
+            if (id === 'kulit') return { cover: { ...defaultCover(), ...(review ? { review } : {}) } };
+            const def = defaultSections()[id];
+            // Dalam edisi tahun baharu, kandungan asal digulung ke tahun semasa (bukan kandungan 2026).
+            const d = def
+              ? defaultForYear(id, def, year)
+              : { ...newSection(s.sections[id]?.title ?? ''), layout: s.sections[id]?.layout ?? 'standard' };
+            return { sections: { ...s.sections, [id]: { ...d, ...(review ? { review, updatedAt: now() } : {}) } } };
           }),
 
         addPart: () => {
@@ -443,11 +487,39 @@ export const useBookStore = create<BookState>()(
         replaceAll: (cover, sections, outline) =>
           set((s) => ({ ...normalize(s, { cover, sections, ...(outline ? { outline } : {}) }), lastSavedAt: now() })),
         markSaved: () => set({ lastSavedAt: now() }),
+        setReview: (id, status, by = 'Penjana') =>
+          set((s) => {
+            const year = useProjectStore.getState().profile.year;
+            const mark: ReviewMark = { year, status, ...(status === 'siap' ? { by, at: now() } : {}) };
+            if (id === 'kulit') return { cover: { ...s.cover, review: mark } };
+            const sec = s.sections[id];
+            return sec ? { sections: { ...s.sections, [id]: { ...sec, review: mark } } } : s;
+          }),
+        applySection: (id, content, by) =>
+          set((s) => {
+            const year = useProjectStore.getState().profile.year;
+            const base = s.sections[id];
+            return {
+              sections: {
+                ...s.sections,
+                [id]: {
+                  title: content.title ?? base?.title ?? '',
+                  subtitle: content.subtitle ?? base?.subtitle ?? '',
+                  layout: content.layout ?? base?.layout ?? 'standard',
+                  blocks: Array.isArray(content.blocks) ? content.blocks : base?.blocks ?? [],
+                  updatedAt: now(),
+                  review: { year, status: 'siap', by, at: now() },
+                },
+              },
+            };
+          }),
+        setEdition: (data) => set({ cover: data.cover, sections: data.sections, outline: data.outline, lastSavedAt: now() }),
       };
     },
     {
       name: 'bpps2026-book',
-      version: 18,
+      storage: appStorage(),
+      version: 19,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -468,6 +540,7 @@ export const useBookStore = create<BookState>()(
         if (version < 16) migrateV16(p);
         if (version < 17) migrateV17(p);
         if (version < 18) migrateV18(p);
+        if (version < 19) migrateV19(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

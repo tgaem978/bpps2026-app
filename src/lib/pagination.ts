@@ -1,6 +1,6 @@
-import { createElement, useEffect, useMemo } from 'react';
+import { createContext, createElement, useContext, useEffect, useMemo } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import type { AnyBlock, SectionLayout, TocRowsBlock } from '@/types/book';
+import type { AnyBlock, SectionContent, SectionLayout, TocRowsBlock } from '@/types/book';
 import BlockView from '@/components/book/BlockView';
 import { pageGeometry } from '@/templates/bpps';
 import { applyMasterCss, type PageType } from '@/templates/master';
@@ -181,6 +181,19 @@ export function paginate(blocks: AnyBlock[], ctx: BookCtx, o: PaginateOpts): Seg
 
 let fontsVersion = 0;
 
+/**
+ * Gantian kandungan halaman untuk pratonton (cth. versi cadangan daripada Portal Kemas Kini dalam peti masuk).
+ * Nilai mesti stabil (useMemo) supaya pelan buku tidak dikira semula setiap render.
+ */
+export const SectionOverride = createContext<Record<string, SectionContent> | null>(null);
+
+/** Semua halaman buku, termasuk gantian pratonton (jika ada). */
+export function useSections(): Record<string, SectionContent> {
+  const store = useBookStore((s) => s.sections);
+  const ov = useContext(SectionOverride);
+  return useMemo(() => (ov ? { ...store, ...ov } : store), [store, ov]);
+}
+
 /** Konteks data (pangkalan data guru + profil) untuk BlockView. */
 export function useBookCtx(): BookCtx {
   const fields = useStaffStore((s) => s.fields);
@@ -191,7 +204,7 @@ export function useBookCtx(): BookCtx {
 
 /** Pelan penuh buku: kulit, isi kandungan, partition dan halaman isi bernombor. */
 export function useBookPlan(): PagePlan[] {
-  const sections = useBookStore((s) => s.sections);
+  const sections = useSections();
   const outline = useBookStore((s) => s.outline);
   const overrides = useMasterStore((s) => s.overrides);
   const rev = useStaffStore((s) => s.rev);

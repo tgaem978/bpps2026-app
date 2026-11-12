@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { appStorage } from '@/lib/storage';
 import { masterDefaults, type MasterProps, type PageType } from '@/templates/master';
 
 interface MasterState {
@@ -20,7 +21,7 @@ export const useMasterStore = create<MasterState>()(
       }),
       replaceAll: (overrides) => set({ overrides: overrides ?? {} }),
     }),
-    { name: 'bpps2026-master', version: 1 },
+    { name: 'bpps2026-master', version: 1, storage: appStorage() },
   ),
 );
 

@@ -4,6 +4,16 @@ import { useNavigationStore } from '@/stores/navigationStore';
 import { useRoute, navigate } from '@/lib/router';
 import { useBookStore } from '@/stores/bookStore';
 import { locate } from '@/lib/outline';
+import { useProjectStore } from '@/stores/projectStore';
+import type { SectionContent } from '@/types/book';
+
+/** Titik status: kuning = perlu dikemas kini (edisi tahun semasa), emas = telah disunting. */
+function Dot({ sec, year }: { sec?: Pick<SectionContent, 'review' | 'updatedAt'>; year: number }) {
+  if (sec?.review?.year === year && sec.review.status === 'perlu') return <span className="h-2 w-2 shrink-0 rounded-full border border-amber-300 bg-amber-500" title="Perlu dikemas kini" aria-label="Perlu dikemas kini" />;
+  if (sec?.review?.year === year && sec.review.status === 'siap') return <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-green-400" title="Siap disemak" aria-label="Siap disemak" />;
+  if (sec?.updatedAt) return <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-label="Telah disunting" />;
+  return null;
+}
 
 /** Panel navigasi: disusun automatik mengikut Struktur Kandungan (Tetapan), dengan kembang kucup. */
 export default function Sidebar() {
@@ -12,7 +22,8 @@ export default function Sidebar() {
   const route = useRoute();
   const sections = useBookStore((s) => s.sections);
   const outline = useBookStore((s) => s.outline);
-  const coverEdited = useBookStore((s) => s.cover.updatedAt !== null);
+  const cover = useBookStore((s) => s.cover);
+  const year = useProjectStore((s) => s.profile.year);
   const slim = sidebarCollapsed && !mobileOpen;
   const activeLoc = activeSectionId ? locate(outline, activeSectionId) : undefined;
 
@@ -51,7 +62,7 @@ export default function Sidebar() {
         <div className="flex h-14 shrink-0 items-center justify-between border-b border-white/10 px-3">
           {!slim && (
             <button onClick={() => { setActiveSection(null); navigate('/'); setMobileOpen(false); }} className="text-left">
-              <span className="block font-display text-[15px] font-bold tracking-wide text-white">BPPS 2026</span>
+              <span className="block font-display text-[15px] font-bold tracking-wide text-white">BPPS {year}</span>
               <span className="block text-[10px] uppercase tracking-[0.18em] text-sidebar-fg/60">Buku Pengurusan Sekolah</span>
             </button>
           )}
@@ -67,7 +78,7 @@ export default function Sidebar() {
           <button onClick={() => openSection('kulit')} title={slim ? 'Kulit' : undefined} aria-current={isActive('kulit') ? 'page' : undefined} className={itemCls(isActive('kulit'))}>
             <BookOpen size={17} className="shrink-0" aria-hidden />
             {!slim && <span className="flex-1 truncate">Muka Hadapan</span>}
-            {!slim && coverEdited && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-label="Telah disunting" />}
+            {!slim && <Dot sec={cover} year={year} />}
           </button>
 
           {outline.map((part, pi) => {
@@ -109,7 +120,7 @@ export default function Sidebar() {
                             <button onClick={() => openSection(t.id)} aria-current={isActive(t.id) ? 'page' : undefined} className={`${itemCls(isActive(t.id))} min-w-0 flex-1`}>
                               <Icon size={16} className="shrink-0 opacity-90" aria-hidden />
                               <span className="flex-1 truncate">{sec?.title || 'Tanpa tajuk'}{sec?.subtitle && <span className="opacity-60"> · {sec.subtitle}</span>}</span>
-                              {sec?.updatedAt && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-label="Telah disunting" />}
+                              <Dot sec={sec} year={year} />
                             </button>
                             {t.children.length > 0 && (
                               <button
@@ -128,7 +139,7 @@ export default function Sidebar() {
                                 <li key={c}>
                                   <button onClick={() => openSection(c)} aria-current={isActive(c) ? 'page' : undefined} className={itemCls(isActive(c), 2)}>
                                     <span className="flex-1 truncate">{sections[c]?.title || 'Tanpa tajuk'}{sections[c]?.subtitle && <span className="opacity-60"> · {sections[c].subtitle}</span>}</span>
-                                    {sections[c]?.updatedAt && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-label="Telah disunting" />}
+                                    <Dot sec={sections[c]} year={year} />
                                   </button>
                                 </li>
                               ))}

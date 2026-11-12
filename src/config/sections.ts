@@ -1,15 +1,16 @@
 import {
   BookOpen, Building2, CalendarDays, FileStack, GraduationCap, HeartHandshake, Network, UsersRound, ClipboardList,
-  Users, Flag, Accessibility, Baby, FileText, NotebookPen, Settings as SettingsIcon, FolderKanban, Eye,
+  Users, Flag, Accessibility, Baby, FileText, NotebookPen, Settings as SettingsIcon, FolderKanban, Eye, Send,
   type LucideIcon,
 } from 'lucide-react';
 
-export type AppPath = '/project' | '/settings' | '/preview';
+export type AppPath = '/project' | '/settings' | '/preview' | '/kemaskini';
 
 export interface AppNavItem { id: string; label: string; icon: LucideIcon; path: AppPath }
 
 export const appNav: AppNavItem[] = [
   { id: 'preview', label: 'Pratonton Buku', icon: Eye, path: '/preview' },
+  { id: 'kemaskini', label: 'Portal Kemas Kini', icon: Send, path: '/kemaskini' },
   { id: 'project', label: 'Projek', icon: FolderKanban, path: '/project' },
   { id: 'settings', label: 'Tetapan', icon: SettingsIcon, path: '/settings' },
 ];

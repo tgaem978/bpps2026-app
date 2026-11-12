@@ -7,15 +7,15 @@ import { partASections } from '@/config/partA';
 import { partKKSections } from '@/config/partKK';
 import { partBSections } from '@/config/partB';
 import { partPengenalanSections } from '@/config/partPengenalan';
-import { partKokuSections, ppkiChildren } from '@/config/partKoku';
+import { partKokuSections } from '@/config/partKoku';
 import { partHemSections } from '@/config/partHEM';
-import { partPpkiSections } from '@/config/partPPKI';
+import { partPpkiSections, ppkiTopics } from '@/config/partPPKI';
+import { partPrasekolahSections, prasekolahTopics } from '@/config/partPrasekolah';
+import { lampiranTopics, partLampiranSections } from '@/config/partLampiran';
 import { partMaklumatSections } from '@/config/partMaklumat';
 import { partPentadbiranSections, pentadbiranTopics } from '@/config/partPentadbiran';
 import { OVERRIDES, REMOVED_IDS, hemOrder, kokuOrder, kurikulumTopics, maklumatAmTopics, partRujukanSections, unitTopicIds } from '@/config/partRujukan';
 
-const p = (text: string): Block => ({ id: uid(), type: 'paragraph', text });
-const ul = (items: string[], ordered = false): Block => ({ id: uid(), type: 'list', ordered, items });
 const kv = (pairs: [string, string][]): Block => ({ id: uid(), type: 'keyvalue', pairs: pairs.map(([key, value]) => ({ key, value })) });
 
 
@@ -59,9 +59,9 @@ export const defaultOutline = (): OutlinePart[] => [
       { id: 'takwim-01', children: ['takwim-02', 'takwim-03', 'takwim-04', 'takwim-05', 'takwim-06', 'takwim-07', 'takwim-08', 'takwim-09', 'takwim-10', 'takwim-11', 'takwim-12'] },
     ],
   },
-  { id: 'p-pkhas', title: 'PENDIDIKAN KHAS (PPKI)', note: '{{jawatan:GPK Pendidikan Khas}}', divider: true, topics: [{ id: 'pendidikan-khas', children: ppkiChildren }] },
-  { id: 'p-prasekolah', title: 'PRASEKOLAH', note: '', divider: true, topics: [{ id: 'prasekolah', children: [] }] },
-  { id: 'p-lampiran', title: 'LAMPIRAN', note: '', divider: true, topics: [{ id: 'lampiran', children: [] }, { id: 'catatan', children: [] }] },
+  { id: 'p-pkhas', title: 'PENDIDIKAN KHAS (PPKI)', note: '{{jawatan:GPK Pendidikan Khas}}', divider: true, topics: ppkiTopics() },
+  { id: 'p-prasekolah', title: 'PRASEKOLAH', note: '{{jawatan:Guru Prasekolah}}', divider: true, topics: prasekolahTopics() },
+  { id: 'p-lampiran', title: 'LAMPIRAN', note: '', divider: true, topics: lampiranTopics() },
 ];
 
 /** Kandungan contoh (BPPS 2026 SKBTS). Semua boleh disunting; nama dijana daripada Pangkalan Data Guru. */
@@ -80,6 +80,8 @@ const baseSections = (): Record<string, SectionContent> => ({
   ...partKokuSections(),
   ...partHemSections(),
   ...partPpkiSections(),
+  ...partPrasekolahSections(),
+  ...partLampiranSections(),
   ...partRujukanSections(),
   'maklumat-sekolah': section('PROFIL SEKOLAH', 'MAKLUMAT SEKOLAH', [
     kv([
@@ -94,17 +96,6 @@ const baseSections = (): Record<string, SectionContent> => ({
   'senarai-pagi': section('SENARAI NAMA GURU & AKP', 'GURU SESI PAGI', [staffList(F_SESSION, ['Pagi'], 'pentadbir')]),
   'senarai-petang': section('SENARAI NAMA GURU & AKP', 'GURU SESI PETANG', [staffList(F_SESSION, ['Petang'], 'pentadbir')]),
   'senarai-akp': section('SENARAI NAMA GURU & AKP', 'AKP', [staffList(F_POSITION, [...AKP_POSITIONS], 'hierarki', false)]),
-  'pendidikan-khas': section('PENDIDIKAN KHAS', 'PPKI', [
-    p('Program ini menyediakan pendidikan yang inklusif dan bersesuaian dengan keperluan murid berkeperluan pendidikan khas (MBPK), ke arah kemenjadian murid dan kehidupan berdikari.'),
-    kv([['Penyelaras', '{{jawatan:GPK Pendidikan Khas}}'], ['Bilangan Murid', ''], ['Bilangan Kelas', '']]),
-  ]),
-  prasekolah: section('PRASEKOLAH', '', [
-    p('Kelas prasekolah dikendalikan berdasarkan Kurikulum Standard Prasekolah Kebangsaan (KSPK).'),
-    kv([['Guru Prasekolah', '{{jawatan:Guru Prasekolah}}'], ['Bilangan Kelas', ''], ['Pembantu Pengurusan Murid', '']]),
-  ]),
-  lampiran: section('LAMPIRAN', '', [
-    ul(['Lampiran A: Borang Cuti Guru', 'Lampiran B: Borang Kebenaran Keluar Murid'], false),
-  ]),
   catatan: section('CATATAN', '', [], 'notes'),
 });
 

@@ -12,6 +12,7 @@ import type { BlockType } from '@/types/book';
 import BlockEditor, { field } from '@/components/editor/BlockEditor';
 import { SectionPages } from '@/components/book/BookPages';
 import { templateAssets } from '@/templates/bpps';
+import ReviewBanner from '@/components/editor/ReviewBanner';
 
 const addable: BlockType[] = ['heading', 'paragraph', 'list', 'table', 'keyvalue', 'image', 'orgchart', 'orgtree', 'committee', 'stafflist', 'takwim'];
 const btn = 'inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium hover:bg-surface-2';
@@ -71,6 +72,8 @@ export default function SectionEditorPage({ id }: { id: string }) {
         </button>
       </div>
 
+      <ReviewBanner id={id} />
+
       <div className={`grid gap-6 ${showPreview ? 'xl:grid-cols-2' : ''}`}>
         <div className="grid content-start gap-4">
           {id === 'kulit' ? <CoverForm /> : <SectionForm id={id} />}
@@ -93,7 +96,8 @@ export default function SectionEditorPage({ id }: { id: string }) {
   );
 }
 
-function SectionForm({ id }: { id: string }) {
+/** Borang halaman. `compact` (Portal Kemas Kini) = tanpa pilihan jenis halaman. */
+export function SectionForm({ id, compact = false }: { id: string; compact?: boolean }) {
   const sec = useBookStore((s) => s.sections[id]);
   const { updateSection, addBlock, updateBlock, removeBlock, moveBlock } = useBookStore();
   if (!sec) return null;
@@ -109,7 +113,7 @@ function SectionForm({ id }: { id: string }) {
           Lencana tajuk <span className="font-normal text-muted">(pilihan, cth. SESI PAGI)</span>
           <input className={`${field} mt-1`} value={sec.subtitle} onChange={(e) => updateSection(id, { subtitle: e.target.value })} />
         </label>
-        <div className="sm:col-span-2">
+        {!compact && <div className="sm:col-span-2">
           <p className="text-sm font-medium">Jenis halaman</p>
           <div className="mt-1 grid gap-2 sm:grid-cols-4">
             {layoutOptions.map((o) => (
@@ -124,7 +128,7 @@ function SectionForm({ id }: { id: string }) {
               </button>
             ))}
           </div>
-        </div>
+        </div>}
       </div>
 
       {sec.blocks.length === 0 && (
