@@ -4,6 +4,7 @@ import { useBookStore } from '@/stores/bookStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { useUiStore } from '@/stores/uiStore';
 import { computeReview, startNewEdition } from '@/lib/edition';
+import { editionYears, switchEdition, useEditions } from '@/lib/editions';
 import { adminLogin, adminLogout, publishEdition, type ApiError } from '@/lib/portalApi';
 import type { AdminOverview, HealthInfo } from '@/types/portal';
 
@@ -34,8 +35,13 @@ export function EditionStep() {
   const year = useProjectStore((s) => s.profile.year);
   const toast = useUiStore((s) => s.toast);
   const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const saved = useEditions((s) => s.saved);
   const review = computeReview(year, cover.review, outline, sections);
   const next = year + 1;
+  const years = editionYears(saved, year);
+  const latest = years[0];
+  const nextExists = years.includes(next);
 
   return (
     <Step n={1} title={`Edisi ${review.total ? year : next}`} icon={<CalendarPlus size={20} aria-hidden />}>
@@ -54,7 +60,24 @@ export function EditionStep() {
           Buku ini ialah edisi <b className="text-text">{year}</b>. Cipta edisi {next} untuk mula mengumpul kemas kini daripada unit.
         </p>
       )}
-      {!confirming ? (
+      {years.length > 1 && (
+        <p className="mt-3 text-sm">
+          Edisi dalam pelayar ini: {years.map((y) => <b key={y} className={`mr-1.5 inline-block rounded px-1.5 ${y === year ? 'bg-primary text-primary-fg' : 'bg-surface-2'}`}>{y}</b>)}
+          <span className="text-muted"> · tukar edisi melalui pemilih tahun di bar atas.</span>
+        </p>
+      )}
+      {nextExists ? (
+        <button
+          className={`${btnPrimary} mt-4`}
+          disabled={busy}
+          onClick={async () => {
+            setBusy(true);
+            try { await switchEdition(latest); toast(`Kini menyunting edisi ${latest}.`); } catch (e) { toast((e as Error).message, 'error'); } finally { setBusy(false); }
+          }}
+        >
+          <CalendarPlus size={16} /> Edisi {next} sudah wujud - buka edisi {latest}
+        </button>
+      ) : !confirming ? (
         <button className={`${review.total ? btn : btnPrimary} mt-4`} onClick={() => setConfirming(true)}>
           <CalendarPlus size={16} /> Cipta edisi {next}
         </button>
@@ -62,7 +85,7 @@ export function EditionStep() {
         <div className="mt-4 rounded-md border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
           <p className="font-semibold">Cipta edisi {next} daripada edisi {year}?</p>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-muted">
-            <li>Fail arkib edisi {year} (.json) dimuat turun dahulu - simpan fail ini; ia boleh diimport semula di halaman Projek.</li>
+            <li>Edisi {year} <b>kekal dalam sistem</b> (pelayar ini) dan boleh dipilih semula bila-bila masa melalui pemilih tahun. Fail sandaran .json juga dimuat turun.</li>
             <li>Semua kandungan disalin; tahun {year} ditukar kepada {next} pada tajuk dan teks.</li>
             <li>Kalendar {next} dan Takwim Induk (tarikh & hari) dijana semula; tarikh lain (kalendar akademik, cuti, minggu akademik, jadual bertugas, pencerapan, takwim unit) dikosongkan untuk diisi.</li>
             <li>Setiap halaman ditandakan <b>perlu dikemas kini</b>.</li>
@@ -70,10 +93,18 @@ export function EditionStep() {
           <div className="mt-3 flex flex-wrap gap-2">
             <button
               className={btnPrimary}
-              onClick={() => {
-                const s = startNewEdition();
-                setConfirming(false);
-                toast(`Edisi ${s.to} dicipta: ${s.pages} halaman perlu dikemas kini, ${s.regenerated.length} halaman kalendar/takwim dijana semula.`);
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                try {
+                  const s = await startNewEdition();
+                  setConfirming(false);
+                  toast(`Edisi ${s.to} dicipta: ${s.pages} halaman perlu dikemas kini. Edisi ${s.from} disimpan dalam sistem.`);
+                } catch (e) {
+                  toast((e as Error).message, 'error');
+                } finally {
+                  setBusy(false);
+                }
               }}
             >
               Ya, cipta edisi {next}

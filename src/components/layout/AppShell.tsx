@@ -8,6 +8,7 @@ import PptExportDialog from '@/components/export/PptExportDialog';
 import { MasterStyles } from '@/components/book/BookPages';
 import { saveNow } from '@/lib/exporter';
 import { useProjectStore } from '@/stores/projectStore';
+import { EditionChooser } from './EditionPicker';
 
 export default function AppShell() {
   const year = useProjectStore((s) => s.profile.year);
@@ -36,6 +37,7 @@ export default function AppShell() {
       <Toaster />
       <PrintRoot />
       <PptExportDialog />
+      <EditionChooser />
     </div>
   );
 }

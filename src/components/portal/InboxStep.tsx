@@ -11,6 +11,7 @@ import { diffLabel, diffSections } from '@/lib/sectionDiff';
 import { submissionStatus, type Decision, type Submission, type SubmissionSummary } from '@/types/portal';
 import type { SectionContent } from '@/types/book';
 import { Step, btn, btnPrimary, fmtTime } from './HubCards';
+import { useProjectStore } from '@/stores/projectStore';
 
 const statusChip: Record<ReturnType<typeof submissionStatus>, [string, string]> = {
   baru: ['Baru', 'bg-amber-500/15 text-amber-700'],
@@ -105,6 +106,7 @@ function SubmissionReview({ id, onBack, onUpdated }: { id: string; onBack: () =>
   const [sub, setSub] = useState<Submission | null>(null);
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
+  const activeYear = useProjectStore((s) => s.profile.year);
 
   useEffect(() => {
     getSubmission(id).then(setSub, (e) => setErr((e as Error).message));
@@ -135,7 +137,8 @@ function SubmissionReview({ id, onBack, onUpdated }: { id: string; onBack: () =>
 
   if (err) return <div><button className={btn} onClick={onBack}><ArrowLeft size={15} /> Kembali</button><p className="mt-3 text-sm text-red-600">{err}</p></div>;
   if (!sub) return <p className="flex items-center gap-2 text-sm text-muted"><Loader2 size={16} className="animate-spin" /> Memuatkan kiriman…</p>;
-  const open = sub.sectionIds.filter((sid) => !sub.decisions[sid]);
+  const wrongYear = sub.year !== activeYear;
+  const open = wrongYear ? [] : sub.sectionIds.filter((sid) => !sub.decisions[sid]);
 
   return (
     <div>
@@ -151,9 +154,15 @@ function SubmissionReview({ id, onBack, onUpdated }: { id: string; onBack: () =>
           </>
         )}
       </div>
+      {wrongYear && (
+        <p className="mt-2 flex items-start gap-1.5 rounded-md bg-amber-500/10 px-3 py-2 text-sm text-amber-800">
+          <TriangleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />
+          Kiriman ini untuk edisi {sub.year}, tetapi penjana sedang membuka edisi {activeYear}. Tukar ke edisi {sub.year} (pemilih tahun di bar atas) untuk menerima atau menolaknya.
+        </p>
+      )}
       {sub.note && <p className="mt-2 rounded-md bg-surface-2 px-3 py-2 text-sm"><b>Catatan:</b> {sub.note}</p>}
       <ul className="mt-3 grid gap-2">
-        {sub.sectionIds.map((sid) => <SectionReview key={sid} sub={sub} id={sid} busy={busy} onDecide={(x, d) => decideMany([x], d)} />)}
+        {sub.sectionIds.map((sid) => <SectionReview key={sid} sub={sub} id={sid} busy={busy || wrongYear} onDecide={(x, d) => decideMany([x], d)} />)}
       </ul>
       {open.length === 0 && (
         <div className="mt-3 flex justify-end">

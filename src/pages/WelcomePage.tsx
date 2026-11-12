@@ -102,7 +102,7 @@ export default function WelcomePage() {
         <section className="mt-6 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-surface p-4 shadow-card">
           <CalendarClock size={22} className="text-primary" aria-hidden />
           <p className="min-w-0 flex-1 text-sm">
-            <b>Sedia untuk edisi {profile.year + 1}?</b> <span className="text-muted">Cipta edisi baharu daripada buku ini dan kumpul kemas kini daripada setiap unit melalui Portal Kemas Kini.</span>
+            <b>Edisi {profile.year} · sedia untuk edisi {profile.year + 1}?</b> <span className="text-muted">Cipta edisi baharu daripada buku ini dan kumpul kemas kini daripada setiap unit melalui Portal Kemas Kini.</span>
           </p>
           <button className={btn} onClick={() => navigate('/kemaskini')}><Send size={16} /> Portal Kemas Kini</button>
         </section>

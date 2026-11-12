@@ -5,6 +5,7 @@ import { useNavigationStore } from '@/stores/navigationStore';
 import { APP_NAME } from '@/config/schoolProfile';
 import { navigate } from '@/lib/router';
 import { printBook, saveNow } from '@/lib/exporter';
+import { EditionPicker } from './EditionPicker';
 
 const btn =
   'inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium hover:bg-surface-2';
@@ -26,6 +27,7 @@ export default function Topbar() {
         <p className="truncate text-xs text-muted">{fullName}</p>
       </div>
       <div className="flex items-center gap-2">
+        <EditionPicker />
         <button onClick={saveNow} title="Simpan (Ctrl+S)" aria-label="Simpan" className={btn}>
           <Save size={16} aria-hidden /> <span className="hidden lg:inline">Simpan</span>
         </button>

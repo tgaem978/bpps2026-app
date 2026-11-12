@@ -25,6 +25,15 @@ lalai yang belum disunting (`pendidikan-khas`, `prasekolah`, `lampiran`) dimuat 
 
 **Perlu tindakan manual:** imej muka hadapan (`cover-default.jpg`) mempunyai "2026" pada reka bentuk - muat naik reka bentuk 2027 atau jana kulit daripada teks.
 
+### Berbilang edisi dalam sistem (pilih tahun)
+- Setiap edisi (2026, 2027, …) disimpan lengkap dalam **IndexedDB pelayar** (`src/lib/editions.ts`): buku, Pangkalan Data Guru, master dan profil.
+- *Cipta edisi 2027* menyimpan edisi 2026 dalam sistem dahulu (fail .json juga dimuat turun sebagai sandaran).
+- **Pemilih tahun** di bar atas (`EditionPicker`) - menukar edisi menyimpan edisi aktif, kemudian memuatkan edisi pilihan.
+- **Pilih edisi** dipaparkan pada permulaan setiap sesi pelayar jika ada lebih daripada satu edisi (`EditionChooser`).
+- Jika edisi tahun hadapan sudah wujud, butang Langkah 1 membuka edisi itu (tidak mencipta semula).
+- Peti masuk: kiriman edisi X hanya boleh diterima/ditolak semasa edisi X dibuka.
+- Edisi disimpan dalam pelayar/komputer ini sahaja - gunakan *Muat turun (.json)* di halaman Projek untuk sandaran atau komputer lain.
+
 ## 3. Portal Kemas Kini (dalam talian)
 Penjana: menu **Portal Kemas Kini** (`/kemaskini`, `src/pages/UpdateHubPage.tsx`, `src/components/portal/*`). Portal unit: `/portal#KOD` (`src/portal/PortalApp.tsx`).
 

@@ -3,22 +3,27 @@ import { useProjectStore } from '@/stores/projectStore';
 import { exportJson } from '@/lib/exporter';
 import { rolloverBook, type RolloverSummary } from '@/lib/rollover';
 import { flattenOutline } from '@/lib/outline';
+import { putEdition, snapshotActive, useEditions } from '@/lib/editions';
 
 /**
  * Cipta edisi tahun hadapan daripada buku semasa:
- * 1. arkib edisi semasa dimuat turun (.json) - boleh diimport semula di halaman Projek;
+ * 1. edisi semasa disimpan dalam pustaka edisi pelayar (boleh dipilih semula bila-bila masa) dan arkib .json dimuat turun sebagai sandaran;
  * 2. buku disalin, tahun ditukar, kalendar & takwim dijana semula untuk tahun baharu, tarikh lain dikosongkan;
- * 3. setiap halaman ditandakan "perlu dikemas kini".
+ * 3. setiap halaman ditandakan "perlu dikemas kini"; edisi baharu menjadi edisi aktif.
  */
-export function startNewEdition(): RolloverSummary {
+export async function startNewEdition(): Promise<RolloverSummary> {
   const { cover, sections, outline, setEdition } = useBookStore.getState();
   const { profile, updateProfile } = useProjectStore.getState();
   const from = profile.year;
   const to = from + 1;
+  await putEdition(snapshotActive());
   exportJson(`arkib-${from}`);
   const { data, summary } = rolloverBook({ cover, sections, outline }, from, to);
   setEdition(data);
   updateProfile({ year: to, projectCode: profile.projectCode.split(String(from)).join(String(to)) });
+  await putEdition(snapshotActive());
+  await useEditions.getState().refresh();
+  useEditions.getState().markChosen();
   return summary;
 }
 
