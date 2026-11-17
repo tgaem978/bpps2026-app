@@ -18,9 +18,9 @@ export async function exportPagesToPptx(wraps: HTMLElement[], label: string, onP
   const pptx = new PptxGenJS();
   pptx.defineLayout({ name: 'A4P', width: W, height: H });
   pptx.layout = 'A4P';
-  const school = useProjectStore.getState().profile.shortName;
+  const { shortName: school, year } = useProjectStore.getState().profile;
   pptx.company = school;
-  pptx.title = `BPPS 2026 - ${label}`;
+  pptx.title = `BPPS ${year} - ${label}`;
 
   const safe = label.replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, ' ').trim().slice(0, 60);
   if (mode === 'native') {
@@ -28,9 +28,13 @@ export async function exportPagesToPptx(wraps: HTMLElement[], label: string, onP
     const fontCSS = await getFontEmbedCSS(wraps[0]).catch(() => '');
     const first = wraps[0].querySelector<HTMLElement>('.book-page') ?? wraps[0];
     const pr = Math.max(1, 2200 / first.getBoundingClientRect().width);
-    await native.buildNativePptx(pptx, wraps, onProgress, (page, filter) =>
-      toPng(page, { pixelRatio: pr, fontEmbedCSS: fontCSS, cacheBust: false, filter, style: { background: 'transparent', backgroundColor: 'transparent' } }));
-    await pptx.writeFile({ fileName: `BPPS2026 - ${safe}.pptx` });
+    await native.buildNativePptx(
+      pptx, wraps, onProgress,
+      (page, filter) => toPng(page, { pixelRatio: pr, fontEmbedCSS: fontCSS, cacheBust: false, filter, style: { background: 'transparent', backgroundColor: 'transparent' } }),
+      // Tema Biru Navy & Emas: lapisan reka bentuk halaman (JPEG ~220 dpi)
+      (wrap) => toJpeg(wrap, { quality: 0.92, pixelRatio: pr, backgroundColor: '#F5F8FD', fontEmbedCSS: fontCSS, cacheBust: false }),
+    );
+    await pptx.writeFile({ fileName: `BPPS${year} - ${safe}.pptx` });
     return;
   }
 
@@ -47,5 +51,5 @@ export async function exportPagesToPptx(wraps: HTMLElement[], label: string, onP
     if (text) slide.addNotes(text.slice(0, 20000));
     onProgress(i + 1, wraps.length);
   }
-  await pptx.writeFile({ fileName: `BPPS2026 - ${safe} (gambar).pptx` });
+  await pptx.writeFile({ fileName: `BPPS${year} - ${safe} (gambar).pptx` });
 }

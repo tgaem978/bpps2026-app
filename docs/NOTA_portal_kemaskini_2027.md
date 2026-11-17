@@ -80,3 +80,10 @@ Dalam mod portal, stor pelayar disimpan dalam memori sahaja - membuka portal dal
 - **Tipografi**: fon paparan Barlow Condensed (kulit, pembahagi, nombor), isi Roboto Condensed dengan jarak baris 1.28; tajuk = reben emas + garisan emas; subtajuk berpalang emas; nombor bahagian pada setiap kepala halaman.
 - **Kulit & pembahagi** mengikut PDF rujukan (BUKU / PENGURUSAN SEKOLAH, pil SESI AKADEMIK, tab 01–09, jalur kaki navy-emas).
 - Nilai lalai Master kini bergantung pada tema (`masterDefaults(type, theme)`); tetapan Master pengguna masih mengatasinya. Tema klasik 2026 tidak berubah.
+
+## 8. Eksport PowerPoint mengikut tema Biru Navy & Emas
+- Mod **Boleh disunting** (`src/lib/pptxNative.ts`, `addBeSlide`): setiap slaid = **lapisan reka bentuk** (imej halaman tepat seperti pratonton - kepala/kaki, reben, kad Visi/Misi, latar jadual, carta, foto, ikon; teks kandungan dilutsinarkan semasa ditangkap) + **teks & jadual PowerPoint boleh disunting** di atasnya pada kedudukan sebenar.
+- Kulit & pembahagi = imej penuh (reka bentuk grafik); semua teks halaman disalin ke **nota penceramah**.
+- Fon web dipetakan ke fon Office (Roboto/Barlow Condensed → Arial Narrow, Montserrat → Arial); saiz teks 4% lebih kecil dan kotak teks dilebarkan hingga tepi bekas supaya tiada balutan baris yang tidak dijangka.
+- Pembetulan: nama Slide Master / objek yang mengandungi "&" kini selamat (sebelum ini PowerPoint meminta "repair" fail).
+- Nama fail & tajuk pembentangan mengikut tahun edisi (`BPPS2027 - …pptx`). Tema klasik 2026 menggunakan penukar asal (tidak berubah).

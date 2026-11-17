@@ -697,3 +697,9 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
 :root[data-book-theme="biru-emas"] .bp-v-cal { padding-bottom: calc(var(--mm) * 2.4); }
 /* Halaman yang hanya mengandungi satu carta: carta dipusatkan menegak dalam bingkai (ruang atas = ruang bawah). */
 :root[data-book-theme="biru-emas"] .bp-flow:has(> .bp-block:only-child .bp-oc) { justify-content: center; }
+
+/* Eksport PowerPoint (tema Biru Navy & Emas): semasa lapisan reka bentuk ditangkap, teks kandungan dilutsinarkan -
+   teks itu ditambah semula sebagai kotak teks / jadual PowerPoint yang boleh disunting. Penanda senarai kekal dalam imej. */
+.bp-ppt-layer .bp-frame, .bp-ppt-layer .bp-frame * { color: transparent !important; text-shadow: none !important; -webkit-text-stroke: 0 !important; }
+.bp-ppt-layer .bp-frame li::marker { color: transparent !important; }
+.bp-ppt-layer .bp-frame .bp-list.list-disc > li::before { color: var(--be-gold-2) !important; }

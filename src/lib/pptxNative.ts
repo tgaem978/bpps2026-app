@@ -26,6 +26,11 @@ function color(css: string): { hex: string; alpha: number } | null {
 }
 const transparency = (alpha: number) => Math.round((1 - alpha) * 100);
 const firstFont = (family: string) => family.split(',')[0].replace(/["']/g, '').trim() || 'Arial';
+/** Fon web tema → fon yang tersedia dalam Microsoft Office (supaya lebar teks hampir sama pada semua komputer). */
+const OFFICE_FONT: Record<string, string> = { 'Roboto Condensed': 'Arial Narrow', 'Barlow Condensed': 'Arial Narrow', Oswald: 'Arial Narrow', Montserrat: 'Arial', Poppins: 'Arial', Inter: 'Arial' };
+const officeFont = (family: string) => OFFICE_FONT[firstFont(family)] ?? firstFont(family);
+/** Nama objek/master: pptxgenjs tidak meng-escape aksara XML dalam nama (cth. "&" → fail rosak). */
+const safeName = (n: string) => n.replace(/&/g, 'dan').replace(/[<>"]/g, '').slice(0, 120);
 
 /* ---------------------------------------------------------------- gambar */
 const imgCache = new Map<string, Promise<string>>();
@@ -83,7 +88,11 @@ class PageConverter {
   private readonly origin: DOMRect;
   private readonly ops: (() => Promise<void> | void)[] = [];
 
-  constructor(private readonly page: HTMLElement, private readonly slide: Slide, private readonly skip: Set<Element>, private readonly noDecor: Set<Element>) {
+  /**
+   * textOnly (tema Biru Navy & Emas): reka bentuk (latar, kecerunan, reben, kad, garisan, gambar) sudah ada dalam imej latar slaid;
+   * penukar hanya meletakkan teks & jadual (tanpa isian/sempadan) yang boleh disunting di atasnya.
+   */
+  constructor(private readonly page: HTMLElement, private readonly slide: Slide, private readonly skip: Set<Element>, private readonly noDecor: Set<Element>, private readonly textOnly = false) {
     this.origin = innerRect(page);
     this.k = SLIDE_W / this.origin.width;
   }
@@ -98,9 +107,9 @@ class PageConverter {
   }
   pt = (px: number) => px * this.k * 72;
 
-  async run() {
+  async run(root: Element = this.page) {
     this.noDecor.add(this.page); // latar & sempadan halaman (skrin) bukan sebahagian slaid
-    this.walk(this.page);
+    this.walk(root);
     for (const op of this.ops) await op();
   }
 
@@ -117,6 +126,13 @@ class PageConverter {
     const cs = getComputedStyle(el);
     if (!this.visible(el, cs)) return;
     const tag = el.tagName.toLowerCase();
+    if (this.textOnly) {
+      if (tag === 'img' || tag === 'svg') return;
+      if (tag === 'table') return this.table(el as HTMLTableElement);
+      if (this.isTextLeaf(el)) this.text(el as HTMLElement, cs);
+      for (const c of Array.from(el.children)) if (!isInline(c)) this.walk(c);
+      return;
+    }
     if (tag === 'img') return this.image(el as HTMLImageElement, cs);
     if (tag === 'svg') return this.svg(el as SVGElement);
     if (tag === 'table') {
@@ -207,12 +223,12 @@ class PageConverter {
         if (s.fontStyle === 'italic') opts.italic = true;
         const c = color(s.color);
         if (c && s !== cs) opts.color = c.hex;
-        if (s !== cs && s.fontSize !== cs.fontSize) opts.fontSize = this.pt(parseFloat(s.fontSize));
+        if (s !== cs && s.fontSize !== cs.fontSize) opts.fontSize = +(this.pt(parseFloat(s.fontSize)) * (this.textOnly ? 0.96 : 1)).toFixed(1);
         if (i < lines.length - 1) opts.breakLine = true;
         out.push({ text: line, options: opts });
       });
     };
-    const before = getComputedStyle(el, '::before').content;
+    const before = this.textOnly ? 'none' : getComputedStyle(el, '::before').content;
     if (before && before !== 'none' && before !== 'normal' && /^["']/.test(before)) push(before.slice(1, -1) + ' ', cs);
     const visit = (node: Node, s: CSSStyleDeclaration) => {
       node.childNodes.forEach((n) => {
@@ -235,14 +251,15 @@ class PageConverter {
     const align = cs.textAlign === 'center' ? 'center' : cs.textAlign === 'right' || cs.textAlign === 'end' ? 'right' : cs.textAlign === 'justify' ? 'justify' : 'left';
     const ls = parseFloat(cs.letterSpacing);
     return {
-      fontFace: firstFont(cs.fontFamily),
-      fontSize: Math.max(4, +this.pt(fs).toFixed(1)),
+      fontFace: this.textOnly ? officeFont(cs.fontFamily) : firstFont(cs.fontFamily),
+      // Mod textOnly: 4% lebih kecil sebagai ruang keselamatan bagi perbezaan metrik fon Office vs fon web (teks tidak melimpah kotak/kad).
+      fontSize: Math.max(4, +(this.pt(fs) * (this.textOnly ? 0.96 : 1)).toFixed(1)),
       color: c?.hex ?? '000000',
       bold: parseInt(cs.fontWeight) >= 600,
       italic: cs.fontStyle === 'italic',
       underline: /underline/.test(cs.textDecorationLine) ? { style: 'sng' } : undefined,
       align,
-      lineSpacing: +this.pt(lh).toFixed(1),
+      lineSpacing: +(this.pt(lh) * (this.textOnly ? 0.96 : 1)).toFixed(1),
       charSpacing: ls ? +this.pt(ls).toFixed(2) : undefined,
       margin: 0,
       valign: 'top',
@@ -268,13 +285,43 @@ class PageConverter {
     return { ...b, w: b.w + extra };
   }
 
+  /**
+   * Mod textOnly: kotak teks lutsinar, jadi ia boleh dilebarkan hingga ke tepi bekas induknya tanpa kesan visual -
+   * mengelak teks berbalut apabila fon Office lebih lebar sedikit daripada fon web.
+   */
+  private roomy(el: HTMLElement, b: Box, align: unknown): Box {
+    const par = el.parentElement;
+    if (!par || par === this.page) return b;
+    const pcs = getComputedStyle(par);
+    const pb = this.contentBox(par, pcs);
+    if (pb.w <= b.w) return b;
+    if (align === 'center') {
+      const c = b.x + b.w / 2;
+      const half = Math.min(c - pb.x, pb.x + pb.w - c);
+      return half * 2 > b.w ? { ...b, x: c - half, w: half * 2 } : b;
+    }
+    if (align === 'right') return { ...b, x: pb.x, w: b.x + b.w - pb.x };
+    if (align === 'justify') return b;
+    // rata kiri: hingga tepi kanan induk, tetapi tidak melepasi elemen adik-beradik di sebelah kanan
+    let right = pb.x + pb.w;
+    for (const sib of Array.from(par.children)) {
+      if (sib === el) continue;
+      const sb = this.box(sib.getBoundingClientRect());
+      if (sb.x >= b.x + b.w - 0.01 && sb.y < b.y + b.h && sb.y + sb.h > b.y) right = Math.min(right, sb.x);
+    }
+    return right > b.x + b.w ? { ...b, w: right - b.x } : b;
+  }
+
   private text(el: HTMLElement, cs: CSSStyleDeclaration) {
     const runs = this.runs(el, cs);
     if (!runs.some((r) => r.text.trim())) return;
     const o = this.textOpts(cs);
     let b = this.contentBox(el, cs);
     if (cs.display.includes('flex') && cs.alignItems === 'center') o.valign = 'middle';
-    if (el.tagName === 'LI') {
+    if (this.textOnly && el.parentElement && getComputedStyle(el.parentElement).alignItems === 'center' && getComputedStyle(el.parentElement).display.includes('flex')) o.valign = 'middle';
+    if (el.tagName === 'LI' && this.textOnly && el.parentElement?.tagName !== 'OL') {
+      // senarai bertitik: penanda (berlian / ✓) sudah dalam imej latar - teks bermula pada kotak kandungan item
+    } else if (el.tagName === 'LI') {
       // penanda senarai: guna bulet/nombor PowerPoint di dalam ruang lekukan
       const list = el.parentElement!;
       const lb = list.getBoundingClientRect();
@@ -284,6 +331,7 @@ class PageConverter {
       b = { ...b, x: lb.left * this.k - this.origin.left * this.k, w: b.w + indentPx * this.k };
       runs[0].options.bullet = ordered ? { type: 'number', numberStartAt: index, indent: this.pt(indentPx) } : { indent: this.pt(indentPx) };
     }
+    if (this.textOnly && el.tagName !== 'LI') b = this.roomy(el, b, o.align);
     this.slide.addText(runs as never, { ...this.slack(b, o.align), ...o, objectName: (typeof el.className === 'string' && el.className.split(' ')[0]) || el.tagName } as never);
   }
 
@@ -328,12 +376,12 @@ class PageConverter {
           const fw = iw * f; const fh = ih * f;
           const fb = { x: b.x + (b.w - fw) / 2, y: b.y + (b.h - fh) / 2, w: fw, h: fh };
           const data = await raster(src, Math.min(iw, r.width * scale), Math.min(iw, r.width * scale) * ih / iw, false, jpeg);
-          this.slide.addImage({ data, ...fb, objectName: el.alt || 'Gambar' } as never);
+          this.slide.addImage({ data, ...fb, objectName: safeName(el.alt || 'Gambar') } as never);
           return;
         }
         let data = await raster(src, r.width * scale, r.height * scale, cover, jpeg, circle, top);
         if (clipped) data = await cropData(data, (L - r.left) / r.width, (T - r.top) / r.height, (R - L) / r.width, (B - T) / r.height, jpeg);
-        this.slide.addImage({ data, ...b, objectName: el.alt || 'Gambar' } as never);
+        this.slide.addImage({ data, ...b, objectName: safeName(el.alt || 'Gambar') } as never);
       } catch (e) { console.warn(e); }
     });
   }
@@ -362,9 +410,10 @@ class PageConverter {
         const c = color(cs.getPropertyValue(`border-${s}-color`));
         return w > 0 && c ? { type: 'solid', pt: +this.pt(w).toFixed(2), color: c.hex } : { type: 'none' };
       };
-      const fill = color(cs.backgroundColor);
+      const fill = this.textOnly ? null : color(cs.backgroundColor);
       const o = this.textOpts(cs);
       const runs = this.cellRuns(td, cs);
+      const none = { type: 'none' };
       return {
         text: runs.length ? runs : '',
         options: {
@@ -372,7 +421,7 @@ class PageConverter {
           lineSpacing: undefined,
           valign: cs.verticalAlign === 'top' ? 'top' : cs.verticalAlign === 'bottom' ? 'bottom' : 'middle',
           fill: fill ? { color: fill.hex } : undefined,
-          border: [side('top'), side('right'), side('bottom'), side('left')],
+          border: this.textOnly ? [none, none, none, none] : [side('top'), side('right'), side('bottom'), side('left')],
           margin: [n(cs.paddingTop), n(cs.paddingRight), n(cs.paddingBottom), n(cs.paddingLeft)].map((v) => +(v * this.k).toFixed(3)),
           colspan: td.colSpan > 1 ? td.colSpan : undefined,
           rowspan: td.rowSpan > 1 ? td.rowSpan : undefined,
@@ -516,11 +565,44 @@ const CHROME_HIDE_SEL = '.bp-frame, .bp-header-img, .bp-footer-img, .bp-bg-img, 
 export type ChromeRender = (page: HTMLElement, filter: (node: Node) => boolean) => Promise<string>;
 
 /** Eksport halaman sebagai slaid PowerPoint yang boleh disunting. */
-export async function buildNativePptx(pptx: Pptx, wraps: HTMLElement[], onProgress: (done: number, total: number) => void, renderChrome?: ChromeRender) {
+/** Perenderkan seluruh halaman (dengan kelas sementara pada halaman) ke imej - lapisan reka bentuk tema Biru Navy & Emas. */
+export type LayerRender = (wrap: HTMLElement) => Promise<string>;
+
+const isBeTheme = (page: HTMLElement) => page.classList.contains('be-page') || page.classList.contains('be-divider') || page.classList.contains('be-cover');
+
+/**
+ * Slaid tema Biru Navy & Emas: imej latar = reka bentuk halaman tepat seperti pratonton (teks kandungan dilutsinarkan),
+ * kemudian teks & jadual kandungan sebagai objek PowerPoint boleh disunting di atasnya. Kulit & pembahagi = imej penuh
+ * (reka bentuk grafik), teksnya dalam nota penceramah.
+ */
+async function addBeSlide(pptx: Pptx, wrap: HTMLElement, page: HTMLElement, renderLayer: LayerRender, masters: Map<string, string>) {
+  if (!masters.has('be')) {
+    pptx.defineSlideMaster({ title: 'BPPS Biru Navy dan Emas', background: { color: 'F5F8FD' }, objects: [] } as never);
+    masters.set('be', 'BPPS Biru Navy dan Emas');
+  }
+  const slide = pptx.addSlide({ masterName: 'BPPS Biru Navy dan Emas' });
+  const content = page.classList.contains('be-page');
+  if (content) page.classList.add('bp-ppt-layer');
+  let data: string;
+  try { data = await renderLayer(wrap); } finally { page.classList.remove('bp-ppt-layer'); }
+  const title = page.querySelector<HTMLElement>('.be-title')?.innerText.replace(/\s+/g, ' ').trim();
+  slide.addImage({ data, x: 0, y: 0, w: SLIDE_W, h: SLIDE_H, objectName: safeName(title ? `Reka bentuk: ${title}` : 'Reka bentuk halaman') } as never);
+  const frame = page.querySelector<HTMLElement>(':scope > .bp-frame');
+  if (content && frame) await new PageConverter(page, slide, new Set(), new Set([frame]), true).run(frame);
+  const text = page.innerText.replace(/\n{3,}/g, '\n\n').trim();
+  if (text) slide.addNotes(text.slice(0, 20000));
+}
+
+export async function buildNativePptx(pptx: Pptx, wraps: HTMLElement[], onProgress: (done: number, total: number) => void, renderChrome?: ChromeRender, renderLayer?: LayerRender) {
   const masters = new Map<string, string>();
   for (let i = 0; i < wraps.length; i++) {
     const page = wraps[i].querySelector<HTMLElement>('.book-page');
     if (!page) continue;
+    if (renderLayer && isBeTheme(page)) {
+      await addBeSlide(pptx, wraps[i], page, renderLayer, masters);
+      onProgress(i + 1, wraps.length);
+      continue;
+    }
     const m = await ensureMaster(pptx, page, masters);
     const slide = pptx.addSlide({ masterName: m.name });
     const title = page.querySelector<HTMLElement>('.bp-title');
@@ -538,7 +620,7 @@ export async function buildNativePptx(pptx: Pptx, wraps: HTMLElement[], onProgre
         finally { page.style.background = prevBg; page.style.boxShadow = prevSh; page.style.border = prevBd; }
         const hdr = await cropData(full, 0, 0, 1, 0.07, false);
         const ftr = await cropData(full, 0, 0.96, 1, 0.04, false);
-        slide.addImage({ data: hdr, x: 0, y: 0, w: SLIDE_W, h: SLIDE_H * 0.07, objectName: 'Tajuk & lencana (imej)' } as never);
+        slide.addImage({ data: hdr, x: 0, y: 0, w: SLIDE_W, h: SLIDE_H * 0.07, objectName: 'Tajuk dan lencana (imej)' } as never);
         slide.addImage({ data: ftr, x: 0, y: SLIDE_H * 0.96, w: SLIDE_W, h: SLIDE_H * 0.04, objectName: 'Teks kaki & nombor halaman (imej)' } as never);
         page.querySelectorAll(CHROME_SEL).forEach((e) => skip.add(e));
         chromeDone = true;
