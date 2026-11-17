@@ -49,6 +49,6 @@ export const partLampiranSections = (): Record<string, SectionContent> => ({
   ]),
   'lamp-c': sec('BUKU REKOD PERGERAKAN GURU KELUAR KAWASAN SEKOLAH', [
     p('Guru yang perlu keluar dari kawasan sekolah semasa waktu persekolahan hendaklah merekodkan pergerakan dan mendapatkan kebenaran pentadbir terlebih dahulu.'),
-    log(['TARIKH', 'NAMA GURU', 'MASA KELUAR', 'MASA MASUK', 'TUJUAN', 'TANDATANGAN', 'PENGESAHAN PENTADBIR'], 14, [12, 22, 10, 10, 18, 13, 15]),
+    log(['TARIKH', 'NAMA GURU', 'MASA KELUAR', 'MASA MASUK', 'TUJUAN', 'TANDA TANGAN', 'PENGESAHAN PENTADBIR'], 14, [12, 22, 10, 10, 18, 13, 15]),
   ]),
 });

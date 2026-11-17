@@ -10,6 +10,7 @@ import { useStaffStore } from '@/stores/staffStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { useUiStore } from '@/stores/uiStore';
 import type { BookCtx } from '@/lib/resolve';
+import { blockVariants } from '@/lib/variants';
 
 /**
  * Penomboran halaman automatik. Setiap blok diukur dalam bekas tersembunyi yang
@@ -17,12 +18,14 @@ import type { BookCtx } from '@/lib/resolve';
  * Semua saiz menggunakan unit halaman (cqw), jadi nisbah sama pada skrin dan cetakan.
  */
 
-export interface Segment { blockId: string; from: number; to: number; density?: number }
+/** h = tinggi semula jadi segmen (px pada skala pengukur, termasuk overhead); grow = tinggi sasaran (mm halaman) bila diregang. */
+export interface Segment { blockId: string; from: number; to: number; density?: number; h?: number; grow?: number }
+export type FillerKind = 'notes' | 'art';
 export type PagePlan =
   | { kind: 'cover'; key: string; number: null }
-  | { kind: 'toc'; key: string; number: number; block: TocRowsBlock; from: number; to: number }
+  | { kind: 'toc'; key: string; number: number; block: TocRowsBlock; from: number; to: number; filler?: FillerKind }
   | { kind: 'divider'; key: string; number: number; partId: string }
-  | { kind: 'content'; key: string; number: number; sectionId: string; layout: SectionLayout; columns: Segment[][]; part: number; parts: number };
+  | { kind: 'content'; key: string; number: number; sectionId: string; layout: SectionLayout; columns: Segment[][]; part: number; parts: number; zoom?: number; filler?: FillerKind };
 
 /** keep[i] = unit i mesti bersama unit seterusnya (tajuk, subtajuk, label kumpulan). */
 interface Measured { overhead: number; units: number[]; keep: boolean[] }
@@ -68,14 +71,17 @@ function getHost(pt: PageType, widthMm: number): HTMLDivElement {
   return host;
 }
 
-function measure(block: AnyBlock, ctx: BookCtx, pt: PageType, widthMm: number, sig: string, density = 0): Measured {
-  const ckey = `${pt}|${widthMm.toFixed(2)}|${sig}|d${density}`;
+function measure(block: AnyBlock, ctx: BookCtx, pt: PageType, widthMm: number, sig: string, density = 0, zoom = 1, variant = ''): Measured {
+  const ckey = `${pt}|${widthMm.toFixed(2)}|${sig}|d${density}|z${zoom}|v${variant}`;
   let cache = caches.get(ckey);
   if (!cache) caches.set(ckey, (cache = new WeakMap()));
   const hit = cache.get(block);
   if (hit) return hit;
   const h = getHost(pt, widthMm);
-  h.innerHTML = renderToStaticMarkup(createElement(BlockView, { block, ctx, density }));
+  // Zum kandungan: sama seperti .bp-flow.bp-z pada halaman sebenar (lebar kekal, semua saiz didarab --z).
+  h.classList.toggle('bp-z', zoom !== 1);
+  if (zoom !== 1) h.style.setProperty('--z', String(zoom)); else h.style.removeProperty('--z');
+  h.innerHTML = renderToStaticMarkup(createElement(BlockView, { block, ctx, density, variant }));
   const root = h.firstElementChild as HTMLElement | null;
   const els = Array.from(h.querySelectorAll<HTMLElement>('.u'));
   const units = els.map((el) => el.getBoundingClientRect().height);
@@ -87,7 +93,7 @@ function measure(block: AnyBlock, ctx: BookCtx, pt: PageType, widthMm: number, s
   return m;
 }
 
-interface PaginateOpts { pt: PageType; widthMm: number; heightMm: number; columns: number; sig: string }
+interface PaginateOpts { pt: PageType; widthMm: number; heightMm: number; columns: number; sig: string; zoom?: number }
 
 /** Pecahkan blok kepada halaman; setiap halaman mempunyai 1 atau 2 lajur segmen. */
 export function paginate(blocks: AnyBlock[], ctx: BookCtx, o: PaginateOpts): Segment[][][] {
@@ -105,8 +111,8 @@ export function paginate(blocks: AnyBlock[], ctx: BookCtx, o: PaginateOpts): Seg
     const only = slot.length === 1 && last.to - last.from === 1;
     let carry: Segment | null = null;
     if (lastKeep && last && !only) {
-      carry = { blockId: last.blockId, from: last.to - 1, to: last.to, density: last.density };
-      if (last.to - last.from > 1) last.to -= 1;
+      carry = { blockId: last.blockId, from: last.to - 1, to: last.to, density: last.density, h: lastKeep.overhead + lastKeep.h };
+      if (last.to - last.from > 1) { last.to -= 1; last.h = (last.h ?? 0) - lastKeep.h; }
       else slot.pop();
     }
     slot = [];
@@ -119,8 +125,12 @@ export function paginate(blocks: AnyBlock[], ctx: BookCtx, o: PaginateOpts): Seg
   };
   const total = (m: Measured) => m.overhead + m.units.reduce((a, b) => a + b, 0);
 
-  for (const block of blocks) {
-    let m = measure(block, ctx, o.pt, colW, o.sig);
+  const zoom = o.zoom ?? 1;
+  const variants = blockVariants(blocks);
+  const ms = (block: AnyBlock, d: number, v: string) => measure(block, ctx, o.pt, colW, o.sig, d, zoom, v);
+  for (const [bi, block] of blocks.entries()) {
+    const variant = variants[bi];
+    let m = ms(block, 0, variant);
     let density = 0;
     const onePageChart = block.type === 'orgtree' || (block.type === 'committee' && block.display === 'chart' && !!block.onePage);
     if (block.type === 'table' || block.type === 'takwim' || onePageChart) {
@@ -129,24 +139,24 @@ export function paginate(blocks: AnyBlock[], ctx: BookCtx, o: PaginateOpts): Seg
       const levels = onePageChart ? [1, 2, 3] : [1, 2];
       if (total(m) > available) {
         for (const d of levels) {
-          const md = measure(block, ctx, o.pt, colW, o.sig, d);
+          const md = ms(block, d, variant);
           density = d;
           m = md;
           if (total(md) <= available) break;
         }
-        if (!onePageChart && total(m) > available) { m = measure(block, ctx, o.pt, colW, o.sig, 0); density = 0; }
+        if (!onePageChart && total(m) > available) { m = ms(block, 0, variant); density = 0; }
       }
       const slot = slots[slots.length - 1];
       if (total(m) <= available && used + total(m) > available && slot.length > 0) {
         // Cuba padatkan supaya muat dalam baki ruang (kurang ruang kosong); jika tidak, mula halaman baharu.
         const room = available - used;
-        const fit = levels.filter((d) => d > density).map((d) => ({ d, md: measure(block, ctx, o.pt, colW, o.sig, d) })).find((x) => total(x.md) <= room);
+        const fit = levels.filter((d) => d > density).map((d) => ({ d, md: ms(block, d, variant) })).find((x) => total(x.md) <= room);
         if (fit) { m = fit.md; density = fit.d; } else newSlot();
       }
       if (onePageChart) {
         // Seluruh carta = satu segmen pada satu halaman (tidak dipecah).
         if (used + total(m) > available && slots[slots.length - 1].length > 0) newSlot();
-        slots[slots.length - 1].push({ blockId: block.id, from: 0, to: m.units.length, density: density || undefined });
+        slots[slots.length - 1].push({ blockId: block.id, from: 0, to: m.units.length, density: density || undefined, h: total(m) });
         used += total(m);
         lastKeep = null;
         continue;
@@ -164,8 +174,8 @@ export function paginate(blocks: AnyBlock[], ctx: BookCtx, o: PaginateOpts): Seg
         last = slot[slot.length - 1];
         extra = last?.blockId === block.id ? 0 : m.overhead;
       }
-      if (last?.blockId === block.id && last.to === i) last.to = i + 1;
-      else slot.push({ blockId: block.id, from: i, to: i + 1, density: density || undefined });
+      if (last?.blockId === block.id && last.to === i) { last.to = i + 1; last.h = (last.h ?? 0) + h; }
+      else slot.push({ blockId: block.id, from: i, to: i + 1, density: density || undefined, h: extra + h });
       used += extra + h;
       lastKeep = m.keep[i] ? { h, overhead: m.overhead } : null;
     });
@@ -177,6 +187,50 @@ export function paginate(blocks: AnyBlock[], ctx: BookCtx, o: PaginateOpts): Seg
     pages.push(cols);
   }
   return pages.length ? pages : [Array.from({ length: o.columns }, () => [])];
+}
+
+/* ------------------------------------------------------------------ Auto-imbang halaman (tema Biru Navy & Emas)
+ * 1. Bahagian satu halaman yang jarang: kandungan dibesarkan (zum) setakat yang masih muat satu halaman.
+ * 2. Baki ruang diagih kepada blok yang boleh diregang (baris jadual, kad maklumat, senarai) hingga had yang selesa.
+ * 3. Jika masih banyak ruang, panel "Catatan" bergaris mengisi baki halaman. */
+const ZOOMS = [1.06, 1.12, 1.18, 1.24, 1.3, 1.4, 1.5, 1.6, 1.75];
+const FILLER_MIN_MM = 34;
+const usedPx = (segs: Segment[]) => segs.reduce((a, s) => a + (s.h ?? 0), 0);
+const CHARTS = new Set(['orgchart', 'orgtree']);
+const isChart = (b: AnyBlock) => CHARTS.has(b.type) || (b.type === 'committee' && b.display === 'chart');
+function zoomCap(blocks: AnyBlock[]): number {
+  if (blocks.length && blocks.every(isChart)) return 1.75;
+  if (blocks.some((b) => b.type === 'table' || b.type === 'takwim' || b.type === 'stafflist' || isChart(b))) return 1.18;
+  return 1.3;
+}
+/** Had regangan (mm) bagi satu segmen: setiap baris/kad boleh bertambah tinggi hingga had yang masih kemas. */
+function growCapMm(b: AnyBlock | undefined, s: Segment): number {
+  if (!b) return 0;
+  const n = s.to - s.from;
+  switch (b.type) {
+    case 'table': return n * 6;
+    case 'takwim': case 'stafflist': return n * 4;
+    case 'keyvalue': return n * 6;
+    case 'committee': return b.display === 'chart' ? 0 : n * 4;
+    case 'list': return n * 2.2;
+    case 'paragraph': return Math.max(0, n - 1) * 2.5;
+    case 'image': return ((s.h ?? 0) / pxPerMm) * 0.6;
+    default: return 0;
+  }
+}
+function balancePage(segs: Segment[], byId: Map<string, AnyBlock>, availablePx: number, stretch: boolean): FillerKind | undefined {
+  let slack = (availablePx - usedPx(segs)) / pxPerMm;
+  if (slack < 8) return undefined;
+  if (stretch) {
+    const caps = segs.map((s) => growCapMm(byId.get(s.blockId), s));
+    const cap = caps.reduce((a, b) => a + b, 0);
+    const give = Math.min(slack - 2, cap);
+    if (give > 1 && cap > 0) {
+      segs.forEach((s, i) => { if (caps[i] > 0) s.grow = (s.h ?? 0) / pxPerMm + (give * caps[i]) / cap; });
+      slack -= give;
+    }
+  }
+  return slack >= FILLER_MIN_MM ? 'notes' : undefined;
 }
 
 let fontsVersion = 0;
@@ -233,6 +287,7 @@ export function useBookPlan(): PagePlan[] {
     void version;
     applyMasterCss((t) => resolveMaster(t, overrides));
     applyTheme(ctx.profile.theme);
+    const balance = ctx.profile.theme === 'biru-emas';
     const sigOf = (pt: PageType) => `${JSON.stringify(overrides[pt] ?? {})}|${rev}|${JSON.stringify(ctx.profile)}|${fontsVersion}`;
     const optsOf = (pt: PageType, columns = 1): PaginateOpts => {
       const m = resolveMaster(pt, overrides);
@@ -255,12 +310,27 @@ export function useBookPlan(): PagePlan[] {
       const layout = sec.layout ?? 'standard';
       const first = sec.blocks[0];
       const fullImg = first && first.type === 'image' && (first.fullPage || first.frameFill) ? first : null;
-      const pages: Segment[][][] = fullImg
-        ? [[[{ blockId: fullImg.id, from: 0, to: 1 }]]]
-        : paginate(sec.blocks, ctx, optsOf(layout, layout === 'twocol' ? 2 : 1));
-      pages.forEach((columns, part) =>
-        body.push({ kind: 'content', key: `${id}-${part}`, sectionId: id, layout, columns, part, parts: pages.length }),
-      );
+      const cols = layout === 'twocol' ? 2 : 1;
+      const o = optsOf(layout, cols);
+      let pages: Segment[][][] = fullImg ? [[[{ blockId: fullImg.id, from: 0, to: 1 }]]] : paginate(sec.blocks, ctx, o);
+      let zoom = 1;
+      const canBalance = balance && !fullImg && cols === 1 && layout !== 'notes';
+      const available = o.heightMm * pxPerMm * SAFETY;
+      if (canBalance && pages.length === 1 && usedPx(pages[0][0]) > 0 && usedPx(pages[0][0]) < available * 0.86) {
+        const cap = zoomCap(sec.blocks);
+        for (const z of ZOOMS) {
+          if (z > cap) break;
+          const p = paginate(sec.blocks, ctx, { ...o, zoom: z });
+          if (p.length !== 1 || p[0][0].some((s) => s.density)) break;
+          pages = p;
+          zoom = z;
+        }
+      }
+      const byId = new Map<string, AnyBlock>(sec.blocks.map((b) => [b.id, b]));
+      pages.forEach((columns, part) => {
+        const filler = canBalance ? balancePage(columns[0], byId, available, true) : undefined;
+        body.push({ kind: 'content', key: `${id}-${part}`, sectionId: id, layout, columns, part, parts: pages.length, ...(zoom !== 1 ? { zoom } : {}), ...(filler ? { filler } : {}) });
+      });
     };
     for (const part of outline) {
       tocRows.push({ level: 0, title: part.title, page: 0, no: outline.indexOf(part) + 1 });
@@ -279,9 +349,11 @@ export function useBookPlan(): PagePlan[] {
     for (const { row, at } of tocIndex) tocRows[row].page = firstBody + at;
 
     const plan: PagePlan[] = [{ kind: 'cover', key: 'cover', number: null }];
+    const tocO = optsOf('toc');
     tocPages.forEach((cols, i) => {
       const seg = cols[0][0];
-      plan.push({ kind: 'toc', key: `toc-${i}`, number: i + 1, block: tocBlock, from: seg?.from ?? 0, to: seg?.to ?? 0 });
+      const spare = (tocO.heightMm * pxPerMm * SAFETY - usedPx(cols[0])) / pxPerMm;
+      plan.push({ kind: 'toc', key: `toc-${i}`, number: i + 1, block: tocBlock, from: seg?.from ?? 0, to: seg?.to ?? 0, ...(balance && spare >= 60 ? { filler: 'art' as const } : {}) });
     });
     body.forEach((p, i) => plan.push({ ...p, number: firstBody + i } as PagePlan));
     return plan;

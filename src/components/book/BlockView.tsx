@@ -4,7 +4,10 @@ import { kvPairs, listItems, paragraphParts, unitCount } from '@/lib/units';
 import { byPosition, chartName, chartRole, committeeChartLines, nameOf, resolveMembers, resolveTokens, staffRows, valueText, type BookCtx } from '@/lib/resolve';
 import { arrangeFocus, isLeader } from '@/lib/orgLayout';
 import { fmtStyle } from '@/lib/format';
-import { PANEL_HEADINGS, kvIcon } from './themeArt';
+import { kvIcon } from './themeArt';
+import { Camera } from 'lucide-react';
+import type { CSSProperties } from 'react';
+import { PANEL_HEADINGS, isCalendarTable, isPlaceholder, placeholderLabel } from '@/lib/variants';
 
 /** Siluet potret elegan bila tiada gambar. */
 export function Avatar({ name }: { name: string }) {
@@ -22,7 +25,9 @@ export function Avatar({ name }: { name: string }) {
 /** Teks dengan **tebal** (format dokumen BPPS). */
 export function Rich({ text }: { text: string }) {
   const parts = text.split(/\*\*(.+?)\*\*/g);
-  return <>{parts.map((p, i) => (i % 2 ? <strong key={i}>{p}</strong> : p))}</>;
+  // "[ JAWATAN ]" (jawatan belum diisi dalam Pangkalan Data Guru) dipaparkan sebagai cip ruang-isi.
+  const ph = (t: string, k: number) => t.split(/\[ ([^\]\n]{2,60}) \]/g).map((x, j) => (j % 2 ? <span key={`${k}-${j}`} className="bp-ph-in">{x}</span> : x));
+  return <>{parts.map((p, i) => (i % 2 ? <strong key={i}>{ph(p, i)}</strong> : ph(p, i)))}</>;
 }
 
 const chunk = <T,>(arr: T[], n: number) => Array.from({ length: Math.ceil(arr.length / n) }, (_, i) => arr.slice(i * n, i * n + n));
@@ -58,7 +63,7 @@ function Card({ role, names, sub, note, leader, photo, who, fit }: { role: strin
       {leader && <div className="bp-oc-photo">{photo ? <img src={photo} alt="" /> : <Avatar name={who ?? names[0] ?? ''} />}</div>}
       <p className="bp-card-role">{chartRole(role)}</p>
       <div className="bp-card-names">
-        {names.length ? names.map((nm, k) => <p key={k} className={`bp-card-name${leader && fit?.one ? ' bp-one' : ''}`} style={leader && fit && fit.scale < 1 ? { fontSize: `calc(var(--oc-name) * ${fit.scale.toFixed(3)})` } : undefined}>{nm}</p>) : <p className="bp-card-name bp-card-empty">—</p>}
+        {names.length ? names.map((nm, k) => isPlaceholder(nm) || !nm ? <p key={k} className="bp-card-name bp-card-empty" aria-label="Belum diisi" /> : <p key={k} className={`bp-card-name${leader && fit?.one ? ' bp-one' : ''}`} style={leader && fit && fit.scale < 1 ? { fontSize: `calc(var(--oc-name) * ${fit.scale.toFixed(3)})` } : undefined}>{nm}</p>) : <p className="bp-card-name bp-card-empty" aria-label="Belum diisi" />}
       </div>
       {sub && <p className="bp-card-sub">{chartRole(sub)}</p>}
       {note && <p className="bp-card-note">{note}</p>}
@@ -182,11 +187,11 @@ function OrgTree({ block, ctx }: { block: OrgTreeBlock; ctx: BookCtx }) {
 }
 
 /** Jawatankuasa sebagai carta bergambar: aras demi aras, maksimum 5 kad sebaris (setiap baris = satu unit). */
-function CommitteeChart({ block, ctx, from, to, density = 0 }: { block: CommitteeBlock; ctx: BookCtx; from: number; to: number; density?: number }) {
+function CommitteeChart({ block, ctx, from, to, density = 0, extra = '' }: { block: CommitteeBlock; ctx: BookCtx; from: number; to: number; density?: number; extra?: string }) {
   const t = (s: string) => resolveTokens(s, ctx);
   const lines = committeeChartLines(block, ctx).slice(from, to);
   return (
-    <div className={`bp-block${density ? ` bp-dense-${density}` : ''}`}>
+    <div className={`bp-block${density ? ` bp-dense-${density}` : ''}${extra}`}>
       {block.title && <h3 className="bp-heading bp-cm-title">{t(block.title)}{from > 0 ? ' (samb.)' : ''}</h3>}
       <div className="bp-oc bp-cmc">
         {lines.map((ln0, li) => {
@@ -267,7 +272,10 @@ export function columnShares(columns: string[], rows: string[][]): number[] {
 /**
  * density: 0 = biasa, 1-2 = jadual dipadatkan (fon & ruang sel lebih kecil) supaya muat satu halaman.
  */
-export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { block: AnyBlock; ctx: BookCtx; from?: number; to?: number; density?: number }) {
+export default function BlockView({ block, ctx, from = 0, to, density = 0, variant = '', grow }: { block: AnyBlock; ctx: BookCtx; from?: number; to?: number; density?: number; variant?: string; grow?: number }) {
+  // x = kelas varian/regangan pada akar blok; gs = tinggi sasaran (mm halaman sebenar, bebas zum) bila blok diregang.
+  const x = `${variant ? ` bp-v-${variant}` : ''}${grow ? ' bp-grow' : ''}${from > 0 ? ' bp-cont' : ''}`;
+  const gs: CSSProperties | undefined = grow ? { minHeight: `calc(100cqw / 210 * ${grow.toFixed(2)})` } : undefined;
   const dense = density ? ` bp-dense-${density}` : '';
   const end = to ?? unitCount(block, ctx);
   const t = (s: string) => resolveTokens(s, ctx);
@@ -277,29 +285,31 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
       const parts = t(block.text).split(/\s+\|\s+/);
       if (parts.length > 1) {
         return (
-          <div className="bp-block">
+          <div className={`bp-block${x}`} style={gs}>
             <div className="bp-heading-split u kn">{parts.map((p, i) => <h3 key={i} className="bp-heading">{p}</h3>)}</div>
           </div>
         );
       }
       // VISI / MISI / OBJEKTIF …: tema Biru-Emas memaparkan tajuk ini sebagai reben emas dan blok seterusnya sebagai kad navy.
       const panel = PANEL_HEADINGS.test(parts[0].trim());
-      return <div className={`bp-block${panel ? ' bp-hp-wrap' : ''}`}><h3 className={`bp-heading u kn${panel ? ' bp-hp' : ''}`} style={fmtStyle({ ...block, bold: undefined })}>{parts[0]}</h3></div>;
+      return <div className={`bp-block bp-h-wrap${panel ? ' bp-hp-wrap' : ''}${block.align === 'center' ? ' bp-h-center' : ''}${x}`}><h3 className={`bp-heading u kn${panel ? ' bp-hp' : ''}`} style={fmtStyle({ ...block, bold: undefined })}>{parts[0]}</h3></div>;
     }
     case 'paragraph': {
       const parts = paragraphParts(block.text).slice(from, end);
       // Baris tebal sahaja (bukan ayat) = subtajuk: rapat dengan kandungan selepasnya dan tidak tertinggal di hujung halaman.
       const sub = parts.map((p) => /^\*\*[^*\n]{1,100}\*\*$/.test(p) && !/[.!?,;:]\*\*$/.test(p));
       return (
-        <div className={`bp-block ${sub[sub.length - 1] ? 'bp-block-tight' : ''}`}>
-          {parts.map((p, i) => <p key={i} className={`bp-para u ${sub[i] ? 'bp-subhead kn' : ''}`} style={fmtStyle(block)}><Rich text={t(p)} /></p>)}
+        <div className={`bp-block bp-para-wrap ${sub[sub.length - 1] ? 'bp-block-tight' : ''}${x}`} style={gs}>
+          {parts.map((p, i) => isPlaceholder(p)
+            ? <div key={i} className={`bp-ph u${/gambar|foto/i.test(p) ? ' bp-ph-photo' : ''}`}>{/gambar|foto/i.test(p) && <Camera strokeWidth={1.4} aria-hidden />}<span>{placeholderLabel(p)}</span></div>
+            : <p key={i} className={`bp-para u ${sub[i] ? 'bp-subhead kn' : ''}`} style={fmtStyle(block)}><Rich text={t(p)} /></p>)}
         </div>
       );
     }
     case 'list': {
       const Tag = block.ordered ? 'ol' : 'ul';
       return (
-        <div className="bp-block bp-list-wrap">
+        <div className={`bp-block bp-list-wrap${x}`} style={gs}>
           <Tag className={`bp-list ${block.ordered ? 'list-decimal' : 'list-disc'}`} start={block.ordered ? from + 1 : undefined} style={fmtStyle(block)}>
             {listItems(block.items).slice(from, end).map((it, i) => <li key={i} className="u"><Rich text={t(it)} /></li>)}
           </Tag>
@@ -313,8 +323,8 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
       const stats = columnStats(block.columns, block.rows);
       const cellClass = (ci: number) => (firstGold && ci === 0 ? 'bp-num' : (ci === 0 && num && block.style !== 'gold') || stats[ci].line > 34 ? 'bp-l' : 'bp-c');
       return (
-        <div className={`bp-block bp-table-wrap${dense}`}>
-          <table className={`bp-table ${block.style === 'gold' ? 'bp-table-gold' : ''}`}>
+        <div className={`bp-block bp-table-wrap${dense}${x}`} style={gs}>
+          <table className={`bp-table ${block.style === 'gold' ? 'bp-table-gold' : ''}${isCalendarTable(block) ? ' bp-cal' : ''}`}>
             <colgroup>
               {num && <col className="bp-num-col" />}
               {(block.colWidths && block.colWidths.length === block.columns.length ? block.colWidths.map((w) => w / 100) : columnShares(block.columns, block.rows)).map((f, i) => <col key={i} style={{ width: `${(f * (num ? 94 : 100)).toFixed(2)}%` }} />)}
@@ -339,12 +349,12 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
     }
     case 'keyvalue':
       return (
-        <div className="bp-block">
+        <div className={`bp-block${x}`} style={gs}>
           <dl className="bp-kv">
             {kvPairs(block.pairs).slice(from, end).map((p, i) => (
               <div key={i} className="u">
                 <dt>{(() => { const Ico = kvIcon(p.key); return <span className="bp-kv-ico" aria-hidden><Ico strokeWidth={1.8} /></span>; })()}<span className="bp-kv-key">{t(p.key)}</span></dt>
-                <dd style={fmtStyle(block)}>{t(p.value) || ' '}</dd>
+                <dd style={fmtStyle(block)} className={t(p.value).trim() ? undefined : 'bp-kv-blank'}>{t(p.value).trim() ? <Rich text={t(p.value)} /> : '\u00a0'}</dd>
               </div>
             ))}
           </dl>
@@ -352,7 +362,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
       );
     case 'image':
       return (
-        <div className="bp-block">
+        <div className={`bp-block${x}`} style={gs}>
           <figure className="bp-figure u">
             <img src={block.src} alt={block.caption || 'Gambar'} style={block.height ? { height: `calc(var(--mm) * ${block.height})` } : undefined} />
             {block.caption && <figcaption>{t(block.caption)}</figcaption>}
@@ -361,7 +371,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
       );
     case 'orgchart':
       return (
-        <div className="bp-block">
+        <div className={`bp-block${x}`} style={gs}>
           <div className="u">
             {block.title && <h3 className="bp-heading">{t(block.title)}</h3>}
             <OrgChart block={block} ctx={ctx} />
@@ -370,7 +380,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
       );
     case 'orgtree':
       return (
-        <div className={`bp-block${dense}`}>
+        <div className={`bp-block${dense}${x}`}>
           <div className="u">
             {block.title && <h3 className="bp-heading">{t(block.title)}</h3>}
             <OrgTree block={block} ctx={ctx} />
@@ -378,10 +388,10 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
         </div>
       );
     case 'committee': {
-      if (block.display === 'chart') return <CommitteeChart block={block} ctx={ctx} from={from} to={end} density={density} />;
+      if (block.display === 'chart') return <CommitteeChart block={block} ctx={ctx} from={from} to={end} density={density} extra={x} />;
       const showPos = block.showPosition !== false;
       return (
-        <div className="bp-block">
+        <div className={`bp-block${x}`} style={gs}>
           {block.title && <h3 className="bp-heading bp-cm-title">{t(block.title)}{from > 0 ? ' (samb.)' : ''}</h3>}
           <div className="bp-cm">
             {block.rows.slice(from, end).map((r) => {
@@ -391,12 +401,12 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
                 <div key={r.id} className="bp-cm-row u">
                   <div className="bp-cm-role">{t(r.role)}</div>
                   <div className="bp-cm-members">
-                    {members.length === 0 && <span className="bp-muted">—</span>}
+                    {members.length === 0 && <span className="bp-cm-blank" aria-label="Belum diisi" />}
                     {members.map((m, i) => {
                       const side = m.note || (showPos ? m.position : '');
                       return (
                         <div key={i} className="bp-cm-m">
-                          <span className="bp-cm-name">{m.name}</span>
+                          {isPlaceholder(m.name) ? <span className="bp-cm-blank" aria-label="Belum diisi" /> : <span className="bp-cm-name">{m.name}</span>}
                           {side && <span className="bp-cm-pos">{side}</span>}
                         </div>
                       );
@@ -420,7 +430,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
       });
       const short = (d: string) => d.replace(/\s+20\d\d$/, '');
       return (
-        <div className={`bp-block bp-table-wrap bp-takwim-wrap${dense}`}>
+        <div className={`bp-block bp-table-wrap bp-takwim-wrap${dense}${x}`} style={gs}>
           <table className="bp-table bp-takwim">
             <colgroup>
               <col style={{ width: '6%' }} /><col style={{ width: '9%' }} /><col style={{ width: '9%' }} />
@@ -450,7 +460,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0 }: { b
       const rows = staffRows(ctx, block);
       const cols = block.columns.map((id) => ctx.fields.find((f) => f.id === id)).filter((f): f is NonNullable<typeof f> => !!f);
       return (
-        <div className="bp-block bp-table-wrap">
+        <div className={`bp-block bp-table-wrap${x}`} style={gs}>
           {block.title && <h3 className="bp-heading">{t(block.title)}</h3>}
           <table className="bp-table bp-staff">
             <colgroup>

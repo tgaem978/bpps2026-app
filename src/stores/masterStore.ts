@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { appStorage } from '@/lib/storage';
+import { useProjectStore } from '@/stores/projectStore';
 import { masterDefaults, type MasterProps, type PageType } from '@/templates/master';
 
 interface MasterState {
@@ -25,12 +26,16 @@ export const useMasterStore = create<MasterState>()(
   ),
 );
 
-export const resolveMaster = (type: PageType, overrides: MasterState['overrides']): MasterProps => ({
-  ...masterDefaults(type),
+/** Tema buku edisi aktif (nilai lalai Master bergantung pada tema). */
+export const currentTheme = () => useProjectStore.getState().profile.theme ?? 'klasik';
+
+export const resolveMaster = (type: PageType, overrides: MasterState['overrides'], theme: string = currentTheme()): MasterProps => ({
+  ...masterDefaults(type, theme),
   ...overrides[type],
 });
 
 export function useMaster(type: PageType): MasterProps {
   const o = useMasterStore((s) => s.overrides[type]);
-  return { ...masterDefaults(type), ...o };
+  const theme = useProjectStore((s) => s.profile.theme ?? 'klasik');
+  return { ...masterDefaults(type, theme), ...o };
 }

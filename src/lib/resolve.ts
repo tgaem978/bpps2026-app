@@ -90,7 +90,8 @@ export function committeeChartLines(b: CommitteeBlock, ctx: BookCtx, perLine = 5
     const nm = (x: string) => chartName(x, b.cleanNames === false);
     if (r.stack && resolved.length) cards = [{ ...resolved[0], name: nm(resolved[0].name), names: resolved.map((m) => nm(m.name)), role: r.role }];
     else cards = resolved.map((m) => ({ ...m, name: nm(m.name), role: r.role }));
-    if (!cards.length) continue;
+    // Peranan tanpa ahli: kad ruang-isi supaya struktur carta lengkap dan jelas apa yang belum diisi.
+    if (!cards.length) cards = [{ name: '', position: '', photo: '', note: '', person: false, role: r.role }];
     const k = tierKey(r.role);
     const cur = tiers[tiers.length - 1];
     if (cur && (cur.key === '#group' || cur.key === k)) cur.cards.push(...cards);

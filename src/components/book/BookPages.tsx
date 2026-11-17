@@ -1,5 +1,5 @@
 import { isMirrored } from '../../config/layout';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { useBookStore } from '@/stores/bookStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { useMaster, useMasterStore, resolveMaster } from '@/stores/masterStore';
@@ -9,6 +9,8 @@ import { BuildingArt, partIcon } from './themeArt';
 import { resolveTokens, type BookCtx } from '@/lib/resolve';
 import { locate } from '@/lib/outline';
 import type { Block } from '@/types/book';
+import { blockVariants } from '@/lib/variants';
+import type { FillerKind } from '@/lib/pagination';
 import BlockView from './BlockView';
 import { fitPt, widthOf } from '@/lib/fit';
 
@@ -56,7 +58,7 @@ export function splitTitle(title: string, font: string): string[] {
 }
 
 /** Templat halaman isi (BPPS 05 dan variasinya): jalur tajuk, bingkai, jalur kaki. */
-type FrameProps = { pt: PageType; title: string; badge?: string; number?: number; children: ReactNode };
+type FrameProps = { pt: PageType; title: string; badge?: string; number?: number; children: ReactNode; zoom?: number; partNo?: number; flow?: boolean };
 export function ContentFrame(props: FrameProps) {
   return useTheme() === 'biru-emas' ? <BeContentFrame {...props} /> : <KlasikContentFrame {...props} />;
 }
@@ -162,16 +164,17 @@ function TocPage({ page }: { page: Extract<PagePlan, { kind: 'toc' }> }) {
   return (
     <ContentFrame pt="toc" title={m.pageTitle || 'ISI KANDUNGAN'} number={page.number}>
       <BlockView block={page.block} ctx={ctx} from={page.from} to={page.to} />
+      {page.filler && <Filler kind={page.filler} />}
     </ContentFrame>
   );
 }
 
-function Segments({ segments, byId, ctx }: { segments: Segment[]; byId: Map<string, Block>; ctx: BookCtx }) {
+function Segments({ segments, byId, ctx, variants }: { segments: Segment[]; byId: Map<string, Block>; ctx: BookCtx; variants?: Map<string, string> }) {
   return (
     <>
       {segments.map((s) => {
         const b = byId.get(s.blockId);
-        return b ? <BlockView key={`${s.blockId}-${s.from}`} block={b} ctx={ctx} from={s.from} to={s.to} density={s.density} /> : null;
+        return b ? <BlockView key={`${s.blockId}-${s.from}`} block={b} ctx={ctx} from={s.from} to={s.to} density={s.density} variant={variants?.get(s.blockId)} grow={s.grow} /> : null;
       })}
     </>
   );
@@ -180,7 +183,9 @@ function Segments({ segments, byId, ctx }: { segments: Segment[]; byId: Map<stri
 function SectionContentPage({ page }: { page: Extract<PagePlan, { kind: 'content' }> }) {
   const sec = useSections()[page.sectionId];
   const outline = useBookStore((s) => s.outline);
-  const partTitle = outline.find((p) => p.id === locate(outline, page.sectionId)?.partId)?.title;
+  const partIdx = outline.findIndex((p) => p.id === locate(outline, page.sectionId)?.partId);
+  const partTitle = outline[partIdx]?.title;
+  const partNo = partIdx >= 0 ? partIdx + 1 : undefined;
   const m = useMaster(page.layout);
   const ctx = useBookCtx();
   if (!sec) return null;
@@ -194,26 +199,41 @@ function SectionContentPage({ page }: { page: Extract<PagePlan, { kind: 'content
   }
   if (lead && lead.type === 'image' && lead.frameFill) {
     return (
-      <ContentFrame pt={page.layout} title={sec.title || m.pageTitle} badge={sec.subtitle || partTitle || undefined} number={page.number}>
+      <ContentFrame pt={page.layout} title={sec.title || m.pageTitle} badge={sec.subtitle || partTitle || undefined} number={page.number} partNo={partNo} flow={false}>
         <img className="bp-fill-img" src={lead.src} alt={sec.title} />
       </ContentFrame>
     );
   }
   const byId = new Map(sec.blocks.map((b) => [b.id, b]));
+  const vs = blockVariants(sec.blocks);
+  const variants = new Map(sec.blocks.map((b, i) => [b.id, vs[i]]));
   const empty = page.columns.every((c) => c.length === 0);
   const title = sec.title || m.pageTitle;
   return (
-    <ContentFrame pt={page.layout} title={title} badge={sec.subtitle || partTitle || undefined} number={page.number}>
+    <ContentFrame pt={page.layout} title={title} badge={sec.subtitle || partTitle || undefined} number={page.number} zoom={page.zoom} partNo={partNo}>
       {page.layout === 'twocol' ? (
         <div className="bp-cols">
-          {page.columns.map((c, i) => <div key={i} className="bp-col"><Segments segments={c} byId={byId} ctx={ctx} /></div>)}
+          {page.columns.map((c, i) => <div key={i} className="bp-col"><Segments segments={c} byId={byId} ctx={ctx} variants={variants} /></div>)}
         </div>
       ) : (
-        <Segments segments={page.columns[0]} byId={byId} ctx={ctx} />
+        <Segments segments={page.columns[0]} byId={byId} ctx={ctx} variants={variants} />
       )}
       {page.layout === 'notes' && page.part === page.parts - 1 && <NotesPanels count={empty ? 5 : 3} />}
-      {empty && page.layout !== 'notes' && <p className="bp-empty">Tiada kandungan.</p>}
+      {empty && page.layout !== 'notes' && !page.filler && <p className="bp-empty">Tiada kandungan.</p>}
+      {page.filler && <Filler kind={page.filler} />}
     </ContentFrame>
+  );
+}
+
+/** Pengisi baki halaman: panel catatan bergaris, atau ilustrasi bangunan (halaman akhir Isi Kandungan). */
+export function Filler({ kind }: { kind: FillerKind }) {
+  if (kind === 'art') return <div className="be-fill be-fill-art" aria-hidden><BuildingArt /></div>;
+  return (
+    <div className="be-fill be-fill-notes">
+      <div className="be-fill-head"><span>CATATAN</span></div>
+      <div className="be-fill-lines" />
+      <BuildingArt className="be-fill-mark" />
+    </div>
   );
 }
 
@@ -231,13 +251,18 @@ export function NotesPanels({ count }: { count: number }) {
   );
 }
 
-export function PageView({ page }: { page: PagePlan }) {
+function PageBody({ page }: { page: PagePlan }) {
   switch (page.kind) {
     case 'cover': return <CoverPage />;
     case 'toc': return <TocPage page={page} />;
     case 'divider': return <DividerPage partId={page.partId} />;
     case 'content': return <SectionContentPage page={page} />;
   }
+}
+
+/** Satu halaman buku. Pembalut `display: contents` membawa kunci halaman (cth. "hx-lokar-0") untuk ujian & carian. */
+export function PageView({ page }: { page: PagePlan }) {
+  return <div className="contents" data-page-key={page.key}><PageBody page={page} /></div>;
 }
 
 /** Halaman-halaman satu tajuk (pratonton dalam editor); partition disertakan untuk tajuk pertama bahagian. */
@@ -298,7 +323,7 @@ function splitPartTitle(title: string) {
   return { pre, main, sub };
 }
 
-function BeContentFrame({ pt, title, badge, number, children }: FrameProps) {
+function BeContentFrame({ pt, title, badge, number, children, zoom, partNo, flow = true }: FrameProps) {
   const m = useMaster(pt);
   const ctx = useBookCtx();
   const footer = useFooterText(m.footerText, ctx);
@@ -316,14 +341,16 @@ function BeContentFrame({ pt, title, badge, number, children }: FrameProps) {
         <path d="M0 16.6 H115 L114 18.5 H0 Z" fill="#C9A13B" />
         <path d="M127 0 H132 L122 18.5 H117 Z" fill="#C9A13B" />
         <path d="M135 0 H137 L127 18.5 H125 Z" fill="#0B2A5B" />
-        <path d="M196 0 H210 V9 L201 18.5 H187 Z" fill="#0B2A5B" opacity=".12" />
       </svg>
+      {partNo !== undefined && <div className="be-partno"><span>{two(partNo)}</span></div>}
       <div className="be-title" style={{ fontSize: `calc(var(--pt) * ${titlePt})` }}>
         {lines.map((ln, i) => <span key={i}>{ln}</span>)}
       </div>
       <div className="be-badge" style={{ fontSize: `calc(var(--pt) * ${badgePt})` }}><span>{badgeText}</span></div>
       <div className="bp-frame">
-        <div className="bp-content">{children}</div>
+        <div className="bp-content">
+          {flow ? <div className={`bp-flow${zoom && zoom !== 1 ? ' bp-z' : ''}`} style={zoom && zoom !== 1 ? ({ '--z': zoom } as CSSProperties) : undefined}>{children}</div> : children}
+        </div>
       </div>
       <svg className="be-foot-art" viewBox="0 0 210 11.33" preserveAspectRatio="none" aria-hidden>
         <rect x="0" y="0.6" width="210" height="10.73" fill="#0B2A5B" />
@@ -346,7 +373,7 @@ function BeDividerPage({ partId }: { partId: string }) {
   if (!part) return null;
   const { pre, main, sub } = splitPartTitle(part.title);
   const Icon = partIcon(part.id);
-  const mainPt = fitPt(main, fonts['Montserrat'], 118, 13, 30, 1, 12, 1, 900);
+  const mainPt = fitPt(main, fonts['Roboto Condensed'], 125, 17, 44, 1, 16, 1, 800);
   const note = resolveTokens(part.note, ctx);
   return (
     <Sheet pt="divider" className="be-divider">
@@ -394,8 +421,8 @@ function BeCoverPage() {
   const tm = title.match(/^(BUKU)\s+(.+)$/);
   const ym = cover.subtitle.match(/^(.*?)\s*((?:19|20)\d{2})\s*$/);
   const motto = cover.motto.split(/\s*[|•·]\s*/).filter(Boolean);
-  const schoolPt = fitPt(schoolMain, fonts['Montserrat'], 168, 14, 26, 1, 12, 1, 900);
-  const titlePt = fitPt(tm ? tm[2] : title, fonts['Montserrat'], 176, 16, 34, 1, 14, 1, 900);
+  const schoolPt = fitPt(schoolMain, fonts['Roboto Condensed'], 178, 20, 50, 1, 16, 1, 800);
+  const titlePt = fitPt(tm ? tm[2] : title, fonts['Roboto Condensed'], 186, 24, 62, 1, 18, 1, 800);
   return (
     <Sheet pt="cover" className="be-cover">
       <BeCorners />

@@ -1,7 +1,7 @@
 /* Grafik asal tema "Biru Navy & Emas" (SVG; dilukis untuk projek ini - garis pelan bangunan sekolah, ikon bahagian & ikon maklumat). */
 import {
   Building2, BookOpen, CalendarDays, FileText, Hash, HeartHandshake, Landmark, Mail, MapPin, Network, Phone, School, Shapes, Trophy,
-  UserRound, UsersRound, Clock, GraduationCap, Layers, Target, Flag, type LucideIcon,
+  UserRound, UsersRound, Clock, GraduationCap, Layers, Target, IdCard, FolderOpen, Award, HeartHandshake as Heart2, Quote, ChevronRight, type LucideIcon,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 
@@ -78,19 +78,24 @@ const KV_ICONS: [RegExp, LucideIcon][] = [
   [/e-?mel|email/i, Mail],
   [/tel|faks|telefon/i, Phone],
   [/alamat|lokasi|koordinat/i, MapPin],
+  [/kad pengenalan|no\. kp/i, IdCard],
+  [/fail/i, FolderOpen],
   [/kod/i, Hash],
-  [/nama sekolah|sekolah/i, Building2],
-  [/guru|staf|akp|pentadbir|penyelaras|ketua|pengerusi/i, UserRound],
-  [/murid|pelajar|bilangan|jumlah|enrolmen/i, UsersRound],
-  [/sesi|waktu|masa|tarikh/i, Clock],
-  [/kurikulum|akademik|ikhtisas|opsyen|gred/i, GraduationCap],
-  [/kelas|bilik|blok/i, Layers],
+  [/tarikh|takwim|kalendar/i, CalendarDays],
+  [/sesi|waktu|masa/i, Clock],
+  [/gred|pangkat|anugerah/i, Award],
+  [/pasangan|waris|penjaga/i, Heart2],
+  [/kurikulum|akademik|ikhtisas|opsyen/i, GraduationCap],
   [/visi|misi|matlamat|objektif|kpi|sasaran/i, Target],
+  [/mot+o|slogan|tema/i, Quote],
   [/ppd|jpn|kementerian|parlimen|dun|jabatan/i, Landmark],
+  [/nama sekolah|^sekolah/i, Building2],
+  [/murid|pelajar|bilangan|jumlah|enrolmen/i, UsersRound],
+  [/kelas|bilik|blok/i, Layers],
+  [/nama|guru|staf|akp|pentadbir|penyelaras|ketua|pengerusi|pembantu/i, UserRound],
 ];
 export function kvIcon(key: string): LucideIcon {
-  return KV_ICONS.find(([re]) => re.test(key))?.[1] ?? Flag;
+  return KV_ICONS.find(([re]) => re.test(key))?.[1] ?? ChevronRight;
 }
 
-/** Tajuk yang dipaparkan sebagai kad navy (gaya Visi / Misi). */
-export const PANEL_HEADINGS = /^(VISI|MISI|MOTO|SLOGAN|OBJEKTIF|MATLAMAT|FALSAFAH|PIAGAM PELANGGAN)\b/i;
+export { PANEL_HEADINGS } from '@/lib/variants';

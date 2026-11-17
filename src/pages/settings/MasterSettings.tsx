@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ImagePlus, RotateCcw, Trash2 } from 'lucide-react';
-import { useMasterStore, resolveMaster } from '@/stores/masterStore';
+import { useMasterStore, resolveMaster, currentTheme } from '@/stores/masterStore';
 import { useUiStore } from '@/stores/uiStore';
 import { fonts, masterDefaults, masterSchema, pageTypes, type MasterKey, type MasterProps, type PageType, type PropDef } from '@/templates/master';
 import { readImageFile, uid } from '@/lib/blocks';
@@ -24,7 +24,7 @@ function PropEditor({ type, def, m }: { type: PageType; def: PropDef; m: MasterP
   const set = useMasterStore((s) => s.set);
   const toast = useUiStore((s) => s.toast);
   const value = m[def.key];
-  const dflt = masterDefaults(type)[def.key];
+  const dflt = masterDefaults(type, currentTheme())[def.key];
   const changed = value !== dflt;
   const put = (v: MasterProps[MasterKey]) => set(type, def.key, v as never);
 

@@ -69,3 +69,14 @@ Dalam mod portal, stor pelayar disimpan dalam memori sahaja - membuka portal dal
 - **Blok**: tajuk = reben emas dengan blok navy; tajuk VISI / MISI / OBJEKTIF / MOTO / SLOGAN / MATLAMAT → reben berpusat + kad navy (gaya Dasar PPKI / Hala Tuju); senarai bertitik = petak ✓; Maklumat (kunci-nilai) = kad dengan ikon navy (gaya Maklumat Sekolah, tanpa corak bunga); Isi Kandungan = bahagian bernombor 01, 02…
 - Geometri bingkai sama dengan tema klasik → penomboran halaman tidak berubah. Fon tambahan: Montserrat italik, Oswald.
 - Had: eksport PPTX *boleh disunting* masih menggunakan imej header/footer klasik; mod PPTX *gambar* dan PDF mengikut tema.
+
+## 7. Kemasan menyeluruh tema Biru Navy & Emas + auto-imbang halaman
+- **Auto-imbang** (`src/lib/pagination.ts`, hanya tema biru-emas):
+  1. tajuk satu halaman yang jarang → kandungan dibesarkan (zum 1.06–1.75×, carta sehingga 1.75×, jadual sehingga 1.18×) selagi masih muat satu halaman;
+  2. baki ruang diagih kepada baris jadual, kad maklumat, senarai jawatankuasa dan senarai (regangan terhad supaya kekal kemas);
+  3. jika masih ≥ 34 mm kosong → panel **CATATAN** bergaris mengisi baki halaman; halaman akhir Isi Kandungan diisi ilustrasi bangunan; halaman carta tunggal dipusatkan menegak.
+- **Varian blok** (`src/lib/variants.ts`): perenggan selepas VISI/MISI/MOTO/SLOGAN → kad navy; senarai/teks panjang selepas OBJEKTIF/MATLAMAT → kad cerah berbingkai emas; Kalendar → 12 bulan padat dalam satu halaman (hujung minggu berwarna emas).
+- **Ruang-isi (placeholder)**: "[ … ]" → kotak/cip bergaris putus; peranan jawatankuasa tanpa nama → garisan titik; kad carta tanpa nama → kad bergaris putus (struktur carta lengkap, jelas apa yang perlu diisi).
+- **Tipografi**: fon paparan Barlow Condensed (kulit, pembahagi, nombor), isi Roboto Condensed dengan jarak baris 1.28; tajuk = reben emas + garisan emas; subtajuk berpalang emas; nombor bahagian pada setiap kepala halaman.
+- **Kulit & pembahagi** mengikut PDF rujukan (BUKU / PENGURUSAN SEKOLAH, pil SESI AKADEMIK, tab 01–09, jalur kaki navy-emas).
+- Nilai lalai Master kini bergantung pada tema (`masterDefaults(type, theme)`); tetapan Master pengguna masih mengatasinya. Tema klasik 2026 tidak berubah.

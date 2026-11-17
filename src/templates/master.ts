@@ -75,15 +75,33 @@ const contentBase: MasterProps = {
   noteSize: 14, noteColor: '#22313B', schoolColor: '#004358', subtitleColor: '#004358', mottoColor: '#004358',
 };
 
-export function masterDefaults(type: PageType): MasterProps {
+/**
+ * Tema "Biru Navy & Emas" (edisi 2027): palet navy/emas yang seragam untuk bingkai, jadual, senarai dan panel;
+ * fon isi ialah fon web (Roboto Condensed) supaya penomboran sama pada semua peranti; jarak baris lebih selesa dibaca.
+ * Nilai ini hanyalah LALAI tema - tetapan Master pengguna masih mengatasinya.
+ */
+const biruEmas: Partial<MasterProps> = {
+  titleColor: '#FFFFFF', badgeBg: '#0B2A5B', badgeColor: '#FFFFFF',
+  frameColor: '#0B2A5B', frameWidth: 0.9, frameBg: '#FFFFFF',
+  bodyFont: 'Roboto Condensed', bodySize: 11, lineHeight: 1.28, textColor: '#141C2B', accentColor: '#C9A13B',
+  headingBg: '#0B2A5B', headingColor: '#0B2A5B', headingAccent: '#C9A13B', headingSize: 11.5,
+  tableHeadBg: '#0B2A5B', tableHeadColor: '#FFFFFF', tableAccent: '#E8C766', rowAlt: '#F3F6FB', tableSize: 10.5,
+  numBg: '#F6EBCB', numColor: '#0B2A5B', tableBorder: '#C9D3E2', panelColor: '#0B2A5B',
+  footerColor: '#FFFFFF', tocPartBg: '#0B2A5B', ruleColor: '#C9D3E2',
+  noteColor: '#0B2A5B', schoolColor: '#0B2A5B', subtitleColor: '#163E7A', mottoColor: '#0B2A5B',
+};
+const themeBase = (theme?: string): MasterProps => (theme === 'biru-emas' ? { ...contentBase, ...biruEmas } : contentBase);
+
+export function masterDefaults(type: PageType, theme?: string): MasterProps {
+  const base = themeBase(theme);
   switch (type) {
-    case 'toc': return { ...contentBase, pageTitle: 'ISI KANDUNGAN' };
-    case 'notes': return { ...contentBase, pageTitle: 'CATATAN' };
-    case 'open': return { ...contentBase, showFrame: false };
+    case 'toc': return { ...base, pageTitle: 'ISI KANDUNGAN' };
+    case 'notes': return { ...base, pageTitle: 'CATATAN' };
+    case 'open': return { ...base, showFrame: false };
     // Partition: Poppins Bold 50pt (dikecilkan automatik supaya muat kotak)
-    case 'divider': return { ...contentBase, bgImage: templateAssets.divider, titleSize: 50, titleColor: '#000000', titleFont: 'Poppins' };
-    case 'cover': return { ...contentBase, bgImage: templateAssets.divider, titleSize: 20, titleColor: '#000000', titleFont: 'Poppins' };
-    default: return { ...contentBase };
+    case 'divider': return { ...base, bgImage: templateAssets.divider, titleSize: 50, titleColor: '#000000', titleFont: 'Poppins' };
+    case 'cover': return { ...base, bgImage: templateAssets.divider, titleSize: 20, titleColor: '#000000', titleFont: 'Poppins' };
+    default: return { ...base };
   }
 }
 
@@ -185,6 +203,10 @@ export function masterCss(type: PageType, m: MasterProps): string {
     '--m-frame-bg': m.showFrame ? m.frameBg : 'transparent',
     '--m-body-font': font(m.bodyFont),
     '--m-body-size': `calc(var(--pt) * ${m.bodySize})`,
+    // Nilai pt tanpa unit: digunakan semula oleh .bp-z (zum kandungan) untuk mengira saiz pada skala baharu.
+    '--m-body-pt': String(m.bodySize),
+    '--m-table-pt': String(m.tableSize),
+    '--m-head-pt': String(m.headingSize),
     '--m-line-height': String(m.lineHeight),
     '--m-text': m.textColor,
     '--m-accent': m.accentColor,
