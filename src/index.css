@@ -703,3 +703,6 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
 .bp-ppt-layer .bp-frame, .bp-ppt-layer .bp-frame * { color: transparent !important; text-shadow: none !important; -webkit-text-stroke: 0 !important; }
 .bp-ppt-layer .bp-frame li::marker { color: transparent !important; }
 .bp-ppt-layer .bp-frame .bp-list.list-disc > li::before { color: var(--be-gold-2) !important; }
+
+/* Takwim: lajur MINGGU sempit - kepala tidak dipecah di tengah perkataan */
+.bp-takwim tr.bp-tk-head th:first-child { font-size: .78em; letter-spacing: 0; padding-left: 0; padding-right: 0; overflow-wrap: normal; }

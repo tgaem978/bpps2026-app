@@ -87,3 +87,10 @@ Dalam mod portal, stor pelayar disimpan dalam memori sahaja - membuka portal dal
 - Fon web dipetakan ke fon Office (Roboto/Barlow Condensed → Arial Narrow, Montserrat → Arial); saiz teks 4% lebih kecil dan kotak teks dilebarkan hingga tepi bekas supaya tiada balutan baris yang tidak dijangka.
 - Pembetulan: nama Slide Master / objek yang mengandungi "&" kini selamat (sebelum ini PowerPoint meminta "repair" fail).
 - Nama fail & tajuk pembentangan mengikut tahun edisi (`BPPS2027 - …pptx`). Tema klasik 2026 menggunakan penukar asal (tidak berubah).
+
+## 9. Eksport PDF (tema Biru Navy & Emas)
+- PDF dijana daripada halaman yang sama dengan pratonton (A4, tanpa margin, warna latar dicetak); disahkan: 286 halaman A4, fon tema (Barlow Condensed, Roboto Condensed, Montserrat) dibenamkan.
+- `printBook` kini menunggu fon dan **semua gambar** (foto pentadbir, logo, carta) selesai dimuat sebelum dialog cetak dibuka (sebelum ini 0.3 saat sahaja - foto boleh hilang dalam PDF buku besar).
+- Nama fail PDF lalai: `BPPS 2027 - SK Bandar Tasik Selatan` (ikut tahun edisi & nama sekolah).
+- Takwim: kepala lajur MINGGU tidak lagi dipecah dua baris.
+- Dalam dialog cetak: pilih *Simpan sebagai PDF*, saiz A4, margin *Tiada*, dan pastikan *Grafik latar* ditandakan jika pilihan itu dipaparkan.

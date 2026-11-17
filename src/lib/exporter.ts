@@ -41,17 +41,45 @@ export async function importJson(file: File): Promise<void> {
   if (data.profile && typeof data.profile === 'object') useProjectStore.getState().updateProfile(data.profile as Partial<SchoolProfile>);
 }
 
-/** Pasang buku penuh dalam #print-root, kemudian buka dialog cetak (Simpan sebagai PDF). */
-export function printBook(): void {
+/** Tunggu semua gambar dalam elemen selesai dimuat (atau gagal), dengan had masa. */
+async function imagesReady(root: HTMLElement, timeoutMs = 20000) {
+  const imgs = Array.from(root.querySelectorAll('img'));
+  const one = (im: HTMLImageElement) => (im.complete && im.naturalWidth > 0 ? Promise.resolve() : (im.decode?.() ?? new Promise<void>((r) => { im.onload = im.onerror = () => r(); })).catch(() => undefined));
+  await Promise.race([Promise.all(imgs.map(one)), new Promise((r) => setTimeout(r, timeoutMs))]);
+}
+
+let printing = false;
+
+/**
+ * Pasang buku penuh dalam #print-root, tunggu fon & SEMUA gambar (foto pentadbir, logo, carta) dimuat, kemudian buka dialog
+ * cetak (Simpan sebagai PDF). Tajuk dokumen ditukar sementara supaya nama fail PDF lalai = "BPPS 2027 - <nama sekolah>".
+ */
+export async function printBook(): Promise<void> {
+  if (printing) return;
+  printing = true;
   const ui = useUiStore.getState();
+  const { year, shortName } = useProjectStore.getState().profile;
+  const prevTitle = document.title;
+  ui.toast('Menyediakan PDF… sila tunggu sehingga dialog cetak dibuka.', 'info');
   ui.setPrinting(true);
   const done = () => {
     useUiStore.getState().setPrinting(false);
+    document.title = prevTitle;
+    printing = false;
     window.removeEventListener('afterprint', done);
   };
   window.addEventListener('afterprint', done);
-  // Tunggu render + imej sebelum mencetak.
-  window.setTimeout(() => window.print(), 300);
+  try {
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    await document.fonts?.ready;
+    const root = document.getElementById('print-root');
+    if (root) await imagesReady(root);
+    document.title = `BPPS ${year} - ${shortName}`;
+    window.print();
+  } catch (e) {
+    console.error(e);
+    done();
+  }
 }
 
 /** Data disimpan automatik ke localStorage; ini mengesahkan simpanan dan merekod masa. */
