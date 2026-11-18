@@ -1,5 +1,5 @@
 import { isMirrored } from '../../config/layout';
-import { useLayoutEffect, useRef, type CSSProperties, type ReactNode } from 'react';
+import { createContext, useContext, useLayoutEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import { useBookStore } from '@/stores/bookStore';
 import { useUiStore } from '@/stores/uiStore';
 import { useProjectStore } from '@/stores/projectStore';
@@ -173,11 +173,15 @@ function TocPage({ page }: { page: Extract<PagePlan, { kind: 'toc' }> }) {
 }
 
 function Segments({ segments, byId, ctx, variants }: { segments: Segment[]; byId: Map<string, Block>; ctx: BookCtx; variants?: Map<string, string> }) {
+  const edit = useContext(PageEditCtx);
   return (
     <>
       {segments.map((s) => {
         const b = byId.get(s.blockId);
-        return b ? <BlockView key={`${s.blockId}-${s.from}`} block={b} ctx={ctx} from={s.from} to={s.to} density={s.density} variant={variants?.get(s.blockId)} grow={s.grow} /> : null;
+        if (!b) return null;
+        const view = <BlockView key={`${s.blockId}-${s.from}`} block={b} ctx={ctx} from={s.from} to={s.to} density={s.density} variant={variants?.get(s.blockId)} grow={s.grow} />;
+        // Mod sunting halaman: pembalut tanpa kotak (display: contents) untuk mengenal pasti blok yang diklik.
+        return edit ? <div key={`${s.blockId}-${s.from}`} className={`contents${edit.selected === b.id ? ' pe-sel' : ''}`} data-bid={b.id}>{view}</div> : view;
       })}
     </>
   );
@@ -264,6 +268,9 @@ function PageBody({ page }: { page: PagePlan }) {
 }
 
 /** Satu halaman buku. Pembalut `display: contents` membawa kunci halaman (cth. "hx-lokar-0") untuk ujian & carian. */
+/** Mod sunting halaman (WYSIWYG): blok yang dipilih ditonjolkan; blok dibalut supaya klik boleh dikenal pasti. */
+export const PageEditCtx = createContext<{ selected: string | null } | null>(null);
+
 /** Halaman borang (diisi dengan tangan selepas dicetak): ruang kosong tidak ditanda "perlu diisi". */
 const FORM_PAGE = /^(lamp-|ma-peribadi|akuan|catatan|t-kalendar)/;
 /** Medan kosong / ruang isian yang perlu diisi (ditanda pada skrin sahaja, tidak dicetak / dieksport). */

@@ -696,7 +696,7 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
 :root[data-book-theme="biru-emas"] .bp-v-cal-head .bp-heading { padding: calc(var(--mm) * .8); }
 :root[data-book-theme="biru-emas"] .bp-v-cal { padding-bottom: calc(var(--mm) * 2.4); }
 /* Halaman yang hanya mengandungi satu carta: carta dipusatkan menegak dalam bingkai (ruang atas = ruang bawah). */
-:root[data-book-theme="biru-emas"] .bp-flow:has(> .bp-block:only-child .bp-oc) { justify-content: center; }
+:root[data-book-theme="biru-emas"] .bp-flow:has(> .bp-block:only-child .bp-oc), :root[data-book-theme="biru-emas"] .bp-flow:has(> [data-bid]:only-child .bp-oc) { justify-content: center; }
 
 /* Eksport PowerPoint (tema Biru Navy & Emas): semasa lapisan reka bentuk ditangkap, teks kandungan dilutsinarkan -
    teks itu ditambah semula sebagai kotak teks / jadual PowerPoint yang boleh disunting. Penanda senarai kekal dalam imej. */
@@ -756,4 +756,13 @@ body.portal-be nav[aria-label] button[aria-current="page"] { box-shadow: inset 3
     font: 700 calc(var(--pt) * 7) / 1 Montserrat, Arial, sans-serif; letter-spacing: .08em; box-shadow: 0 calc(var(--mm) * .6) calc(var(--mm) * 2) rgba(120, 20, 20, .25);
     pointer-events: none;
   }
+}
+
+/* ---------- Mod sunting halaman (klik untuk sunting) ---------- */
+@media screen {
+  .pe-on [data-bid] > * { cursor: pointer; outline: calc(var(--mm) * .35) dashed transparent; outline-offset: calc(var(--mm) * .6); border-radius: calc(var(--mm) * .6); transition: outline-color .12s; }
+  .pe-on [data-bid]:hover > * { outline-color: rgba(201, 161, 59, .9); }
+  .pe-on [data-bid].pe-sel > * { outline: calc(var(--mm) * .5) solid #C9A13B; background-color: rgba(201, 161, 59, .06); }
+  .pe-on [data-bid] [data-f]:hover { background-color: rgba(201, 161, 59, .12); }
+  .pe-flash { box-shadow: 0 0 0 2px #C9A13B; transition: box-shadow .3s; }
 }

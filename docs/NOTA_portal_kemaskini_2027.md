@@ -116,3 +116,27 @@ Setiap unit kini dibuka dengan empat halaman pengenalan yang sama susunan, gaya 
 - **Pengenalan (KPI)**: KEY PERFORMANCE INDICATOR (KPI) UNIT … dengan ruang isian KPI 1-3 untuk diisi penyelaras melalui portal.
 - PPKI: Maklumat Program dipindah ke halaman Murid PPKI; halaman lain PPKI kekal.
 - Migrasi (v20): halaman yang belum disunting dikemas kini ke susunan baharu; halaman yang telah disunting / bertanda *Siap* tidak disentuh. Dalam edisi 2027, halaman baharu ditanda *Perlu dikemas kini*.
+
+## 12. Carta Organisasi Induk unit & foto dalam bulatan
+- Carta Organisasi Kurikulum, HEM, Kokurikulum dan Prasekolah kini seragam dan lengkap: Pengerusi (Guru Besar) → Timbalan Pengerusi (GPK unit) → Naib Pengerusi (GPK lain) → Setiausaha → Ketua Panitia / Guru Penyelaras (nama diisi automatik daripada Pangkalan Data Guru).
+- Foto pentadbir dalam bulatan: bingkai lalai (zum 1.3, fokus di muka) supaya muka berada di tengah, tidak terlalu tinggi atau terpotong. Boleh dilaras untuk setiap guru: **Tetapan → Pangkalan Data Guru → buka guru → "Kedudukan gambar dalam bulatan carta"** (seret gambar atau guna peluncur Zum / Mendatar / Menegak).
+
+## 13. Jawatankuasa: susunan ikut senarai + Bidang Tugas sehalaman
+- Setiap unit (Pentadbiran, Kurikulum, HEM, Kokurikulum) mempunyai halaman **Senarai Jawatankuasa Unit** selepas Jawatankuasa Induk; halaman jawatankuasa disusun mengikut turutan senarai itu.
+- Setiap halaman jawatankuasa = senarai ahli + **BIDANG TUGAS** dalam halaman yang sama (35 jawatankuasa yang belum ada bidang tugas diberi draf — boleh disunting). Halaman yang melimpah sedikit dipadatkan supaya muat sehalaman; jawatankuasa dengan bidang tugas yang sangat panjang bersambung ke halaman berikutnya.
+- Jawatankuasa unit Kurikulum (PAK21, Pusat Sumber, Transisi, PLaNS, Hari Bicara, Apresiasi Tahun 6, Kemenjadian Murid) kini halaman sendiri.
+
+## 14. Tanda medan perlu diisi
+- Medan kosong / ruang isian ditanda **merah pastel** dengan teks **+ TAMBAH MAKLUMAT**, **nombor panduan** (1, 2, 3 …) dan cip **"N MEDAN PERLU DIISI"** di bucu halaman.
+- Hanya pada skrin: tidak dicetak dan tidak dieksport (PDF / PPTX). Halaman borang yang diisi dengan tangan (Lampiran, Maklumat Peribadi, Akuan) tidak ditanda.
+- Butang **Medan kosong** (topbar penjana & kepala portal) untuk hidup / matikan tanda.
+
+## 15. Takwim Induk berpaut kepada takwim unit
+- Setiap unit menyunting **Takwim Tahunan Unit** masing-masing (BULAN | TARIKH | PROGRAM / AKTIVITI | TINDAKAN): Pentadbiran (baharu), Kurikulum, HEM (baharu), Kokurikulum, PPKI, Prasekolah (masuk lajur Kurikulum).
+- Lajur unit dalam **Takwim Induk Sekolah** (Januari – Disember) dijana secara automatik daripada takwim unit; baris cuti / acara seluruh sekolah kekal diurus pentadbir dalam Takwim Induk. Aktiviti Takwim Induk 2026 telah dipindahkan ke takwim unit masing-masing.
+- Format tarikh: "13 Jan", "13 - 16 Jan", "28 Jan - 2 Feb", "21.1.2027". Dalam edisi 2027 lajur TARIKH dikosongkan untuk diisi semula oleh unit.
+
+## 16. Sunting terus dalam paparan halaman
+- Penjana dan portal: pilihan **Sunting di halaman** (lalai) atau **Borang**.
+- Klik mana-mana bahagian halaman sebenar (perenggan, sel jadual, item senarai, baris maklumat, peranan jawatankuasa, medan merah bernombor) → panel penyunting dibuka dengan kursor pada medan tersebut; perubahan dipaparkan serta-merta. Panel juga menyenaraikan pintasan nombor medan perlu diisi dan butang tambah kandungan.
+- Telefon: panel penyunting muncul sebagai helaian di bahagian bawah skrin.

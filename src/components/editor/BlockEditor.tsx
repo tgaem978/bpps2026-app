@@ -105,6 +105,7 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
                     requestAnimationFrame(() => (row?.nextElementSibling?.querySelector('textarea') as HTMLTextAreaElement | null)?.focus());
                   }
                 }}
+                data-f={`l${i}`}
                 aria-label={`Item ${i + 1}`}
               />
               <button className={iconBtn} onClick={() => onChange({ ...block, items: block.items.filter((_, j) => j !== i) })} aria-label="Buang item"><X size={15} /></button>
@@ -124,7 +125,7 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
           {block.pairs.map((pair, i) => (
             <div key={i} className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto] items-start gap-2">
               <input className={`${field} font-medium`} placeholder="Perkara" value={pair.key} onChange={(e) => onChange({ ...block, pairs: block.pairs.map((p, j) => (j === i ? { ...p, key: e.target.value } : p)) })} aria-label={`Perkara ${i + 1}`} />
-              <textarea className={`${field} resize-y`} rows={Math.max(1, pair.value.split('\n').length)} placeholder="Butiran" value={pair.value} onChange={(e) => onChange({ ...block, pairs: block.pairs.map((p, j) => (j === i ? { ...p, value: e.target.value } : p)) })} aria-label={`Butiran ${i + 1}`} />
+              <textarea data-f={`k${i}`} className={`${field} resize-y`} rows={Math.max(1, pair.value.split('\n').length)} placeholder="Butiran" value={pair.value} onChange={(e) => onChange({ ...block, pairs: block.pairs.map((p, j) => (j === i ? { ...p, value: e.target.value } : p)) })} aria-label={`Butiran ${i + 1}`} />
               <button className={iconBtn} onClick={() => onChange({ ...block, pairs: block.pairs.filter((_, j) => j !== i) })} aria-label="Buang baris"><X size={15} /></button>
             </div>
           ))}

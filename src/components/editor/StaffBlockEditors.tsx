@@ -235,7 +235,7 @@ export function CommitteeEditor({ block, onChange }: { block: CommitteeBlock; on
       </div>
       <datalist id="cm-roles">{roles.map((r) => <option key={r} value={r} />)}</datalist>
       {block.rows.map((r, i) => (
-        <div key={r.id} className={`grid gap-2 rounded-md border p-2.5 sm:grid-cols-[11rem_1fr_auto] ${r.group ? 'border-accent/50 bg-accent/5' : 'border-border'}`}>
+        <div key={r.id} data-f={`r${i}`} className={`grid gap-2 rounded-md border p-2.5 sm:grid-cols-[11rem_1fr_auto] ${r.group ? 'border-accent/50 bg-accent/5' : 'border-border'}`}>
           <div className="grid gap-1">
             <input className={`${field} py-1.5 font-medium`} list="cm-roles" value={r.role} onChange={(e) => setRow(i, { role: e.target.value })} aria-label="Peranan" />
             <label className="flex items-center gap-1 text-[11px] text-muted">

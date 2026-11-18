@@ -13,12 +13,15 @@ import BlockEditor, { field } from '@/components/editor/BlockEditor';
 import { SectionPages } from '@/components/book/BookPages';
 import { templateAssets } from '@/templates/bpps';
 import ReviewBanner from '@/components/editor/ReviewBanner';
+import { PageEditor } from '@/components/editor/PageEditor';
+import { EditViewToggle, useEditView } from '@/components/editor/EditViewToggle';
 
 const addable: BlockType[] = ['heading', 'paragraph', 'list', 'table', 'keyvalue', 'image', 'orgchart', 'orgtree', 'committee', 'stafflist', 'takwim'];
 const btn = 'inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium hover:bg-surface-2';
 
 export default function SectionEditorPage({ id }: { id: string }) {
   const [showPreview, setShowPreview] = useState(true);
+  const [view, setView] = useEditView();
   const resetSection = useBookStore((s) => s.resetSection);
   const outline = useBookStore((s) => s.outline);
   const sections = useBookStore((s) => s.sections);
@@ -50,10 +53,11 @@ export default function SectionEditorPage({ id }: { id: string }) {
             <h2 className="truncate font-display text-xl font-bold md:text-2xl">{meta.label}</h2>
           </div>
         </div>
-        <button className={btn} onClick={() => setShowPreview((v) => !v)}>
+        {id !== 'kulit' && <EditViewToggle value={view} onChange={setView} />}
+        {(id === 'kulit' || view === 'borang') && <button className={btn} onClick={() => setShowPreview((v) => !v)}>
           {showPreview ? <EyeOff size={16} /> : <Eye size={16} />}
           <span className="hidden sm:inline">{showPreview ? 'Sembunyi pratonton' : 'Tunjuk pratonton'}</span>
-        </button>
+        </button>}
         {id !== 'kulit' && (
           <button className={btn} onClick={() => { setSettingsTab('kandungan'); navigate('/settings'); }} title="Susun bahagian, tajuk & subtajuk">
             <Settings2 size={16} /> <span className="hidden sm:inline">Struktur</span>
@@ -74,7 +78,7 @@ export default function SectionEditorPage({ id }: { id: string }) {
 
       <ReviewBanner id={id} />
 
-      <div className={`grid gap-6 ${showPreview ? 'xl:grid-cols-2' : ''}`}>
+      {id !== 'kulit' && view === 'halaman' ? <PageEditor id={id} /> : <div className={`grid gap-6 ${showPreview ? 'xl:grid-cols-2' : ''}`}>
         <div className="grid content-start gap-4">
           {id === 'kulit' ? <CoverForm /> : <SectionForm id={id} />}
         </div>
@@ -86,7 +90,7 @@ export default function SectionEditorPage({ id }: { id: string }) {
             </div>
           </div>
         )}
-      </div>
+      </div>}
 
       <div className="mt-8 flex items-center justify-between border-t border-border pt-4">
         {prev ? <button className={btn} onClick={() => setActive(prev.id)}><ChevronLeft size={16} /> <span className="max-w-[34vw] truncate">{prev.label}</span></button> : <span />}

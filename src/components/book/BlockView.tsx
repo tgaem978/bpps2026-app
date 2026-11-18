@@ -322,7 +322,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0, varia
       return (
         <div className={`bp-block bp-list-wrap${x}`} style={gs}>
           <Tag className={`bp-list ${block.ordered ? 'list-decimal' : 'list-disc'}`} start={block.ordered ? from + 1 : undefined} style={fmtStyle(block)}>
-            {listItems(block.items).slice(from, end).map((it, i) => <li key={i} className="u"><Rich text={t(it)} /></li>)}
+            {listItems(block.items).slice(from, end).map((it, i) => <li key={i} className="u" data-f={`l${from + i}`}><Rich text={t(it)} /></li>)}
           </Tag>
         </div>
       );
@@ -352,7 +352,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0, varia
               {block.rows.slice(from, end).map((r, ri) => (
                 <tr key={ri} className="u" style={block.rowHeights?.[from + ri] ? { height: `calc(var(--mm) * ${block.rowHeights[from + ri]})` } : undefined}>
                   {num && <td className="bp-num">{from + ri + 1}</td>}
-                  {block.columns.map((_, ci) => <td key={ci} className={`${cellClass(ci)}${needCol[ci] && !(r[ci] ?? '').trim() ? ' bp-td-blank' : ''}`} style={fmtStyle({ ...block, align: block.colAlign?.[ci] ?? block.align }, { pad: true })}><Rich text={t(r[ci] ?? '')} /></td>)}
+                  {block.columns.map((_, ci) => <td key={ci} data-f={`c${from + ri}-${ci}`} className={`${cellClass(ci)}${needCol[ci] && !(r[ci] ?? '').trim() ? ' bp-td-blank' : ''}`} style={fmtStyle({ ...block, align: block.colAlign?.[ci] ?? block.align }, { pad: true })}><Rich text={t(r[ci] ?? '')} /></td>)}
                 </tr>
               ))}
             </tbody>
@@ -365,7 +365,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0, varia
         <div className={`bp-block${x}`} style={gs}>
           <dl className="bp-kv">
             {kvPairs(block.pairs).slice(from, end).map((p, i) => (
-              <div key={i} className="u">
+              <div key={i} className="u" data-f={`k${from + i}`}>
                 <dt>{(() => { const Ico = kvIcon(p.key); return <span className="bp-kv-ico" aria-hidden><Ico strokeWidth={1.8} /></span>; })()}<span className="bp-kv-key">{t(p.key)}</span></dt>
                 <dd style={fmtStyle(block)} className={t(p.value).trim() ? undefined : 'bp-kv-blank'}>{t(p.value).trim() ? <Rich text={t(p.value)} /> : '\u00a0'}</dd>
               </div>
@@ -407,11 +407,11 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0, varia
         <div className={`bp-block${x}`} style={gs}>
           {block.title && <h3 className="bp-heading bp-cm-title">{t(block.title)}{from > 0 ? ' (samb.)' : ''}</h3>}
           <div className="bp-cm">
-            {block.rows.slice(from, end).map((r) => {
-              if (r.group) return <div key={r.id} className="bp-cm-group u kn"><span>{t(r.role)}</span></div>;
+            {block.rows.slice(from, end).map((r, ri) => {
+              if (r.group) return <div key={r.id} className="bp-cm-group u kn" data-f={`r${from + ri}`}><span>{t(r.role)}</span></div>;
               const members = resolveMembers(ctx, r.members);
               return (
-                <div key={r.id} className="bp-cm-row u">
+                <div key={r.id} className="bp-cm-row u" data-f={`r${from + ri}`}>
                   <div className="bp-cm-role">{t(r.role)}</div>
                   <div className="bp-cm-members">
                     {members.length === 0 && <span className="bp-cm-blank" aria-label="Belum diisi" />}

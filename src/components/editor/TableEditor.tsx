@@ -167,6 +167,7 @@ export default function TableEditor({ block, onChange }: { block: TableBlock; on
                       rows={Math.max(1, (row[ci] ?? '').split('\n').length)}
                       value={row[ci] ?? ''}
                       onChange={(e) => setCell(ri, ci, e.target.value)}
+                      data-f={`c${ri}-${ci}`}
                       aria-label={`Baris ${ri + 1} lajur ${ci + 1}`}
                     />
                   </td>

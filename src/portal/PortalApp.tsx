@@ -20,6 +20,8 @@ import type { SectionContent } from '@/types/book';
 import { SectionForm } from '@/pages/SectionEditorPage';
 import { MasterStyles, SectionPages } from '@/components/book/BookPages';
 import { MarkToggle } from '@/components/layout/MarkToggle';
+import { PageEditor } from '@/components/editor/PageEditor';
+import { EditViewToggle, useEditView } from '@/components/editor/EditViewToggle';
 import { Toaster } from '@/components/layout/Overlays';
 
 const btn = 'inline-flex items-center justify-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium hover:bg-surface-2 disabled:opacity-50';
@@ -204,6 +206,7 @@ function Workspace({ state, reload, onLogout }: { state: PortalState; reload: ()
   const profile = useProjectStore((s) => s.profile);
   const [active, setActive] = useState(unit.sectionIds[0] ?? '');
   const [showPreview, setShowPreview] = useState(() => window.innerWidth >= 1280);
+  const [view, setView] = useEditView();
   const [sending, setSending] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -339,12 +342,13 @@ function Workspace({ state, reload, onLogout }: { state: PortalState; reload: ()
                   {statusOf(active) !== 'asal' && <span className={`mt-0.5 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${statusLabel[statusOf(active)][1]}`}>{statusLabel[statusOf(active)][0]}</span>}
                 </div>
                 {changed.includes(active) && <button className={btn} onClick={() => revert(active)}><RotateCcw size={15} /> Buang perubahan</button>}
-                <button className={btn} onClick={() => setShowPreview((v) => !v)}>{showPreview ? <EyeOff size={15} /> : <Eye size={15} />} Pratonton</button>
+                <EditViewToggle value={view} onChange={setView} />
+                {view === 'borang' && <button className={btn} onClick={() => setShowPreview((v) => !v)}>{showPreview ? <EyeOff size={15} /> : <Eye size={15} />} Pratonton</button>}
               </div>
               {pending[active] && !changed.includes(active) && (
                 <p className="mb-3 flex items-center gap-2 rounded-md bg-primary/5 px-3 py-2 text-xs text-primary"><Clock size={14} /> Versi ini telah dihantar pada {fmtTime(pending[active].at)} dan menunggu semakan pentadbir. Anda masih boleh mengubah dan menghantar semula.</p>
               )}
-              <div className={`grid gap-5 ${showPreview ? 'xl:grid-cols-2' : ''}`}>
+              {view === 'halaman' ? <PageEditor id={active} /> : <div className={`grid gap-5 ${showPreview ? 'xl:grid-cols-2' : ''}`}>
                 <div className="grid content-start gap-4">
                   <SectionForm id={active} compact />
                 </div>
@@ -354,7 +358,7 @@ function Workspace({ state, reload, onLogout }: { state: PortalState; reload: ()
                     <div className="mx-auto grid max-w-md gap-4"><SectionPages id={active} /></div>
                   </div>
                 )}
-              </div>
+              </div>}
               <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
                 {idx > 0 ? <button className={btn} onClick={() => go(unit.sectionIds[idx - 1])}><ArrowLeft size={15} /> <span className="max-w-[30vw] truncate">{sections[unit.sectionIds[idx - 1]]?.title}</span></button> : <span />}
                 {idx < unit.sectionIds.length - 1 ? <button className={btn} onClick={() => go(unit.sectionIds[idx + 1])}><span className="max-w-[30vw] truncate">{sections[unit.sectionIds[idx + 1]]?.title}</span> <ArrowRight size={15} /></button> : <span />}
