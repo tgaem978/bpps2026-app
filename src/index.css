@@ -774,3 +774,12 @@ body.portal-be nav[aria-label] button[aria-current="page"] { box-shadow: inset 3
 .bp-sw.bp-cal-w { background: #FBF4DF !important; }
 .bp-cal td.bp-cal-u, .bp-cal td.bp-cal-p, .bp-cal td.bp-cal-s { font-weight: 700; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .bp-sw { display: inline-block; width: 1.5em; height: 1em; margin: 0 .35em 0 .6em; vertical-align: -.12em; border-radius: .2em; border: 1px solid rgba(11, 42, 91, .25); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+/* ---------- Takwim Induk: jenis hari cuti (warna sama dengan Kalendar) ---------- */
+:root .bp-takwim tr.bp-tk-umum td:not(.bp-tk-week) { background: #FCE3E3; }
+:root .bp-takwim tr.bp-tk-perayaan td:not(.bp-tk-week) { background: #EEE5FA; }
+:root .bp-takwim tr.bp-tk-sekolah td:not(.bp-tk-week) { background: #E1F1FA; }
+:root .bp-takwim tr.bp-tk-umum td.bp-tk-span, :root .bp-takwim tr.bp-tk-umum td.bp-tk-date { color: #9B1C1C; }
+:root .bp-takwim tr.bp-tk-perayaan td.bp-tk-span, :root .bp-takwim tr.bp-tk-perayaan td.bp-tk-date { color: #4C2A85; }
+:root .bp-takwim tr.bp-tk-sekolah td.bp-tk-span, :root .bp-takwim tr.bp-tk-sekolah td.bp-tk-date { color: #0B4A6F; }
+:root .bp-takwim tr:is(.bp-tk-umum, .bp-tk-perayaan, .bp-tk-sekolah) td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }

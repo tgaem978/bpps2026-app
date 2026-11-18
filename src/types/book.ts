@@ -114,13 +114,19 @@ export interface StaffListBlock extends BaseBlock {
   sort?: 'hierarki' | 'pentadbir' | 'abjad';
 }
 
+export type TakwimDayKind = 'weekend' | 'holiday' | 'umum' | 'perayaan' | 'sekolah';
+
 /** Takwim bulanan: baris harian dengan lajur unit; baris cuti/acara sekolah boleh merentas semua unit. */
 export interface TakwimRow {
   week: string;
   date: string;
   day: string;
-  /** 'weekend' = Sabtu/Ahad, 'holiday' = cuti umum/sekolah */
-  kind?: 'weekend' | 'holiday';
+  /**
+   * 'weekend' = Sabtu/Ahad; 'umum' = cuti kelepasan am; 'perayaan' = cuti perayaan tambahan KPM;
+   * 'sekolah' = cuti persekolahan (penggal / pertengahan / akhir tahun); 'holiday' = cuti (umum, tanpa jenis).
+   * Jenis cuti di sini juga menentukan serlahan warna halaman Kalendar.
+   */
+  kind?: TakwimDayKind;
   /** Teks merentas semua lajur unit (cuti / aktiviti seluruh sekolah) */
   span?: string;
   cells: string[];

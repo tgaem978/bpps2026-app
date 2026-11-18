@@ -206,3 +206,59 @@ export function extractColumn(masters: TakwimBlock[], column: string): string[][
     return [month, date, g.text];
   });
 }
+
+/* ------------------------------------------------------------ Kalendar ← Takwim Induk (jenis hari cuti) */
+
+const CAL_CODE: Record<string, string> = { umum: 'u', perayaan: 'p', sekolah: 's' };
+const isCal = (b: Block): b is TableBlock => b.type === 'table' && b.columns.map((c) => c.trim().toUpperCase()).join('') === 'ISRKJSA';
+let calMemo: { masters: SectionContent[]; cals: SectionContent[]; out: Record<string, SectionContent> } | null = null;
+
+/**
+ * Serlahan halaman Kalendar dijana daripada jenis hari dalam Takwim Induk (kelepasan am / perayaan KPM / cuti persekolahan),
+ * supaya hari cuti hanya perlu dikemas kini di satu tempat. Hanya aktif jika Takwim Induk mempunyai jenis cuti tersebut.
+ */
+export function linkKalendarSections(sections: Record<string, SectionContent>): Record<string, SectionContent> {
+  const masterIds = Object.keys(sections).filter((id) => sections[id].blocks.some((b) => b.type === 'takwim'));
+  const calIds = Object.keys(sections).filter((id) => sections[id].blocks.some(isCal));
+  if (!masterIds.length || !calIds.length) return sections;
+  const masters = masterIds.map((id) => sections[id]);
+  const cals = calIds.map((id) => sections[id]);
+  if (calMemo && calMemo.masters.length === masters.length && calMemo.masters.every((s, i) => s === masters[i]) && calMemo.cals.length === cals.length && calMemo.cals.every((s, i) => s === cals[i])) {
+    return { ...sections, ...calMemo.out };
+  }
+  // tarikh → kod, bagi tahun yang paling kerap dalam Takwim Induk
+  const codes = new Map<string, string>();
+  const years = new Map<number, number>();
+  for (const sec of masters) for (const b of sec.blocks) {
+    if (b.type !== 'takwim') continue;
+    const m = monthOf(b.title.trim().split(/\s+/)[0] ?? '');
+    if (m < 0) continue;
+    for (const r of b.rows) {
+      const y = Number(r.date.match(/(19|20)\d\d/)?.[0] ?? 0);
+      const d = dayOfRow(r.date);
+      if (!y || d < 0) continue;
+      years.set(y, (years.get(y) ?? 0) + 1);
+      const c = r.kind ? CAL_CODE[r.kind] : undefined;
+      if (c) codes.set(`${y}-${m}-${d}`, c);
+    }
+  }
+  const out: Record<string, SectionContent> = {};
+  if (codes.size) {
+    const year = [...years.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? 0;
+    for (const id of calIds) {
+      const sec = sections[id];
+      let month = -1;
+      out[id] = {
+        ...sec,
+        blocks: sec.blocks.map((b) => {
+          if (b.type === 'heading') { const m = monthOf(b.text.trim().split(/\s+/)[0] ?? ''); if (m >= 0) month = m; return b; }
+          if (!isCal(b) || month < 0) return b;
+          const m = month;
+          return { ...b, rows: b.rows.map((r) => r.map((c) => { const x = c.trim().match(/^(\d{1,2})[ups]?$/); return x ? `${x[1]}${codes.get(`${year}-${m}-${+x[1]}`) ?? ''}` : c; })) };
+        }),
+      };
+    }
+  }
+  calMemo = { masters, cals, out };
+  return { ...sections, ...out };
+}

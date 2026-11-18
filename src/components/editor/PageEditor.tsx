@@ -82,7 +82,7 @@ export function PageEditor({ id }: { id: string }) {
   };
 
   return (
-    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
+    <div className={`grid gap-5 ${block && (block.type === 'takwim' || block.type === 'table') ? 'xl:grid-cols-[minmax(0,1fr)_600px]' : 'xl:grid-cols-[minmax(0,1fr)_420px]'}`}>
       <div>
         <p className="mb-2 flex items-center gap-1.5 text-xs text-muted"><MousePointerClick size={14} /> Klik pada mana-mana bahagian halaman untuk menyunting terus. Medan merah bernombor perlu diisi.</p>
         <PageEditCtx.Provider value={{ selected: sel?.bid ?? null }}>

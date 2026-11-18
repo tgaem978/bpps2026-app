@@ -463,7 +463,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0, varia
             </thead>
             <tbody>
               {rows.map((r, i) => (
-                <tr key={i} className={`u ${r.kind ? `bp-tk-${r.kind}` : ''}`}>
+                <tr key={i} data-f={`t${from + i}`} className={`u ${r.kind ? `bp-tk-${r.kind}` : ''}`}>
                   {(span[i] > 0 || !r.week) && <td className="bp-tk-week" rowSpan={span[i] || 1}>{r.week}</td>}
                   <td className="bp-tk-date">{short(r.date)}</td>
                   <td className="bp-tk-day">{r.day}</td>

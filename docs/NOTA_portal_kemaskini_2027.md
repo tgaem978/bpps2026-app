@@ -149,3 +149,9 @@ Data rasmi 2027 (`src/config/kalendarAkademik.ts`) digunakan apabila edisi 2027 
 - **Kalendar 2027**: serlahan warna — merah (kelepasan am), ungu (perayaan KPM), biru (cuti persekolahan), krim (hujung minggu) + petunjuk. Kod sel: `8u`, `9p`, `6s` (boleh diubah dalam penyunting jadual).
 - **Takwim Induk 2027**: nombor minggu persekolahan diisi; hari cuti ditanda sebagai baris cuti merentas semua unit.
 - Halaman yang telah disunting pengguna tidak ditimpa (kecuali tanda cuti pada Takwim Induk).
+
+## 18. Hari cuti dikemas kini terus dalam Takwim Induk
+- Setiap baris Takwim Induk mempunyai **Jenis hari**: Hari sekolah, Hujung minggu, **Cuti kelepasan am** (merah), **Cuti perayaan KPM** (ungu), **Cuti persekolahan** (biru) atau Cuti (lain-lain).
+- Alat **Tandakan julat tarikh** dalam penyunting Takwim Induk: pilih hari mula & akhir, jenis cuti dan keterangan (cth. CUTI PENGGAL 1 2027) → semua hari dalam julat ditanda sekali gus (merentas semua unit). Pilih "Hari sekolah (buang cuti)" untuk membatalkan.
+- **Kalendar** (halaman berserlah warna) kini dijana daripada jenis hari dalam Takwim Induk — kemas kini hari cuti di Takwim Induk sahaja, Kalendar menyusul secara automatik.
+- Mod *Sunting di halaman*: klik baris takwim pada halaman → penyunting dibuka pada baris tersebut (pemilih jenis hari).

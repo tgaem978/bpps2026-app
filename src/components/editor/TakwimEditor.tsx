@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ArrowDown, ArrowUp, Link2, Plus, X } from 'lucide-react';
 import type { TakwimBlock, TakwimRow } from '@/types/book';
 import { useBookStore } from '@/stores/bookStore';
@@ -8,6 +9,56 @@ const cell = 'w-full resize-none rounded border border-border bg-surface px-1.5 
 const iconBtn = 'rounded-md p-1 text-muted hover:bg-surface-2 hover:text-text disabled:opacity-30';
 const smallBtn = 'inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-medium hover:bg-surface-2';
 const rowsOf = (t: string) => Math.max(1, t.split('\n').length);
+
+/** Jenis hari (sama dengan serlahan halaman Kalendar). */
+const KINDS: [string, string][] = [
+  ['', 'Hari sekolah'], ['weekend', 'Hujung minggu'], ['umum', 'Cuti kelepasan am'], ['perayaan', 'Cuti perayaan KPM'], ['sekolah', 'Cuti persekolahan'], ['holiday', 'Cuti (lain-lain)'],
+];
+const ROW_BG: Record<string, string> = { weekend: 'bg-amber-50', holiday: 'bg-slate-100', umum: 'bg-red-50', perayaan: 'bg-violet-50', sekolah: 'bg-sky-50' };
+const isWeekendDay = (day: string) => /^(sabtu|ahad)$/i.test(day.trim());
+const dayNo = (date: string) => Number(date.match(/\d{1,2}/)?.[0] ?? 0);
+
+/** Tandakan julat tarikh (cth. cuti penggal) sekali gus: jenis hari + keterangan merentas semua unit. */
+function RangeTool({ block, onChange }: { block: TakwimBlock; onChange: (b: TakwimBlock) => void }) {
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
+  const [kind, setKind] = useState('sekolah');
+  const [label, setLabel] = useState('');
+  const apply = () => {
+    const a = Number(from);
+    const b = Number(to || from);
+    if (!a || !b) return;
+    onChange({
+      ...block,
+      rows: block.rows.map((r) => {
+        const d = dayNo(r.date);
+        if (d < Math.min(a, b) || d > Math.max(a, b)) return r;
+        if (!kind) return { ...r, kind: isWeekendDay(r.day) ? 'weekend' : undefined, span: undefined };
+        return { ...r, kind: kind as TakwimRow['kind'], ...(label.trim() ? { span: label.trim().toUpperCase() } : {}) };
+      }),
+    });
+  };
+  return (
+    <div className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-surface-2/50 p-2 text-xs">
+      <p className="w-full font-semibold text-text">Tandakan julat tarikh (cth. cuti penggal, cuti perayaan)</p>
+      <label className="grid gap-0.5 text-muted">Dari hari
+        <input className={`${cell} w-16`} inputMode="numeric" value={from} onChange={(e) => setFrom(e.target.value.replace(/\D/g, ''))} placeholder="6" />
+      </label>
+      <label className="grid gap-0.5 text-muted">Hingga
+        <input className={`${cell} w-16`} inputMode="numeric" value={to} onChange={(e) => setTo(e.target.value.replace(/\D/g, ''))} placeholder="14" />
+      </label>
+      <label className="grid gap-0.5 text-muted">Jenis
+        <select className={`${cell} w-40`} value={kind} onChange={(e) => setKind(e.target.value)}>
+          {KINDS.filter(([v]) => v !== 'weekend').map(([v, l]) => <option key={v} value={v}>{v ? l : 'Hari sekolah (buang cuti)'}</option>)}
+        </select>
+      </label>
+      <label className="grid min-w-[10rem] flex-1 gap-0.5 text-muted">Keterangan (pilihan)
+        <input className={cell} value={label} onChange={(e) => setLabel(e.target.value)} placeholder="cth. CUTI PENGGAL 1 2027" disabled={!kind} />
+      </label>
+      <button className={smallBtn} onClick={apply} disabled={!from}>Tandakan</button>
+    </div>
+  );
+}
 
 /** Penyunting takwim bulanan: satu baris sehari; acara/cuti seluruh sekolah merentas semua unit. */
 export function TakwimEditor({ block, onChange }: { block: TakwimBlock; onChange: (b: TakwimBlock) => void }) {
@@ -47,20 +98,19 @@ export function TakwimEditor({ block, onChange }: { block: TakwimBlock; onChange
           <p className="mt-1 text-muted">Sel dalam penyunting ini hanya untuk catatan tambahan pentadbir; cuti / acara seluruh sekolah diurus di sini.</p>
         </div>
       )}
-      <p className="text-[11px] text-muted">Jenis baris: Hujung minggu (kuning) atau Cuti (kelabu). Tandakan "Seluruh sekolah" untuk teks yang merentas semua unit.</p>
+      <RangeTool block={block} onChange={onChange} />
+      <p className="text-[11px] text-muted">Jenis hari: <b className="text-[#9B1C1C]">Kelepasan am</b> (merah), <b className="text-[#4C2A85]">Perayaan KPM</b> (ungu), <b className="text-[#0B4A6F]">Cuti persekolahan</b> (biru), hujung minggu (kuning). Warna yang sama dipaparkan pada halaman Kalendar secara automatik. Tandakan "Seluruh sekolah" untuk teks yang merentas semua unit.</p>
       <div className="overflow-x-auto">
         <div className="grid min-w-[720px] gap-1">
           {block.rows.map((r, i) => (
-            <div key={i} className={`grid items-start gap-1 rounded p-1 ${r.kind === 'weekend' ? 'bg-amber-50' : r.kind === 'holiday' ? 'bg-slate-100' : ''}`}
+            <div key={i} data-f={`t${i}`} className={`grid items-start gap-1 rounded p-1 ${ROW_BG[r.kind ?? ''] ?? ''}`}
               style={{ gridTemplateColumns: `2.5rem 5.5rem 4.5rem 6.5rem 1fr auto` }}>
               <input className={cell} value={r.week} onChange={(e) => setRow(i, { week: e.target.value })} aria-label={`Minggu baris ${i + 1}`} placeholder="M" />
               <input className={cell} value={r.date} onChange={(e) => setRow(i, { date: e.target.value })} aria-label={`Tarikh baris ${i + 1}`} placeholder="Tarikh" />
               <input className={cell} value={r.day} onChange={(e) => setRow(i, { day: e.target.value })} aria-label={`Hari baris ${i + 1}`} placeholder="Hari" />
               <div className="grid gap-0.5">
                 <select className={cell} value={r.kind ?? ''} onChange={(e) => setRow(i, { kind: (e.target.value || undefined) as TakwimRow['kind'] })} aria-label={`Jenis baris ${i + 1}`}>
-                  <option value="">Hari sekolah</option>
-                  <option value="weekend">Hujung minggu</option>
-                  <option value="holiday">Cuti</option>
+                  {KINDS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
                 </select>
                 <label className="flex items-center gap-1 text-[10px] text-muted">
                   <input type="checkbox" checked={r.span !== undefined} onChange={(e) => setRow(i, { span: e.target.checked ? r.cells.filter(Boolean).join(' / ') : undefined })} /> Seluruh sekolah

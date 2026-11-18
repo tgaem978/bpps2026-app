@@ -104,6 +104,9 @@ const dayName = (d: string) => DAYS[dow(parse(d))];
 const short = (t: number) => { const x = new Date(t); return `${String(x.getUTCDate()).padStart(2, '0')} ${MON_SHORT[x.getUTCMonth()]}`; };
 
 export interface DayInfo { kind: DayKind; names: string[] }
+/** Kod kalendar ↔ jenis baris Takwim Induk. */
+export const KIND_OF: Record<DayKind, 'umum' | 'perayaan' | 'sekolah'> = { u: 'umum', p: 'perayaan', s: 'sekolah' };
+export const CODE_OF: Partial<Record<string, DayKind>> = { umum: 'u', perayaan: 'p', sekolah: 's' };
 
 /** Peta hari cuti setahun (kunci = UTC ms). Keutamaan: kelepasan am > perayaan KPM > cuti persekolahan. */
 export function dayMap(year: number): Map<number, DayInfo> {
@@ -252,7 +255,7 @@ export function markTakwimRows(rows: TakwimRow[], year: number, month: number): 
     const info = map.get(t);
     const out: TakwimRow = { ...r, week: wk ? String(wk[1]) : '' };
     if (info) {
-      out.kind = 'holiday';
+      out.kind = KIND_OF[info.kind];
       if (out.span === undefined && !r.cells.some((c) => c.trim())) out.span = info.names.join(' / ').toUpperCase();
     }
     return out;

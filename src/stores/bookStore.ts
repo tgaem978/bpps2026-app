@@ -391,7 +391,8 @@ const CARTA_UNIT_IDS = ['kx-carta-induk', 'hx-carta', 'kx-carta-koku', 'pra-cart
  * v24: Kalendar Akademik rasmi tahun edisi (cth. 2027, Kumpulan B — WP Kuala Lumpur): Kalendar Akademik, Cuti Perayaan &
  * Kelepasan Am, Minggu Akademik dan Kalendar berserlah dijana semula (jika belum disunting); Takwim Induk ditanda baris cuti.
  */
-function migrateV24(p: Partial<BookState>) {
+/** v25 (`marksOnly`): jenis hari cuti Takwim Induk diperincikan (kelepasan am / perayaan KPM / cuti persekolahan) — sumber serlahan Kalendar. */
+function migrateV24(p: Partial<BookState>, marksOnly = false) {
   if (!p.sections) return;
   const year = useProjectStore.getState().profile.year;
   if (!hasAcademic(year)) return;
@@ -399,7 +400,7 @@ function migrateV24(p: Partial<BookState>) {
   const defs = defaultSections();
   const untouched = (sec: SectionContent | undefined) => !sec || (sec.review?.status !== 'siap' && (sec.updatedAt === null || (stamp !== null && sec.updatedAt === stamp)));
   const done: ReviewMark = { year, status: 'siap', by: `Kalendar Akademik KPM ${year}`, at: Date.now() };
-  for (const id of ['t-akademik', 't-cuti', 'ma-minggu-akademik', 't-kalendar']) {
+  for (const id of marksOnly ? [] : ['t-akademik', 't-cuti', 'ma-minggu-akademik', 't-kalendar']) {
     const old = p.sections[id];
     if (!defs[id] || !untouched(old)) continue;
     p.sections[id] = { ...defaultForYear(id, defs[id], year), updatedAt: old?.updatedAt ?? stamp, review: done };
@@ -713,7 +714,7 @@ export const useBookStore = create<BookState>()(
     {
       name: 'bpps2026-book',
       storage: appStorage(),
-      version: 24,
+      version: 25,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -740,6 +741,7 @@ export const useBookStore = create<BookState>()(
         if (version < 22) migrateV22(p);
         if (version < 23) migrateV23(p);
         if (version < 24) migrateV24(p);
+        if (version < 25) migrateV24(p, true);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),
