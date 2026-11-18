@@ -1,5 +1,5 @@
 import {
-  BookOpen, Building2, CalendarDays, FileStack, GraduationCap, HeartHandshake, Network, UsersRound, ClipboardList,
+  BookOpen, Building2, CalendarCheck, CalendarDays, FileStack, GraduationCap, HeartHandshake, Network, UsersRound, ClipboardList,
   Users, Flag, Accessibility, Baby, FileText, NotebookPen, Settings as SettingsIcon, FolderKanban, Eye, Send,
   type LucideIcon,
 } from 'lucide-react';
@@ -18,6 +18,7 @@ export const appNav: AppNavItem[] = [
 /** Ikon untuk tajuk lalai; tajuk baharu menggunakan ikon dokumen. */
 const icons: Record<string, LucideIcon> = {
   kulit: BookOpen,
+  ...Object.fromEntries(Array.from({ length: 12 }, (_, i) => [`planner-${String(i + 1).padStart(2, '0')}`, CalendarCheck])),
   'kata-aluan': FileText,
   'maklumat-sekolah': Building2,
   'carta-organisasi': Network,

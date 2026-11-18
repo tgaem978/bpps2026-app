@@ -5,6 +5,7 @@ import { useUiStore } from '@/stores/uiStore';
 import { tokenHelp } from '@/lib/resolve';
 import { CommitteeEditor, OrgChartEditor, OrgTreeEditor, StaffListEditor } from './StaffBlockEditors';
 import { TakwimEditor } from './TakwimEditor';
+import { PlannerEditor } from './PlannerEditor';
 import FmtBar from './FmtBar';
 import TableEditor from './TableEditor';
 
@@ -182,5 +183,7 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
       return <StaffListEditor block={block} onChange={onChange} />;
     case 'takwim':
       return <TakwimEditor block={block} onChange={onChange} />;
+    case 'planner':
+      return <PlannerEditor block={block} onChange={onChange} />;
   }
 }

@@ -1,6 +1,6 @@
 export type BlockType =
   | 'heading' | 'paragraph' | 'list' | 'table' | 'keyvalue' | 'image'
-  | 'orgchart' | 'orgtree' | 'committee' | 'stafflist' | 'takwim';
+  | 'orgchart' | 'orgtree' | 'committee' | 'stafflist' | 'takwim' | 'planner';
 
 interface BaseBlock {
   id: string;
@@ -137,6 +137,32 @@ export interface TakwimBlock extends BaseBlock {
   linked?: boolean;
 }
 
+/** Satu hari dalam Planner (dijana daripada Takwim Induk; tidak disimpan). */
+export interface PlannerDay {
+  d: number; dow: number; week: string;
+  kind?: TakwimDayKind;
+  /** Keterangan cuti / acara seluruh sekolah. */
+  label?: string;
+  /** Aktiviti unit: u = indeks lajur unit Takwim Induk. */
+  acts: { u: number; t: string }[];
+}
+export interface PlannerMonth { year: number; month: number; units: string[]; days: PlannerDay[] }
+/**
+ * Planner guru bulanan (satu halaman sebulan): kalendar dengan hari cuti & aktiviti unit (automatik daripada Takwim Induk),
+ * tarikh penting, senarai tugasan, jadual guru ganti (relief) dan catatan.
+ */
+export interface PlannerBlock extends BaseBlock {
+  type: 'planner';
+  /** Bulan 0-11. */
+  month: number;
+  /** Senarai tugasan (satu baris satu tugasan); baris kosong dicetak untuk ditulis tangan. */
+  todo?: string[];
+  /** Catatan bulan ini. */
+  notes?: string;
+  /** Data bulan (dijana semasa paparan daripada Takwim Induk; tidak disimpan). */
+  plan?: PlannerMonth;
+}
+
 /** Blok dalaman (tidak boleh ditambah pengguna): baris isi kandungan. */
 export interface TocRowsBlock extends BaseBlock {
   type: 'tocrows';
@@ -145,7 +171,7 @@ export interface TocRowsBlock extends BaseBlock {
 
 export type Block =
   | HeadingBlock | ParagraphBlock | ListBlock | TableBlock | KeyValueBlock | ImageBlock
-  | OrgChartBlock | OrgTreeBlock | CommitteeBlock | StaffListBlock | TakwimBlock;
+  | OrgChartBlock | OrgTreeBlock | CommitteeBlock | StaffListBlock | TakwimBlock | PlannerBlock;
 export type AnyBlock = Block | TocRowsBlock;
 
 /** Jenis paparan halaman isi (layout). */

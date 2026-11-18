@@ -62,10 +62,21 @@ export const defaultOutline = (): OutlinePart[] => [
       { id: 'takwim-01', children: ['takwim-02', 'takwim-03', 'takwim-04', 'takwim-05', 'takwim-06', 'takwim-07', 'takwim-08', 'takwim-09', 'takwim-10', 'takwim-11', 'takwim-12'] },
     ],
   },
+  plannerPart(),
   { id: 'p-pkhas', title: 'PENDIDIKAN KHAS (PPKI)', note: '{{jawatan:GPK Pendidikan Khas}}', divider: true, tocChildren: false, topics: ppkiTopics() },
   { id: 'p-prasekolah', title: 'PRASEKOLAH', note: '{{jawatan:Guru Prasekolah}}', divider: true, topics: prasekolahTopics() },
   { id: 'p-lampiran', title: 'LAMPIRAN', note: '', divider: true, topics: lampiranTopics() },
 ];
+
+/** Planner Guru bulanan: satu halaman sebulan (data cuti & aktiviti daripada Takwim Induk). */
+export const PLANNER_IDS = Array.from({ length: 12 }, (_, i) => `planner-${String(i + 1).padStart(2, '0')}`);
+export const plannerPart = (): OutlinePart => ({
+  id: 'p-planner', title: 'PLANNER GURU 2026', note: 'Planner bulanan guru', divider: true, tocChildren: false,
+  topics: [{ id: PLANNER_IDS[0], children: PLANNER_IDS.slice(1) }],
+});
+const PLANNER_MONTHS = ['JANUARI', 'FEBRUARI', 'MAC', 'APRIL', 'MEI', 'JUN', 'JULAI', 'OGOS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DISEMBER'];
+const plannerSections = (): Record<string, SectionContent> => Object.fromEntries(PLANNER_IDS.map((id, m) => [id,
+  section('PLANNER GURU 2026', PLANNER_MONTHS[m], [{ id: uid(), type: 'planner', month: m, todo: [], notes: '' }])]));
 
 /** Kandungan contoh (BPPS 2026 SKBTS). Semua boleh disunting; nama dijana daripada Pangkalan Data Guru. */
 const staffList = (filterField: string, filterValues: string[], sort: 'hierarki' | 'pentadbir' | 'abjad', withOption = true): Block => ({
@@ -100,6 +111,7 @@ const baseSections = (): Record<string, SectionContent> => ({
   'senarai-petang': section('SENARAI NAMA GURU & AKP', 'GURU SESI PETANG', [staffList(F_SESSION, ['Petang'], 'pentadbir')]),
   'senarai-akp': section('SENARAI NAMA GURU & AKP', 'AKP', [staffList(F_POSITION, [...AKP_POSITIONS], 'hierarki', false)]),
   catatan: section('CATATAN', '', [], 'notes'),
+  ...plannerSections(),
 });
 
 /** Kandungan lalai: halaman Pengenalan yang tidak perlu dipadam; tajuk/lencana mengikut susunan Maklumat Am. */

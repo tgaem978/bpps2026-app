@@ -22,6 +22,7 @@ export function blockLines(b: Block, ctx: BookCtx): string[] {
     case 'orgchart': return b.levels.map((l) => `${L} · ${l.label}: ${l.positions.join(', ')}`);
     case 'orgtree': return b.columns.flatMap((c) => c.boxes.map((x) => `${c.position} › ${x.title}: ${x.items.filter(Boolean).join(', ')}`));
     case 'stafflist': return [`${L}: ${b.filterValues.join(', ') || 'semua'} · ${b.columns.join(', ')}`];
+    case 'planner': return [`${L} (${b.month + 1})`, ...(b.todo ?? []).filter(Boolean).map((x) => `☐ ${clean(x)}`), ...(b.notes ? [clean(b.notes)] : [])];
     case 'takwim': return b.rows.filter((r) => (r.span ?? '').trim() || r.cells.some((c) => c.trim())).map((r) => `${r.date}: ${clean(r.span || r.cells.filter(Boolean).join(' / '))}`);
   }
 }

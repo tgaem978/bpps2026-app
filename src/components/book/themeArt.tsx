@@ -1,8 +1,7 @@
 /* Grafik asal tema "Biru Navy & Emas" (SVG; dilukis untuk projek ini - garis pelan bangunan sekolah, ikon bahagian & ikon maklumat). */
 import {
   Building2, BookOpen, CalendarDays, FileText, Hash, HeartHandshake, Landmark, Mail, MapPin, Network, Phone, School, Shapes, Trophy,
-  UserRound, UsersRound, Clock, GraduationCap, Layers, Target, IdCard, FolderOpen, Award, HeartHandshake as Heart2, Quote, ChevronRight, type LucideIcon,
-} from 'lucide-react';
+  UserRound, UsersRound, Clock, GraduationCap, Layers, Target, IdCard, FolderOpen, Award, HeartHandshake as Heart2, Quote, ChevronRight, CalendarCheck, type LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 const NAVY = '#0B2A5B';
@@ -69,7 +68,7 @@ export function BuildingArt({ className = '' }: { className?: string }) {
 /** Ikon bulatan pembahagi mengikut bahagian. */
 const PART_ICONS: Record<string, LucideIcon> = {
   'p-maklumat': School, 'p-pentadbiran': Network, 'p-kurikulum': BookOpen, 'p-hem': UsersRound, 'p-koku': Trophy,
-  'p-takwim': CalendarDays, 'p-pkhas': HeartHandshake, 'p-prasekolah': Shapes, 'p-lampiran': FileText,
+  'p-takwim': CalendarDays, 'p-planner': CalendarCheck, 'p-pkhas': HeartHandshake, 'p-prasekolah': Shapes, 'p-lampiran': FileText,
 };
 export const partIcon = (partId: string): LucideIcon => PART_ICONS[partId] ?? FileText;
 

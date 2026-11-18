@@ -155,3 +155,9 @@ Data rasmi 2027 (`src/config/kalendarAkademik.ts`) digunakan apabila edisi 2027 
 - Alat **Tandakan julat tarikh** dalam penyunting Takwim Induk: pilih hari mula & akhir, jenis cuti dan keterangan (cth. CUTI PENGGAL 1 2027) → semua hari dalam julat ditanda sekali gus (merentas semua unit). Pilih "Hari sekolah (buang cuti)" untuk membatalkan.
 - **Kalendar** (halaman berserlah warna) kini dijana daripada jenis hari dalam Takwim Induk — kemas kini hari cuti di Takwim Induk sahaja, Kalendar menyusul secara automatik.
 - Mod *Sunting di halaman*: klik baris takwim pada halaman → penyunting dibuka pada baris tersebut (pemilih jenis hari).
+
+## 19. Planner Guru bulanan
+- Bahagian baharu **PLANNER GURU** (selepas Takwim Sekolah): 12 halaman, **satu halaman sebulan**.
+- Setiap halaman: grid bulanan (Isnin dahulu) dengan nombor minggu persekolahan (MP); hari cuti diserlah (merah kelepasan am, ungu perayaan KPM, biru cuti persekolahan, krim hujung minggu); **aktiviti setiap unit** daripada Takwim Induk dengan warna unit (Pentadbiran navy, Kurikulum hijau, HEM oren, Kokurikulum biru kehijauan, PPKI merah jambu).
+- Bahagian bawah: **Tarikh Penting** (automatik), **Senarai Tugasan** (petak semak), **Guru Ganti (Relief)** dan **Catatan**.
+- Semua data kalendar, cuti dan aktiviti dimuatkan automatik daripada Takwim Induk / Takwim Tahunan Unit; hanya senarai tugasan & catatan disunting dalam halaman Planner (baris kosong dicetak untuk ditulis tangan).

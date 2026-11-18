@@ -19,6 +19,7 @@ export const blockLabels: Record<BlockType, string> = {
   committee: 'Jawatankuasa',
   stafflist: 'Senarai Guru',
   takwim: 'Takwim Bulanan',
+  planner: 'Planner Bulanan',
 };
 
 export function createBlock(type: BlockType): Block {
@@ -57,6 +58,7 @@ export function createBlock(type: BlockType): Block {
       id, type, title: 'BULAN', columns: ['PENTADBIRAN', 'KURIKULUM', 'HAL EHWAL MURID', 'KOKURIKULUM', 'PPKI'],
       rows: [{ week: '1', date: '', day: 'Isnin', cells: ['', '', '', '', ''] }],
     };
+    case 'planner': return { id, type, month: 0, todo: [], notes: '' };
   }
 }
 
@@ -74,6 +76,7 @@ export function blockHasContent(b: Block): boolean {
     case 'committee': return b.rows.some((r) => r.members.length > 0);
     case 'stafflist': return b.columns.length > 0;
     case 'takwim': return b.rows.some((r) => (r.span ?? '').trim() !== '' || r.cells.some((c) => c.trim() !== ''));
+    case 'planner': return true;
   }
 }
 

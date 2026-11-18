@@ -40,6 +40,7 @@ function swapBlock(b: Block, from: number, to: number): Block {
     case 'orgtree': return { ...b, title: y(b.title) };
     case 'stafflist': return { ...b, title: y(b.title) };
     case 'takwim': return { ...b, title: y(b.title), rows: b.rows.map((r) => ({ ...r, span: r.span === undefined ? undefined : y(r.span), cells: r.cells.map(y) })) };
+    case 'planner': return { ...b, todo: [], notes: '' }; // tugasan & catatan peribadi tidak dibawa ke tahun baharu
   }
 }
 

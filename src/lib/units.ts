@@ -23,6 +23,7 @@ export function unitCount(b: AnyBlock, ctx: BookCtx): number {
     case 'committee': return b.display === 'chart' ? committeeChartLines(b, ctx).length : b.rows.length;
     case 'stafflist': return staffRows(ctx, b).length || 1;
     case 'takwim': return b.rows.length;
+    case 'planner': return 1;
     case 'tocrows': return b.rows.length;
   }
 }

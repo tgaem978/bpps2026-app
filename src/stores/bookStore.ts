@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import type { Block, BlockType, CoverContent, OutlinePart, OutlineTopic, ReviewMark, SectionContent } from '@/types/book';
 import { kokuTopics, ppkiChildren } from '@/config/partKoku';
 import { HEM_TUGAS_ORDER, hemIds, hemTopics } from '@/config/partHEM';
-import { defaultCover, defaultOutline, defaultSections, newSection } from '@/config/defaultContent';
+import { PLANNER_IDS, defaultCover, defaultOutline, defaultSections, newSection, plannerPart } from '@/config/defaultContent';
 import { pentadbiranTopics } from '@/config/partPentadbiran';
 import { ppkiTopics } from '@/config/partPPKI';
 import { prasekolahTopics } from '@/config/partPrasekolah';
@@ -417,6 +417,24 @@ function migrateV24(p: Partial<BookState>, marksOnly = false) {
 }
 const MONTHS_UP = ['JANUARI', 'FEBRUARI', 'MAC', 'APRIL', 'MEI', 'JUN', 'JULAI', 'OGOS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DISEMBER'];
 
+/** v26: bahagian baharu PLANNER GURU (satu halaman sebulan) selepas Takwim Sekolah. */
+function migrateV26(p: Partial<BookState>) {
+  if (!p.sections) return;
+  const year = useProjectStore.getState().profile.year;
+  const stamp = p.cover?.updatedAt ?? null;
+  const defs = defaultSections();
+  for (const id of PLANNER_IDS) {
+    if (p.sections[id] || !defs[id]) continue;
+    p.sections[id] = { ...defaultForYear(id, defs[id], year), ...(year > 2026 && stamp !== null ? { updatedAt: stamp } : {}) };
+  }
+  if (p.outline && !p.outline.some((x) => x.id === 'p-planner')) {
+    const part = plannerPart();
+    part.title = part.title.replace('2026', String(year));
+    const at = p.outline.findIndex((x) => x.id === 'p-takwim');
+    p.outline.splice(at >= 0 ? at + 1 : p.outline.length, 0, part);
+  }
+}
+
 /** Susun semula topik bahagian mengikut struktur lalai; halaman lalai yang dibuang pengguna kekal dibuang (kecuali `added`),
  * halaman tambahan pengguna dikekalkan di hujung bahagian. */
 function reshapeParts(outline: OutlinePart[], partIds: string[], added: string[]) {
@@ -714,7 +732,7 @@ export const useBookStore = create<BookState>()(
     {
       name: 'bpps2026-book',
       storage: appStorage(),
-      version: 25,
+      version: 26,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -742,6 +760,7 @@ export const useBookStore = create<BookState>()(
         if (version < 23) migrateV23(p);
         if (version < 24) migrateV24(p);
         if (version < 25) migrateV24(p, true);
+        if (version < 26) migrateV26(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

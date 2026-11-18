@@ -1,4 +1,5 @@
 import { linkKalendarSections, linkTakwimSections } from '@/lib/takwimLink';
+import { linkPlannerSections } from '@/lib/planner';
 import { createContext, createElement, useContext, useEffect, useMemo } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { AnyBlock, SectionContent, SectionLayout, TocRowsBlock } from '@/types/book';
@@ -203,6 +204,7 @@ const usedPx = (segs: Segment[]) => segs.reduce((a, s) => a + (s.h ?? 0), 0);
 const CHARTS = new Set(['orgchart', 'orgtree']);
 const isChart = (b: AnyBlock) => CHARTS.has(b.type) || (b.type === 'committee' && b.display === 'chart');
 function zoomCap(blocks: AnyBlock[]): number {
+  if (blocks.some((b) => b.type === 'planner')) return 1; // planner bersaiz tetap sehalaman
   if (blocks.length && blocks.every(isChart)) return 1.75;
   if (blocks.some((b) => b.type === 'table' || b.type === 'takwim' || b.type === 'stafflist' || isChart(b))) return 1.18;
   return 1.3;
@@ -255,7 +257,8 @@ export function useSections(): Record<string, SectionContent> {
   const store = useBookStore((s) => s.sections);
   const ov = useContext(SectionOverride);
   // Takwim Induk berpaut: lajur unit dijana daripada Takwim Tahunan setiap unit; serlahan Kalendar daripada jenis hari cuti Takwim Induk.
-  return useMemo(() => linkKalendarSections(linkTakwimSections(ov ? { ...store, ...ov } : store)), [store, ov]);
+  const year = useProjectStore((s) => s.profile.year);
+  return useMemo(() => linkPlannerSections(linkKalendarSections(linkTakwimSections(ov ? { ...store, ...ov } : store)), year), [store, ov, year]);
 }
 
 /** Konteks data (pangkalan data guru + profil) untuk BlockView. */
