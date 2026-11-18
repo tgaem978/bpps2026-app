@@ -24,14 +24,19 @@ export function Avatar({ name }: { name: string }) {
   );
 }
 
+/** Sel kalendar: hari + kod serlahan (u = kelepasan am, p = perayaan KPM, s = cuti persekolahan). */
+const CAL_CODE = /^(\d{1,2})([ups])?$/;
+
 /** Lajur jadual yang memang dibiarkan kosong (diisi tangan / pilihan). */
-const NO_NEED_COL = /CATATAN|TANDA ?TANGAN|T\.? ?TANGAN|PARAF|ULASAN|COP|^BULAN$|TINDAKAN|^$/i;
+const NO_NEED_COL = /CATATAN|TANDA ?TANGAN|T\.? ?TANGAN|PARAF|ULASAN|COP|^BULAN$|TINDAKAN|JUMLAH MINGGU|^$/i;
 
 /** Teks dengan **tebal** (format dokumen BPPS). */
 export function Rich({ text }: { text: string }) {
   const parts = text.split(/\*\*(.+?)\*\*/g);
   // "[ JAWATAN ]" (jawatan belum diisi dalam Pangkalan Data Guru) dipaparkan sebagai cip ruang-isi.
-  const ph = (t: string, k: number) => t.split(/\[ ([^\]\n]{2,60}) \]/g).map((x, j) => (j % 2 ? <span key={`${k}-${j}`} className="bp-ph-in">{x}</span> : x));
+  // "[[cal:u]]" = petak warna petunjuk kalendar
+  const sw = (t: string, k: string) => t.split(/\[\[cal:([upsw])\]\]/g).map((x, j) => (j % 2 ? <span key={`${k}-${j}`} className={`bp-sw bp-cal-${x}`} aria-hidden /> : x));
+  const ph = (t: string, k: number) => t.split(/\[ ([^\]\n]{2,60}) \]/g).flatMap((x, j) => (j % 2 ? [<span key={`${k}-${j}`} className="bp-ph-in">{x}</span>] : sw(x, `${k}-${j}`)));
   return <>{parts.map((p, i) => (i % 2 ? <strong key={i}>{ph(p, i)}</strong> : ph(p, i)))}</>;
 }
 
@@ -334,6 +339,9 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0, varia
       const stats = columnStats(block.columns, block.rows);
       // Sel kosong yang perlu diisi (ditanda pada skrin sahaja); bukan kalendar / lajur catatan / tandatangan.
       const needCol = block.columns.map((c) => !isCalendarTable(block) && !NO_NEED_COL.test(c));
+      const cal: boolean = isCalendarTable(block) as boolean;
+      // Sel kosong berstruktur bukan "perlu diisi": baris jumlah/tajuk (ada sel **tebal**) dan sambungan lajur kumpulan pertama.
+      const needRow = (ri: number, ci: number) => !block.rows[ri].some((c) => /^\*\*/.test(c.trim())) && !(ci === 0 && block.rows.slice(0, ri).some((x) => (x[0] ?? '').trim()));
       const cellClass = (ci: number) => (firstGold && ci === 0 ? 'bp-num' : (ci === 0 && num && block.style !== 'gold') || stats[ci].line > 34 ? 'bp-l' : 'bp-c');
       return (
         <div className={`bp-block bp-table-wrap${dense}${x}`} style={gs}>
@@ -352,7 +360,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0, varia
               {block.rows.slice(from, end).map((r, ri) => (
                 <tr key={ri} className="u" style={block.rowHeights?.[from + ri] ? { height: `calc(var(--mm) * ${block.rowHeights[from + ri]})` } : undefined}>
                   {num && <td className="bp-num">{from + ri + 1}</td>}
-                  {block.columns.map((_, ci) => <td key={ci} data-f={`c${from + ri}-${ci}`} className={`${cellClass(ci)}${needCol[ci] && !(r[ci] ?? '').trim() ? ' bp-td-blank' : ''}`} style={fmtStyle({ ...block, align: block.colAlign?.[ci] ?? block.align }, { pad: true })}><Rich text={t(r[ci] ?? '')} /></td>)}
+                  {cal ? block.columns.map((_, ci) => { const m = (r[ci] ?? '').trim().match(CAL_CODE); return <td key={ci} data-f={`c${from + ri}-${ci}`} className={`bp-c${m?.[2] ? ` bp-cal-${m[2]}` : ''}`}>{m ? m[1] : r[ci]}</td>; }) : block.columns.map((_, ci) => <td key={ci} data-f={`c${from + ri}-${ci}`} className={`${cellClass(ci)}${needCol[ci] && !(r[ci] ?? '').trim() && needRow(from + ri, ci) ? ' bp-td-blank' : ''}`} style={fmtStyle({ ...block, align: block.colAlign?.[ci] ?? block.align }, { pad: true })}><Rich text={t(r[ci] ?? '')} /></td>)}
                 </tr>
               ))}
             </tbody>

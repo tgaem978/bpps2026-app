@@ -13,6 +13,7 @@ import { FLAT_TOC_PARTS, OVERRIDES, REMOVED_IDS, partRujukanSections, unitTopicI
 import { createBlock, uid } from '@/lib/blocks';
 import { BIDANG_TUGAS, KURI_UNIT_PAGES } from '@/config/bidangTugas';
 import { MASTER_IDS } from '@/config/takwimUnit';
+import { hasAcademic, markTakwimRows } from '@/config/kalendarAkademik';
 import { SENARAI_JK, senaraiItems, senaraiSection, tugasBlocks } from '@/config/senaraiJk';
 import { allIds } from '@/lib/outline';
 import { defaultForYear } from '@/lib/rollover';
@@ -386,6 +387,35 @@ function migrateV19(p: Partial<BookState>) {
  */
 /** v21: Carta Organisasi Induk unit dilengkapkan (format seragam, keahlian penuh) — halaman yang belum disunting dimuat semula. */
 const CARTA_UNIT_IDS = ['kx-carta-induk', 'hx-carta', 'kx-carta-koku', 'pra-carta'];
+/**
+ * v24: Kalendar Akademik rasmi tahun edisi (cth. 2027, Kumpulan B — WP Kuala Lumpur): Kalendar Akademik, Cuti Perayaan &
+ * Kelepasan Am, Minggu Akademik dan Kalendar berserlah dijana semula (jika belum disunting); Takwim Induk ditanda baris cuti.
+ */
+function migrateV24(p: Partial<BookState>) {
+  if (!p.sections) return;
+  const year = useProjectStore.getState().profile.year;
+  if (!hasAcademic(year)) return;
+  const stamp = p.cover?.updatedAt ?? null;
+  const defs = defaultSections();
+  const untouched = (sec: SectionContent | undefined) => !sec || (sec.review?.status !== 'siap' && (sec.updatedAt === null || (stamp !== null && sec.updatedAt === stamp)));
+  const done: ReviewMark = { year, status: 'siap', by: `Kalendar Akademik KPM ${year}`, at: Date.now() };
+  for (const id of ['t-akademik', 't-cuti', 'ma-minggu-akademik', 't-kalendar']) {
+    const old = p.sections[id];
+    if (!defs[id] || !untouched(old)) continue;
+    p.sections[id] = { ...defaultForYear(id, defs[id], year), updatedAt: old?.updatedAt ?? stamp, review: done };
+  }
+  for (const id of MASTER_IDS) {
+    const sec = p.sections[id];
+    if (!sec) continue;
+    p.sections[id] = { ...sec, blocks: sec.blocks.map((b) => {
+      if (b.type !== 'takwim') return b;
+      const m = MONTHS_UP.indexOf(b.title.trim().toUpperCase());
+      return m < 0 ? b : { ...b, rows: markTakwimRows(b.rows, year, m) };
+    }) };
+  }
+}
+const MONTHS_UP = ['JANUARI', 'FEBRUARI', 'MAC', 'APRIL', 'MEI', 'JUN', 'JULAI', 'OGOS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DISEMBER'];
+
 /** Susun semula topik bahagian mengikut struktur lalai; halaman lalai yang dibuang pengguna kekal dibuang (kecuali `added`),
  * halaman tambahan pengguna dikekalkan di hujung bahagian. */
 function reshapeParts(outline: OutlinePart[], partIds: string[], added: string[]) {
@@ -683,7 +713,7 @@ export const useBookStore = create<BookState>()(
     {
       name: 'bpps2026-book',
       storage: appStorage(),
-      version: 23,
+      version: 24,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -709,6 +739,7 @@ export const useBookStore = create<BookState>()(
         if (version < 21) migrateV21(p);
         if (version < 22) migrateV22(p);
         if (version < 23) migrateV23(p);
+        if (version < 24) migrateV24(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

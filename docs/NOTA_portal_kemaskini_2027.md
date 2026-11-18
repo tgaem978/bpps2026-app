@@ -140,3 +140,12 @@ Setiap unit kini dibuka dengan empat halaman pengenalan yang sama susunan, gaya 
 - Penjana dan portal: pilihan **Sunting di halaman** (lalai) atau **Borang**.
 - Klik mana-mana bahagian halaman sebenar (perenggan, sel jadual, item senarai, baris maklumat, peranan jawatankuasa, medan merah bernombor) → panel penyunting dibuka dengan kursor pada medan tersebut; perubahan dipaparkan serta-merta. Panel juga menyenaraikan pintasan nombor medan perlu diisi dan butang tambah kandungan.
 - Telefon: panel penyunting muncul sebagai helaian di bahagian bawah skrin.
+
+## 17. Kalendar Akademik 2027 (Kumpulan B — WP Kuala Lumpur)
+Data rasmi 2027 (`src/config/kalendarAkademik.ts`) digunakan apabila edisi 2027 dijana / dimigrasi (v24):
+- **Kalendar Akademik 2027**: Penggal 1 & 2, julat bulanan, jumlah hari & minggu setiap segmen, cuti penggal / pertengahan / akhir tahun; jumlah 203 hari, 44 minggu.
+- **Cuti Perayaan 2027**: tambahan cuti KPM bagi Kumpulan B, catatan perayaan dalam cuti sekolah, dan jadual **Cuti Kelepasan Am WP Kuala Lumpur 2027** (tarikh kalendar Hijrah bertanda * — sahkan dengan senarai rasmi JPM).
+- **Minggu Akademik 2027**: MP1 – MP44 dengan catatan cuti dalam minggu tersebut.
+- **Kalendar 2027**: serlahan warna — merah (kelepasan am), ungu (perayaan KPM), biru (cuti persekolahan), krim (hujung minggu) + petunjuk. Kod sel: `8u`, `9p`, `6s` (boleh diubah dalam penyunting jadual).
+- **Takwim Induk 2027**: nombor minggu persekolahan diisi; hari cuti ditanda sebagai baris cuti merentas semua unit.
+- Halaman yang telah disunting pengguna tidak ditimpa (kecuali tanda cuti pada Takwim Induk).

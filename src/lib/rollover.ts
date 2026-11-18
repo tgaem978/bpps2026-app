@@ -4,6 +4,7 @@
  */
 import type { Block, CoverContent, OutlinePart, ReviewMark, SectionContent, TableBlock, TakwimBlock, TakwimRow } from '@/types/book';
 import { allIds } from '@/lib/outline';
+import { academicSection, hasAcademic, legendBlock, markGrid, markTakwimRows } from '@/config/kalendarAkademik';
 
 /** Tahun kandungan lalai dalam kod (src/config/*). */
 export const BASE_YEAR = 2026;
@@ -140,6 +141,9 @@ export interface SectionRollover { section: SectionContent; regenerated: boolean
 
 /** Gulung satu halaman ke tahun baharu (tanpa tanda semakan). */
 export function rolloverSection(id: string, sec: SectionContent, from: number, to: number): SectionRollover {
+  // Halaman kalendar rasmi tahun baharu (jika data tersedia): dijana sepenuhnya.
+  const gen = academicSection(id, sec, to);
+  if (gen) return { section: gen, regenerated: true, cleared: false };
   let regenerated = false;
   let cleared = false;
   const rule = DATE_PAGES[id];
@@ -151,12 +155,12 @@ export function rolloverSection(id: string, sec: SectionContent, from: number, t
       if (m >= 0) lastMonth = m;
     }
     if (b.type === 'table' && b.columns.length === 7 && b.columns.join('') === 'ISRKJSA' && lastMonth >= 0) {
-      b = { ...b, rows: monthGrid(to, lastMonth) };
+      b = { ...b, rows: markGrid(monthGrid(to, lastMonth), to, lastMonth) };
       regenerated = true;
     } else if (b.type === 'takwim') {
       const m = monthIndex(b.title);
       if (m >= 0) {
-        b = { ...(b as TakwimBlock), rows: takwimRows(to, m, b.columns.length) };
+        b = { ...(b as TakwimBlock), rows: markTakwimRows(takwimRows(to, m, b.columns.length), to, m) };
         regenerated = true;
       }
     } else if (b.type === 'table' && rule) {
@@ -166,7 +170,10 @@ export function rolloverSection(id: string, sec: SectionContent, from: number, t
     }
     return b;
   });
-  return { section: { ...sec, title: swapYear(sec.title, from, to), subtitle: swapYear(sec.subtitle, from, to), blocks }, regenerated, cleared };
+  // Kalendar berserlah: petunjuk warna di hujung halaman
+  const legend = regenerated && hasAcademic(to) && blocks.some((b) => b.type === 'table' && b.columns.join('') === 'ISRKJSA') && !blocks.some((b) => (b.type === 'list' && b.items.some((x) => x.includes('[[cal:'))) || (b.type === 'paragraph' && b.text.includes('[[cal:')));
+  const out = legend ? [...blocks, legendBlock(to)] : blocks;
+  return { section: { ...sec, title: swapYear(sec.title, from, to), subtitle: swapYear(sec.subtitle, from, to), blocks: out }, regenerated, cleared };
 }
 
 export interface BookData { cover: CoverContent; sections: Record<string, SectionContent>; outline: OutlinePart[] }

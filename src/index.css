@@ -690,7 +690,7 @@ tr.bp-toc-l0:not(:first-child) td { box-shadow: 0 calc(var(--mm) * -2.5) 0 var(-
 :root[data-book-theme="biru-emas"] .bp-table th { overflow-wrap: break-word; padding-left: calc(var(--mm) * .6); padding-right: calc(var(--mm) * .6); letter-spacing: .02em; }
 /* Kalendar tahunan padat: 6 bulan setiap lajur = 12 bulan pada satu halaman */
 :root[data-book-theme="biru-emas"] .bp-cal { font-size: calc(var(--pt) * 9.5); line-height: 1.1; }
-:root[data-book-theme="biru-emas"] .bp-cal tbody tr { height: calc(var(--mm) * 4.6); }
+:root[data-book-theme="biru-emas"] .bp-cal tbody tr { height: calc(var(--mm) * 4.25); }
 :root[data-book-theme="biru-emas"] .bp-cal td { padding: calc(var(--mm) * .2); }
 :root[data-book-theme="biru-emas"] .bp-cal th { padding: calc(var(--mm) * .5); font-size: 1em; }
 :root[data-book-theme="biru-emas"] .bp-v-cal-head .bp-heading { padding: calc(var(--mm) * .8); }
@@ -766,3 +766,11 @@ body.portal-be nav[aria-label] button[aria-current="page"] { box-shadow: inset 3
   .pe-on [data-bid] [data-f]:hover { background-color: rgba(201, 161, 59, .12); }
   .pe-flash { box-shadow: 0 0 0 2px #C9A13B; transition: box-shadow .3s; }
 }
+
+/* ---------- Kalendar: serlahan cuti (u = kelepasan am, p = perayaan KPM, s = cuti persekolahan, w = hujung minggu) ---------- */
+:root .book-page .bp-cal td.bp-cal-u:nth-child(n), .bp-sw.bp-cal-u { background: #F8C9C9 !important; color: #9B1C1C !important; }
+:root .book-page .bp-cal td.bp-cal-p:nth-child(n), .bp-sw.bp-cal-p { background: #D9C8F2 !important; color: #4C2A85 !important; }
+:root .book-page .bp-cal td.bp-cal-s:nth-child(n), .bp-sw.bp-cal-s { background: #C8E6F7 !important; color: #0B4A6F !important; }
+.bp-sw.bp-cal-w { background: #FBF4DF !important; }
+.bp-cal td.bp-cal-u, .bp-cal td.bp-cal-p, .bp-cal td.bp-cal-s { font-weight: 700; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.bp-sw { display: inline-block; width: 1.5em; height: 1em; margin: 0 .35em 0 .6em; vertical-align: -.12em; border-radius: .2em; border: 1px solid rgba(11, 42, 91, .25); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
