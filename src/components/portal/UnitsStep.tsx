@@ -12,7 +12,7 @@ import { Step, btn, btnPrimary, field } from './HubCards';
 
 /** "PENGURUSAN HAL EHWAL MURID" → "Hal Ehwal Murid". */
 const unitName = (title: string) =>
-  title.replace(/^PENGURUSAN\s+/i, '').toLowerCase().replace(/(^|[\s(&/-])(\p{L})/gu, (_m, a: string, b: string) => a + b.toUpperCase()).replace(/\(ppki\)/i, '(PPKI)');
+  title.replace(/^PENGURUSAN\s+(?!&)/i, '').toLowerCase().replace(/(^|[\s(&/-])(\p{L})/gu, (_m, a: string, b: string) => a + b.toUpperCase()).replace(/\(ppki\)/i, '(PPKI)');
 
 /** Unit lalai: satu bagi setiap bahagian buku (kecuali Lampiran), penyelaras = nama dalam nota partition. */
 export function defaultUnits(outline: OutlinePart[], note: (s: string) => string): UnitInput[] {

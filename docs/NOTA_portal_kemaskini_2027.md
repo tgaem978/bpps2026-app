@@ -94,3 +94,8 @@ Dalam mod portal, stor pelayar disimpan dalam memori sahaja - membuka portal dal
 - Nama fail PDF lalai: `BPPS 2027 - SK Bandar Tasik Selatan` (ikut tahun edisi & nama sekolah).
 - Takwim: kepala lajur MINGGU tidak lagi dipecah dua baris.
 - Dalam dialog cetak: pilih *Simpan sebagai PDF*, saiz A4, margin *Tiada*, dan pastikan *Grafik latar* ditandakan jika pilihan itu dipaparkan.
+
+## 10. Portal Kemas Kini - identiti Biru Navy & Emas
+- **/portal** (penyelaras): warna navy/emas (token reka bentuk portal), latar grid pelan, halaman log masuk bergaya kulit buku (logo KPM & sekolah, PORTAL KEMAS KINI, pil SESI AKADEMIK tahun edisi daripada `/api/health`, lukisan bangunan), kepala navy berjalur emas dengan butang **Hantar** emas, kad selamat datang dengan kiraan (halaman unit, perlu dikemas kini, belum dihantar, menunggu semakan) dan bar kemajuan emas.
+- **/kemaskini** (pentadbir): jalur hero navy-emas, nombor langkah 01-05 dalam lencana emas, kad berjalur emas.
+- Pembetulan: unit lalai bagi "PENGURUSAN & PENTADBIRAN" kini dinamakan "Pengurusan & Pentadbiran" (sebelum ini "& Pentadbiran").

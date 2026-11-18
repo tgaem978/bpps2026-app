@@ -12,7 +12,9 @@ import { useProjectStore } from '@/stores/projectStore';
 import { useStaffStore } from '@/stores/staffStore';
 import { useMasterStore } from '@/stores/masterStore';
 import { useUiStore } from '@/stores/uiStore';
-import { portalState, portalSubmit, unitLogin, unitLogout, unitSession, type ApiError } from '@/lib/portalApi';
+import { health, portalState, portalSubmit, unitLogin, unitLogout, unitSession, type ApiError } from '@/lib/portalApi';
+import { applyTokens, designTokens } from '@/templates/tokens';
+import { BuildingArt } from '@/components/book/themeArt';
 import { submissionStatus, type PortalState } from '@/types/portal';
 import type { SectionContent } from '@/types/book';
 import { SectionForm } from '@/pages/SectionEditorPage';
@@ -21,6 +23,19 @@ import { Toaster } from '@/components/layout/Overlays';
 
 const btn = 'inline-flex items-center justify-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium hover:bg-surface-2 disabled:opacity-50';
 const btnPrimary = 'inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-fg hover:opacity-90 disabled:opacity-50';
+/** Butang utama emas (di atas jalur navy). */
+const btnGold = 'pt-gold inline-flex items-center justify-center gap-1.5 rounded-md px-4 py-2 text-sm font-bold disabled:opacity-45';
+const btnGhost = 'inline-flex items-center justify-center gap-1.5 rounded-md border border-white/25 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/10';
+
+/** Identiti portal: Biru Navy & Emas (selaras dengan tema buku edisi 2027). */
+const portalTokens = {
+  ...designTokens,
+  colors: {
+    ...designTokens.colors,
+    primary: '#0B2A5B', primaryFg: '#ffffff', accent: '#C9A13B', bg: '#EEF2F9', surface: '#ffffff', surface2: '#F3F6FB',
+    border: '#D3DCEA', text: '#141C2B', muted: '#5A6578', sidebar: '#0B2A5B', sidebarFg: '#E8EEF8',
+  },
+};
 const field = 'w-full rounded-md border border-border bg-surface px-3 py-2 text-sm';
 const fmtTime = (t: number) => new Date(t).toLocaleString('ms-MY', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
@@ -63,6 +78,8 @@ export default function PortalApp() {
   }, []);
 
   useEffect(() => {
+    applyTokens(portalTokens);
+    document.body.classList.add('portal-be');
     document.title = 'Portal Kemas Kini BPPS';
     const code = decodeURIComponent(window.location.hash.replace(/^#/, '')).trim();
     if (code) {
@@ -116,39 +133,57 @@ function Login({ error, onDone }: { error?: string; onDone: () => void }) {
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(error ?? '');
+  const [year, setYear] = useState<number | null>(null);
+  useEffect(() => { health().then((h) => setYear(h.edition?.year ?? null), () => undefined); }, []);
+  const base = import.meta.env.BASE_URL;
   return (
-    <Centered>
-      <div className="flex items-center gap-3">
-        <span className="rounded-md bg-primary p-2.5 text-primary-fg"><Send size={22} aria-hidden /></span>
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-accent">Buku Panduan Pengurusan Sekolah</p>
-          <h1 className="font-display text-xl font-bold">Portal Kemas Kini</h1>
+    <div className="pt-login flex min-h-screen items-center justify-center p-4">
+      <span className="pt-corner pt-corner-l" aria-hidden />
+      <span className="pt-corner pt-corner-r" aria-hidden />
+      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl bg-surface shadow-[0_20px_50px_rgba(11,42,91,.25)]">
+        <div className="pt-hero px-6 pb-6 pt-7 text-center text-white">
+          <div className="flex justify-center gap-4">
+            <img src={`${base}content/logo-kpm.png`} alt="" className="h-12 w-auto" />
+            <img src={`${base}content/logo-skbts.png`} alt="" className="h-12 w-auto" />
+          </div>
+          <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#E8C766]">Buku Panduan Pengurusan Sekolah</p>
+          <h1 className="pt-display mt-1 text-4xl leading-none">PORTAL KEMAS KINI</h1>
+          {year && (
+            <div className="mt-3 flex items-center justify-center gap-2">
+              <span className="pt-display text-xl italic text-[#C9A13B]">///</span>
+              <span className="pt-pill"><span>SESI AKADEMIK</span> <b>{year}</b></span>
+              <span className="pt-display text-xl italic text-[#C9A13B]">///</span>
+            </div>
+          )}
+        </div>
+        <div className="px-6 pb-6 pt-5">
+          <p className="text-sm text-muted">Masukkan kod akses unit anda (diberi oleh pentadbir), atau buka pautan penuh yang dikongsi melalui WhatsApp / e-mel.</p>
+          <form
+            className="mt-4 grid gap-3"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setBusy(true);
+              setErr('');
+              try {
+                await unitLogin(code);
+                onDone();
+              } catch (ex) {
+                setErr((ex as Error).message);
+                setBusy(false);
+              }
+            }}
+          >
+            <label className="text-sm font-semibold text-primary">
+              Kod akses
+              <input className={`${field} mt-1 py-3 text-center font-mono text-lg uppercase tracking-[0.25em]`} value={code} onChange={(e) => setCode(e.target.value)} placeholder="XXXX-XXXX-XXXX" autoComplete="off" autoCapitalize="characters" />
+            </label>
+            <button className={`${btnPrimary} py-3`} disabled={busy || code.replace(/[^a-z0-9]/gi, '').length < 8}>{busy ? <Loader2 size={16} className="animate-spin" /> : <KeyRound size={16} />} Masuk ke portal unit</button>
+            {err && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{err}</p>}
+          </form>
+          <BuildingArt className="mx-auto mt-5 w-full max-w-[300px] opacity-25" />
         </div>
       </div>
-      <p className="mt-4 text-sm text-muted">Masukkan kod akses unit anda (diberi oleh pentadbir), atau buka pautan penuh yang dikongsi.</p>
-      <form
-        className="mt-4 grid gap-3"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          setBusy(true);
-          setErr('');
-          try {
-            await unitLogin(code);
-            onDone();
-          } catch (ex) {
-            setErr((ex as Error).message);
-            setBusy(false);
-          }
-        }}
-      >
-        <label className="text-sm font-medium">
-          Kod akses
-          <input className={`${field} mt-1 font-mono uppercase tracking-widest`} value={code} onChange={(e) => setCode(e.target.value)} placeholder="XXXX-XXXX-XXXX" autoComplete="off" autoCapitalize="characters" />
-        </label>
-        <button className={btnPrimary} disabled={busy || code.replace(/[^a-z0-9]/gi, '').length < 8}>{busy ? <Loader2 size={16} className="animate-spin" /> : <KeyRound size={16} />} Masuk</button>
-        {err && <p className="text-sm text-red-600">{err}</p>}
-      </form>
-    </Centered>
+    </div>
   );
 }
 
@@ -242,16 +277,17 @@ function Workspace({ state, reload, onLogout }: { state: PortalState; reload: ()
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-20 flex flex-wrap items-center gap-2 border-b border-border bg-surface px-3 py-2 md:px-5">
+      <header className="pt-header sticky top-0 z-20 flex flex-wrap items-center gap-2 px-3 py-2.5 text-white md:px-5">
+        <img src={`${import.meta.env.BASE_URL}content/logo-skbts.png`} alt="" className="hidden h-9 w-auto sm:block" />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[11px] font-semibold uppercase tracking-wider text-accent">Portal Kemas Kini · BPPS {edition.meta.year}</p>
-          <h1 className="truncate font-display text-base font-bold md:text-lg">{unit.name} <span className="font-normal text-muted">· {profile.shortName}</span></h1>
+          <p className="truncate text-[11px] font-semibold uppercase tracking-[0.2em] text-[#E8C766]">Portal Kemas Kini · BPPS {edition.meta.year}</p>
+          <h1 className="pt-display truncate text-lg leading-tight md:text-xl">{unit.name.toUpperCase()} <span className="font-medium text-white/60">· {profile.shortName.toUpperCase()}</span></h1>
         </div>
-        <button className={btn} onClick={() => setShowHistory(true)}><History size={15} /> <span className="hidden sm:inline">Sejarah</span></button>
-        <button className={btnPrimary} disabled={!changed.length} onClick={() => setSending(true)}>
+        <button className={btnGhost} onClick={() => setShowHistory(true)}><History size={15} /> <span className="hidden sm:inline">Sejarah</span></button>
+        <button className={btnGold} disabled={!changed.length} onClick={() => setSending(true)}>
           <Send size={15} /> Hantar{changed.length ? ` (${changed.length})` : ''}
         </button>
-        <button className={btn} onClick={onLogout} aria-label="Log keluar"><LogOut size={15} /></button>
+        <button className={btnGhost} onClick={onLogout} aria-label="Log keluar"><LogOut size={15} /></button>
       </header>
 
       <div className="mx-auto flex w-full max-w-[1500px] flex-1 gap-5 p-3 md:p-5">
@@ -260,13 +296,29 @@ function Workspace({ state, reload, onLogout }: { state: PortalState; reload: ()
         </aside>
 
         <main className="min-w-0 flex-1" ref={topRef}>
-          <div className="mb-3 rounded-lg border border-border bg-surface p-3 text-sm shadow-card">
-            <p>
-              Selamat datang{unit.coordinator ? `, ${unit.coordinator}` : ''}. Sunting halaman unit anda untuk <b>BPPS {edition.meta.year}</b>, kemudian tekan <b>Hantar</b>. Pentadbir akan menyemak sebelum kemas kini dimasukkan ke dalam buku.
-            </p>
-            <p className="mt-1 text-xs text-muted">
-              {unit.sectionIds.length} halaman · {counts.perlu} perlu dikemas kini · {counts.dihantar} menunggu semakan · perubahan disimpan sementara dalam pelayar ini sehingga dihantar.
-            </p>
+          <div className="pt-welcome mb-4 overflow-hidden rounded-xl border border-border bg-surface shadow-card">
+            <div className="p-4 text-sm">
+              <p className="pt-display text-lg text-primary">Selamat datang{unit.coordinator ? `, ${unit.coordinator}` : ''}</p>
+              <p className="mt-1 text-muted">
+                Sunting halaman unit anda untuk <b className="text-text">BPPS {edition.meta.year}</b>, kemudian tekan <b className="text-text">Hantar</b>. Pentadbir akan menyemak sebelum kemas kini dimasukkan ke dalam buku. Perubahan disimpan sementara dalam pelayar ini sehingga dihantar.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 border-t border-border sm:grid-cols-4">
+              {([
+                [unit.sectionIds.length, 'Halaman unit', 'text-primary'],
+                [counts.perlu, 'Perlu dikemas kini', 'text-red-700'],
+                [changed.length, 'Belum dihantar', 'text-amber-700'],
+                [counts.dihantar, 'Menunggu semakan', 'text-[#2E63B0]'],
+              ] as const).map(([n, label, tone]) => (
+                <div key={label} className="border-border px-4 py-3 [&:not(:last-child)]:border-r">
+                  <div className={`pt-display text-3xl leading-none ${tone}`}>{n}</div>
+                  <div className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-muted">{label}</div>
+                </div>
+              ))}
+            </div>
+            <div className="h-1.5 bg-surface-2">
+              <div className="h-full bg-gradient-to-r from-[#B8902F] to-[#E8C766]" style={{ width: `${unit.sectionIds.length ? Math.round(((unit.sectionIds.length - counts.perlu) / unit.sectionIds.length) * 100) : 0}%` }} />
+            </div>
           </div>
 
           {/* Pemilih halaman (telefon / tablet) */}

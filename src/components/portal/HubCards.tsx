@@ -8,7 +8,7 @@ import { editionYears, switchEdition, useEditions } from '@/lib/editions';
 import { adminLogin, adminLogout, publishEdition, type ApiError } from '@/lib/portalApi';
 import type { AdminOverview, HealthInfo } from '@/types/portal';
 
-export const card = 'rounded-lg border border-border bg-surface p-5 shadow-card';
+export const card = 'rounded-xl border border-border border-t-4 border-t-[#C9A13B] bg-surface p-5 shadow-card';
 export const btn = 'inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium hover:bg-surface-2 disabled:opacity-50';
 export const btnPrimary = 'inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-fg hover:opacity-90 disabled:opacity-50';
 export const field = 'w-full rounded-md border border-border bg-surface px-3 py-2 text-sm';
@@ -19,7 +19,7 @@ export function Step({ n, title, icon, children, right }: { n: number; title: st
   return (
     <section className={card}>
       <div className="mb-3 flex flex-wrap items-center gap-3">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-fg">{n}</span>
+        <span className="pt-gold pt-display flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base">{String(n).padStart(2, '0')}</span>
         <span className="text-primary">{icon}</span>
         <h3 className="min-w-0 flex-1 font-display text-lg font-bold">{title}</h3>
         {right}

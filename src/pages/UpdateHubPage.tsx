@@ -49,11 +49,11 @@ export default function UpdateHubPage() {
 
   return (
     <div className="mx-auto grid max-w-4xl gap-5">
-      <section className="flex flex-col gap-4 rounded-lg bg-primary p-6 text-primary-fg shadow-card md:flex-row md:items-center">
-        <div className="self-start rounded-lg bg-white/10 p-3"><Send size={32} aria-hidden /></div>
+      <section className="pt-hero relative flex flex-col gap-4 overflow-hidden rounded-xl p-6 text-white shadow-card md:flex-row md:items-center">
+        <div className="self-start rounded-lg border border-[#C9A13B]/60 bg-white/10 p-3 text-[#E8C766]"><Send size={32} aria-hidden /></div>
         <div className="flex-1">
-          <p className="text-sm font-semibold uppercase tracking-wider text-accent">Portal Kemas Kini</p>
-          <h2 className="mt-1 font-display text-2xl font-bold">Kumpul kemas kini BPPS {year} daripada setiap unit</h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#E8C766]">Portal Kemas Kini</p>
+          <h2 className="pt-display mt-1 text-3xl leading-tight">Kumpul kemas kini BPPS {year} daripada setiap unit</h2>
           <p className="mt-1 text-sm opacity-85">
             Penyelaras unit mengisi dan mengemas kini halaman unit masing-masing melalui pautan portal. Kiriman masuk ke peti masuk di bawah; anda semak, terima atau tolak, dan buku dikemas kini secara automatik.
           </p>
