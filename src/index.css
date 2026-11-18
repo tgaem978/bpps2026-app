@@ -805,8 +805,8 @@ body.portal-be nav[aria-label] button[aria-current="page"] { box-shadow: inset 3
 .pl-head > span { display: flex; align-items: center; justify-content: center; border-left: calc(var(--mm) * .15) solid rgba(255, 255, 255, .15); }
 .pl-head > span.pl-wkend { background: #1D4A8C; color: #E8C766; }
 .pl-row { flex: 1 1 0; min-height: 0; border-top: calc(var(--mm) * .2) solid var(--pl-line); }
-.pl-wk { display: flex; align-items: center; justify-content: center; writing-mode: vertical-rl; transform: rotate(180deg); font-size: calc(var(--pt) * 6.4); font-weight: 800; letter-spacing: .08em; color: var(--pl-navy); background: #F3EBD2; }
-.pl-head .pl-wk { writing-mode: horizontal-tb; transform: none; background: #08214A; color: #E8C766; font-size: calc(var(--pt) * 5.8); }
+.pl-wk { display: flex; align-items: center; justify-content: center; font-size: calc(var(--pt) * 6.6); font-weight: 800; letter-spacing: .08em; color: var(--pl-navy); background: #F3EBD2; }
+.pl-head .pl-wk { background: #08214A; color: #E8C766; font-size: calc(var(--pt) * 5.8); }
 .pl-day { position: relative; min-width: 0; overflow: hidden; padding: calc(var(--mm) * 3.8) calc(var(--mm) * .8) calc(var(--mm) * .6); border-left: calc(var(--mm) * .2) solid var(--pl-line); display: flex; flex-direction: column; gap: calc(var(--mm) * .45); }
 .pl-day.pl-wkend { background: #FBF6E6; }
 .pl-day.pl-out { background: repeating-linear-gradient(135deg, #F5F7FB 0 calc(var(--mm) * 1.2), #EEF2F8 calc(var(--mm) * 1.2) calc(var(--mm) * 2.4)); }

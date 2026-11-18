@@ -9,6 +9,8 @@ const TODO_LINES = 7;
 const RELIEF_ROWS = 6;
 const NOTE_LINES = 5;
 const MAX_ACTS = 4;
+/** Label minggu persekolahan: M01, M02 … M44. */
+const wkLabel = (w: string) => (/^\d+$/.test(w) ? `M${w.padStart(2, '0')}` : w);
 
 /** Satu kotak hari dalam grid planner. */
 function DayCell({ x, units }: { x: PlannerDay; units: string[] }) {
@@ -50,7 +52,7 @@ export function PlannerView({ block }: { block: PlannerBlock }) {
       <div className="pl-top">
         <div className="pl-month"><span>{MONTHS[m]}</span><b>{p.year}</b></div>
         <div className="pl-meta">
-          {mp.length > 0 && <p className="pl-mp">Minggu persekolahan <b>MP{mp[0]}{mp.length > 1 ? ` – MP${mp[mp.length - 1]}` : ''}</b></p>}
+          {mp.length > 0 && <p className="pl-mp">Minggu persekolahan <b>{wkLabel(mp[0])}{mp.length > 1 ? ` – ${wkLabel(mp[mp.length - 1])}` : ''}</b></p>}
           <p className="pl-legend">
             {(['umum', 'perayaan', 'sekolah'] as const).map((k) => <span key={k} className={`pl-key pl-${k}`}>{HOLIDAY_LABEL[k]}</span>)}
             {usedUnits.map(({ u, i }) => <span key={u} className="pl-key pl-unit" style={{ ['--uc' as string]: unitColor(u, i) }}>{unitShort(u)}</span>)}
@@ -64,7 +66,7 @@ export function PlannerView({ block }: { block: PlannerBlock }) {
           const wk = w.find((x) => x?.week)?.week ?? '';
           return (
             <div key={wi} className="pl-row">
-              <span className="pl-wk">{wk ? `MP${wk}` : ''}</span>
+              <span className="pl-wk">{wk ? wkLabel(wk) : ''}</span>
               {w.map((x, i) => (x ? <DayCell key={i} x={x} units={p.units} /> : <div key={i} className="pl-day pl-out" />))}
             </div>
           );
