@@ -125,7 +125,11 @@ export interface TakwimRow {
   span?: string;
   cells: string[];
 }
-export interface TakwimBlock extends BaseBlock { type: 'takwim'; title: string; columns: string[]; rows: TakwimRow[] }
+export interface TakwimBlock extends BaseBlock {
+  type: 'takwim'; title: string; columns: string[]; rows: TakwimRow[];
+  /** Takwim Induk berpaut: lajur unit diisi automatik daripada Takwim Tahunan setiap unit (lihat lib/takwimLink.ts). */
+  linked?: boolean;
+}
 
 /** Blok dalaman (tidak boleh ditambah pengguna): baris isi kandungan. */
 export interface TocRowsBlock extends BaseBlock {

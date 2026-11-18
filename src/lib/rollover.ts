@@ -110,7 +110,10 @@ export const DATE_PAGES: Record<string, ClearRule> = {
   'pp-pencerapan-guru': { cols: /^PENCERAPAN/i },
   'pp-semakan-hasil': { cols: /^SEMAKAN PENGGAL/i },
   'kk-perhimpunan': { cols: /^TARIKH$/i },
-  'kk-takwim': { strip: true },
+  'kk-takwim': { cols: /^TARIKH$/i, strip: true },
+  'k-takwim': { cols: /^TARIKH$/i },
+  'pp-takwim': { cols: /^TARIKH$/i },
+  'hx-takwim': { cols: /^TARIKH$/i },
   'pk-takwim': { cols: /^TARIKH$/i },
   'pra-takwim': { cols: /^TARIKH$/i },
 };

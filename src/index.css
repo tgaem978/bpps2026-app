@@ -724,3 +724,36 @@ body.portal-be { background-color: #EEF2F9; background-image: linear-gradient(rg
 .pt-gold:hover:not(:disabled) { filter: brightness(1.05); }
 .pt-welcome { border-top: 4px solid #C9A13B; }
 body.portal-be nav[aria-label] button[aria-current="page"] { box-shadow: inset 3px 0 0 #C9A13B; }
+
+/* ---------- Medan perlu diisi: merah pastel + "TAMBAH MAKLUMAT" + nombor panduan (skrin sahaja; tidak dicetak / dieksport) ----------
+ * Tiada perubahan saiz/aliran (hanya latar, garis dalam & label mutlak) supaya penomboran halaman kekal.
+ * Nombor panduan diberi oleh PageView (data-n) — bukan pembilang CSS (pembilang dikira semula seluruh dokumen setiap ukuran). */
+@media screen {
+  html[data-mark="1"] .book-page:not(.bp-measure) :is(.bp-ph, .bp-ph-in, .bp-kv-blank, .bp-cm-blank, .bp-card-empty, .bp-td-blank)[data-n] {
+    position: relative; background-color: #FDECEC !important; box-shadow: inset 0 0 0 calc(var(--mm) * .3) #EFA3A3; border-radius: calc(var(--mm) * .8); color: #B23A3A !important;
+  }
+  html[data-mark="1"] .book-page:not(.bp-measure) .bp-ph-in[data-n] { border-color: #EFA3A3 !important; }
+  html[data-mark="1"] .book-page:not(.bp-measure) .bp-td-blank[data-n] { border-radius: 0; }
+  html[data-mark="1"] .book-page:not(.bp-measure) .bp-kv-blank[data-n] { background-image: none !important; }
+  /* nombor panduan */
+  html[data-mark="1"] .book-page:not(.bp-measure) [data-n]::before {
+    content: attr(data-n); position: absolute; z-index: 3; top: calc(var(--mm) * -1.6); left: calc(var(--mm) * -1.6);
+    min-width: calc(var(--mm) * 3.6); height: calc(var(--mm) * 3.6); padding: 0 calc(var(--mm) * .6); box-sizing: border-box; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    background: #D9534F; color: #fff; font: 700 calc(var(--pt) * 6.2) / 1 Montserrat, Arial, sans-serif; letter-spacing: 0; font-style: normal;
+    box-shadow: 0 0 0 calc(var(--mm) * .35) #fff; pointer-events: none;
+  }
+  html[data-mark="1"] .book-page:not(.bp-measure) .bp-td-blank[data-n]::before { top: calc(var(--mm) * .4); left: calc(var(--mm) * .4); }
+  /* medan kosong sepenuhnya: label TAMBAH MAKLUMAT di tengah */
+  html[data-mark="1"] .book-page:not(.bp-measure) :is(.bp-kv-blank, .bp-cm-blank, .bp-card-empty, .bp-td-blank)[data-n]::after {
+    content: "+ TAMBAH MAKLUMAT"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: #C0392B; font: 700 calc(var(--pt) * 5.6) / 1 Montserrat, Arial, sans-serif; letter-spacing: .06em; white-space: nowrap; overflow: hidden; pointer-events: none;
+  }
+  /* cip ringkasan di bucu halaman */
+  html[data-mark="1"] .book-page[data-need]::after {
+    content: "\26A0  " attr(data-need) " MEDAN PERLU DIISI"; position: absolute; z-index: 20; bottom: calc(var(--mm) * 13.5); right: calc(var(--mm) * 10);
+    padding: calc(var(--mm) * 1) calc(var(--mm) * 3); border-radius: 999px; background: #D9534F; color: #fff; white-space: nowrap;
+    font: 700 calc(var(--pt) * 7) / 1 Montserrat, Arial, sans-serif; letter-spacing: .08em; box-shadow: 0 calc(var(--mm) * .6) calc(var(--mm) * 2) rgba(120, 20, 20, .25);
+    pointer-events: none;
+  }
+}

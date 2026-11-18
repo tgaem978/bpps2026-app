@@ -1,5 +1,8 @@
-import { ArrowDown, ArrowUp, Plus, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, Link2, Plus, X } from 'lucide-react';
 import type { TakwimBlock, TakwimRow } from '@/types/book';
+import { useBookStore } from '@/stores/bookStore';
+import { useNavigationStore } from '@/stores/navigationStore';
+import { linkTakwimBlock, sourcesOf } from '@/lib/takwimLink';
 
 const cell = 'w-full resize-none rounded border border-border bg-surface px-1.5 py-1 text-xs';
 const iconBtn = 'rounded-md p-1 text-muted hover:bg-surface-2 hover:text-text disabled:opacity-30';
@@ -9,6 +12,11 @@ const rowsOf = (t: string) => Math.max(1, t.split('\n').length);
 /** Penyunting takwim bulanan: satu baris sehari; acara/cuti seluruh sekolah merentas semua unit. */
 export function TakwimEditor({ block, onChange }: { block: TakwimBlock; onChange: (b: TakwimBlock) => void }) {
   const n = block.columns.length;
+  const sections = useBookStore((s) => s.sections);
+  const open = useNavigationStore((s) => s.setActiveSection);
+  // Takwim Induk berpaut: aktiviti unit (automatik) dipaparkan baca-sahaja di bawah sel; sel = catatan tambahan pentadbir.
+  const linked = block.linked ? linkTakwimBlock({ ...block, rows: block.rows.map((r) => ({ ...r, cells: r.cells.map(() => '') })) }, sections) : null;
+  const srcCols = block.columns.map((c) => (block.linked ? sourcesOf(c) : []));
   const setRow = (i: number, patch: Partial<TakwimRow>) => onChange({ ...block, rows: block.rows.map((r, j) => (j === i ? { ...r, ...patch } : r)) });
   const move = (i: number, d: -1 | 1) => {
     const j = i + d;
@@ -27,6 +35,18 @@ export function TakwimEditor({ block, onChange }: { block: TakwimBlock; onChange
           ))}
         </div>
       </div>
+      {block.linked && (
+        <div className="rounded-lg border border-[#C9A13B]/50 bg-[#FBF6E6] p-2.5 text-xs text-text">
+          <p className="flex items-center gap-1.5 font-semibold"><Link2 size={14} /> Takwim Induk berpaut kepada Takwim Tahunan setiap unit</p>
+          <p className="mt-1 text-muted">Aktiviti unit dimuatkan secara automatik (ditunjukkan dalam kotak biru di bawah setiap sel). Untuk menambah atau mengubah aktiviti, sunting takwim unit berkenaan:</p>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {[...new Set(srcCols.flat().map((x) => x.id))].filter((id) => sections[id]).map((id) => (
+              <button key={id} className={smallBtn} onClick={() => open(id)}>{sections[id].title}</button>
+            ))}
+          </div>
+          <p className="mt-1 text-muted">Sel dalam penyunting ini hanya untuk catatan tambahan pentadbir; cuti / acara seluruh sekolah diurus di sini.</p>
+        </div>
+      )}
       <p className="text-[11px] text-muted">Jenis baris: Hujung minggu (kuning) atau Cuti (kelabu). Tandakan "Seluruh sekolah" untuk teks yang merentas semua unit.</p>
       <div className="overflow-x-auto">
         <div className="grid min-w-[720px] gap-1">
@@ -51,9 +71,14 @@ export function TakwimEditor({ block, onChange }: { block: TakwimBlock; onChange
               ) : (
                 <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}>
                   {block.columns.map((_, ci) => (
-                    <textarea key={ci} className={cell} rows={rowsOf(r.cells[ci] ?? '')} value={r.cells[ci] ?? ''}
-                      onChange={(e) => setRow(i, { cells: block.columns.map((__, k) => (k === ci ? e.target.value : r.cells[k] ?? '')) })}
-                      aria-label={`${block.columns[ci]} baris ${i + 1}`} />
+                    <div key={ci} className="grid gap-0.5">
+                      <textarea className={cell} rows={rowsOf(r.cells[ci] ?? '')} value={r.cells[ci] ?? ''}
+                        onChange={(e) => setRow(i, { cells: block.columns.map((__, k) => (k === ci ? e.target.value : r.cells[k] ?? '')) })}
+                        aria-label={`${block.columns[ci]} baris ${i + 1}`} placeholder={srcCols[ci].length ? 'Catatan tambahan' : ''} />
+                      {linked?.rows[i]?.cells[ci] && (
+                        <p className="whitespace-pre-line rounded bg-[#EAF1FB] px-1.5 py-1 text-[10.5px] leading-snug text-[#0B2A5B]" title="Daripada takwim unit (automatik)">{linked.rows[i].cells[ci]}</p>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}

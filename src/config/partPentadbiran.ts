@@ -172,6 +172,7 @@ export const pentadbiranTopics = (): OutlineTopic[] => [
   { id: 'akuan', children: [] },
   { id: 'bidang-tugas-guru', children: [] },
   { id: 'bidang-tugas-akp', children: [] },
+  { id: 'pp-takwim', children: [] },
 ];
 
 /** ID tajuk baharu bahagian ini (untuk migrasi: padam yang belum disunting bila dimuat semula). */

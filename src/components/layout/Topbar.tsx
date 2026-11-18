@@ -6,6 +6,7 @@ import { APP_NAME } from '@/config/schoolProfile';
 import { navigate } from '@/lib/router';
 import { printBook, saveNow } from '@/lib/exporter';
 import { EditionPicker } from './EditionPicker';
+import { MarkToggle } from './MarkToggle';
 
 const btn =
   'inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium hover:bg-surface-2';
@@ -28,6 +29,7 @@ export default function Topbar() {
       </div>
       <div className="flex items-center gap-2">
         <EditionPicker />
+        <MarkToggle className={btn} label="Medan kosong" />
         <button onClick={saveNow} title="Simpan (Ctrl+S)" aria-label="Simpan" className={btn}>
           <Save size={16} aria-hidden /> <span className="hidden lg:inline">Simpan</span>
         </button>

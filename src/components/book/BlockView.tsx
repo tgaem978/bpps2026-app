@@ -24,6 +24,9 @@ export function Avatar({ name }: { name: string }) {
   );
 }
 
+/** Lajur jadual yang memang dibiarkan kosong (diisi tangan / pilihan). */
+const NO_NEED_COL = /CATATAN|TANDA ?TANGAN|T\.? ?TANGAN|PARAF|ULASAN|COP|^BULAN$|TINDAKAN|^$/i;
+
 /** Teks dengan **tebal** (format dokumen BPPS). */
 export function Rich({ text }: { text: string }) {
   const parts = text.split(/\*\*(.+?)\*\*/g);
@@ -329,6 +332,8 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0, varia
       const firstGold = block.firstCol === 'gold';
       // Lajur pertama rata kiri bagi jadual biru gelap bernombor; lajur berayat panjang rata kiri; selainnya di tengah.
       const stats = columnStats(block.columns, block.rows);
+      // Sel kosong yang perlu diisi (ditanda pada skrin sahaja); bukan kalendar / lajur catatan / tandatangan.
+      const needCol = block.columns.map((c) => !isCalendarTable(block) && !NO_NEED_COL.test(c));
       const cellClass = (ci: number) => (firstGold && ci === 0 ? 'bp-num' : (ci === 0 && num && block.style !== 'gold') || stats[ci].line > 34 ? 'bp-l' : 'bp-c');
       return (
         <div className={`bp-block bp-table-wrap${dense}${x}`} style={gs}>
@@ -347,7 +352,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0, varia
               {block.rows.slice(from, end).map((r, ri) => (
                 <tr key={ri} className="u" style={block.rowHeights?.[from + ri] ? { height: `calc(var(--mm) * ${block.rowHeights[from + ri]})` } : undefined}>
                   {num && <td className="bp-num">{from + ri + 1}</td>}
-                  {block.columns.map((_, ci) => <td key={ci} className={cellClass(ci)} style={fmtStyle({ ...block, align: block.colAlign?.[ci] ?? block.align }, { pad: true })}><Rich text={t(r[ci] ?? '')} /></td>)}
+                  {block.columns.map((_, ci) => <td key={ci} className={`${cellClass(ci)}${needCol[ci] && !(r[ci] ?? '').trim() ? ' bp-td-blank' : ''}`} style={fmtStyle({ ...block, align: block.colAlign?.[ci] ?? block.align }, { pad: true })}><Rich text={t(r[ci] ?? '')} /></td>)}
                 </tr>
               ))}
             </tbody>

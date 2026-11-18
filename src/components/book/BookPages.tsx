@@ -1,6 +1,7 @@
 import { isMirrored } from '../../config/layout';
-import type { CSSProperties, ReactNode } from 'react';
+import { useLayoutEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import { useBookStore } from '@/stores/bookStore';
+import { useUiStore } from '@/stores/uiStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { useMaster, useMasterStore, resolveMaster } from '@/stores/masterStore';
 import { applyMasterCss, fonts, type PageType } from '@/templates/master';
@@ -18,8 +19,10 @@ import { fitPt, widthOf } from '@/lib/fit';
 export function MasterStyles() {
   const overrides = useMasterStore((s) => s.overrides);
   const theme = useProjectStore((s) => s.profile.theme);
+  const mark = useUiStore((st) => st.markEmpty);
   applyMasterCss((t) => resolveMaster(t, overrides));
   applyTheme(theme);
+  if (typeof document !== 'undefined' && document.documentElement.dataset.mark !== 'off') document.documentElement.dataset.mark = mark ? '1' : '0';
   return null;
 }
 
@@ -261,8 +264,24 @@ function PageBody({ page }: { page: PagePlan }) {
 }
 
 /** Satu halaman buku. Pembalut `display: contents` membawa kunci halaman (cth. "hx-lokar-0") untuk ujian & carian. */
+/** Halaman borang (diisi dengan tangan selepas dicetak): ruang kosong tidak ditanda "perlu diisi". */
+const FORM_PAGE = /^(lamp-|ma-peribadi|akuan|catatan|t-kalendar)/;
+/** Medan kosong / ruang isian yang perlu diisi (ditanda pada skrin sahaja, tidak dicetak / dieksport). */
+export const NEED_SELECTOR = '.bp-ph, .bp-ph-in, .bp-kv-blank, .bp-cm-blank, .bp-card-empty, .bp-td-blank';
+
 export function PageView({ page }: { page: PagePlan }) {
-  return <div className="contents" data-page-key={page.key}><PageBody page={page} /></div>;
+  const ref = useRef<HTMLDivElement>(null);
+  const form = page.kind === 'content' && FORM_PAGE.test(page.sectionId);
+  // Bilangan medan perlu diisi → cip di bucu halaman (CSS: [data-need]).
+  useLayoutEffect(() => {
+    const el = ref.current?.querySelector<HTMLElement>('.book-page');
+    if (!el) return;
+    const list = form ? [] : Array.from(el.querySelectorAll<HTMLElement>(NEED_SELECTOR));
+    list.forEach((x, i) => { const v = String(i + 1); if (x.dataset.n !== v) x.dataset.n = v; });
+    const n = String(list.length);
+    if (list.length) { if (el.dataset.need !== n) el.dataset.need = n; } else if (el.dataset.need) delete el.dataset.need;
+  });
+  return <div ref={ref} className="contents" data-page-key={page.key} data-form={form ? '' : undefined}><PageBody page={page} /></div>;
 }
 
 /** Halaman-halaman satu tajuk (pratonton dalam editor); partition disertakan untuk tajuk pertama bahagian. */

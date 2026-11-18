@@ -12,7 +12,19 @@ const H = 11.69;
  */
 export type PptMode = 'native' | 'image';
 
+/** Eksport tanpa tanda "medan perlu diisi" (tanda itu untuk skrin sahaja). */
 export async function exportPagesToPptx(wraps: HTMLElement[], label: string, onProgress: (done: number, total: number) => void, mode: PptMode = 'native') {
+  const root = document.documentElement;
+  const prev = root.dataset.mark;
+  root.dataset.mark = 'off';
+  try {
+    await exportPptx(wraps, label, onProgress, mode);
+  } finally {
+    if (prev === undefined) delete root.dataset.mark; else root.dataset.mark = prev;
+  }
+}
+
+async function exportPptx(wraps: HTMLElement[], label: string, onProgress: (done: number, total: number) => void, mode: PptMode) {
   if (!wraps.length) throw new Error('Tiada halaman untuk dieksport.');
   const [{ default: PptxGenJS }, { toJpeg, toPng, getFontEmbedCSS }, native] = await Promise.all([import('pptxgenjs'), import('html-to-image'), import('./pptxNative')]);
   const pptx = new PptxGenJS();

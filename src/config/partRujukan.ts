@@ -228,7 +228,8 @@ export const kurikulumTopics = (): OutlineTopic[] => [
   topic('k-panitia', 'k-ketua-panitia'),
   ...KURI_HALAMAN.slice(2).map(([id]) => topic(id)),
   ...KURI_UNIT_PAGES.map(([id]) => topic(id)),
-  topic('k-bidang-tugas', 'k-bilik-khas', 'k-takwim'),
+  topic('k-bidang-tugas', 'k-bilik-khas'),
+  topic('k-takwim'),
 ];
 
 /* ----- Hal Ehwal Murid ----- */
@@ -256,6 +257,7 @@ export const hemOrder = (): OutlineTopic[] => [
   topic('hx-carta'),
   topic('hem-jk-induk', 'hem-jk'),
   ...HEM_JK_ORDER.map((id) => topic(id)),
+  topic('hx-takwim'),
 ];
 
 /** Bidang Tugas HEM mengikut rujukan; jika rujukan tiada, kekalkan Bidang Tugas sedia ada sekolah. */
@@ -296,7 +298,8 @@ export const kokuOrder = (): OutlineTopic[] => [
   topic('kk-pasukan-1', 'kk-pasukan-2', 'kk-pasukan-3'),
   topic('kk-rumah-sukan', 'kk-rumah-biru', 'kk-rumah-hijau', 'kk-rumah-kuning', 'kk-rumah-merah', 'kk-rumah-ungu'),
   topic('kk-tugas'),
-  topic('kk-perhimpunan', 'kk-takwim'),
+  topic('kk-perhimpunan'),
+  topic('kk-takwim'),
 ];
 
 const MONTHS_FULL = ['JANUARI', 'FEBRUARI', 'MAC', 'APRIL', 'MEI', 'JUN', 'JULAI', 'OGOS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DISEMBER'];

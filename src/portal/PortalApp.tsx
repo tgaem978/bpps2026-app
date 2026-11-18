@@ -19,6 +19,7 @@ import { submissionStatus, type PortalState } from '@/types/portal';
 import type { SectionContent } from '@/types/book';
 import { SectionForm } from '@/pages/SectionEditorPage';
 import { MasterStyles, SectionPages } from '@/components/book/BookPages';
+import { MarkToggle } from '@/components/layout/MarkToggle';
 import { Toaster } from '@/components/layout/Overlays';
 
 const btn = 'inline-flex items-center justify-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium hover:bg-surface-2 disabled:opacity-50';
@@ -283,6 +284,7 @@ function Workspace({ state, reload, onLogout }: { state: PortalState; reload: ()
           <p className="truncate text-[11px] font-semibold uppercase tracking-[0.2em] text-[#E8C766]">Portal Kemas Kini · BPPS {edition.meta.year}</p>
           <h1 className="pt-display truncate text-lg leading-tight md:text-xl">{unit.name.toUpperCase()} <span className="font-medium text-white/60">· {profile.shortName.toUpperCase()}</span></h1>
         </div>
+        <MarkToggle className={btnGhost} label="Medan kosong" />
         <button className={btnGhost} onClick={() => setShowHistory(true)}><History size={15} /> <span className="hidden sm:inline">Sejarah</span></button>
         <button className={btnGold} disabled={!changed.length} onClick={() => setSending(true)}>
           <Send size={15} /> Hantar{changed.length ? ` (${changed.length})` : ''}

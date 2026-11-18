@@ -18,7 +18,12 @@ interface UiState {
   toast: (message: string, kind?: Toast['kind']) => void;
   dismiss: (id: number) => void;
   setPrinting: (v: boolean) => void;
+  /** Tanda medan kosong / perlu diisi pada paparan halaman (skrin sahaja). */
+  markEmpty: boolean;
+  setMarkEmpty: (v: boolean) => void;
 }
+
+const readMark = () => { try { return localStorage.getItem('bpps-mark-empty') !== '0'; } catch { return true; } };
 
 let seq = 0;
 
@@ -36,4 +41,9 @@ export const useUiStore = create<UiState>((set, get) => ({
   },
   dismiss: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
   setPrinting: (printing) => set({ printing }),
+  markEmpty: readMark(),
+  setMarkEmpty: (markEmpty) => {
+    try { localStorage.setItem('bpps-mark-empty', markEmpty ? '1' : '0'); } catch { /* storan disekat */ }
+    set({ markEmpty });
+  },
 }));
