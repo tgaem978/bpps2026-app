@@ -8,6 +8,7 @@ import { ADMIN_POSITIONS } from '@/config/defaultStaff';
 import { partKKSections } from '@/config/partKK';
 import { partHemSections } from '@/config/partHEM';
 import { partKokuSections } from '@/config/partKoku';
+import { hemIntroTopic, kokuIntroTopic } from '@/config/unitPengenalan';
 import { DASAR_HEM, DASAR_HEM_2, DASAR_KURI, JADUAL_PONTENG, TUGAS_HEM, TUGAS_KURI, teks } from '@/config/teksRujukan';
 
 const [GB, PKP, PKHEM, PKKO, PKPTG, PKPK] = ADMIN_POSITIONS;
@@ -216,7 +217,7 @@ const HEM_KOSONG: [string, string][] = [
 const HEM_UNIT = ['Bimbingan dan Kaunseling', 'Disiplin dan Pengawas', 'Data HEM (IDME / APDM / SMPK)', 'Kantin dan Kedai Buku', 'SPBT', 'RMT / PSS', 'Kebersihan, Kesihatan dan Keselamatan (3K)', 'Bantuan Kerajaan / Ehsan', 'PPDa'];
 
 export const hemOrder = (): OutlineTopic[] => [
-  topic('hem-dasar', 'hem-pengenalan', 'hem-visi-misi', 'hem-objektif', 'hem-aluan'),
+  hemIntroTopic(),
   topic('hx-carta'),
   topic('hem-jk-induk', 'hem-jk'),
   topic('hx-data'), topic('hx-disiplin'), topic('hx-bk'), topic('hx-ppda'), topic('hx-spbt'), topic('hx-kantin'), topic('hx-kedai'),
@@ -251,7 +252,7 @@ const hemHalaman = (): Record<string, SectionContent> => ({
 
 /* ----- Kokurikulum ----- */
 export const kokuOrder = (): OutlineTopic[] => [
-  topic('kk-dasar', 'kk-aluan', 'kk-pengenalan', 'kk-visi-misi', 'kk-piagam', 'kk-strategi', 'kk-polisi-spi', 'kk-polisi', 'kk-polisi-2'),
+  kokuIntroTopic(),
   topic('kx-carta-koku'),
   topic('kk-pembangunan-sukan'),
   topic('kk-jk-induk'),

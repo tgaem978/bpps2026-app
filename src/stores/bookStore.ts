@@ -8,6 +8,7 @@ import { pentadbiranTopics } from '@/config/partPentadbiran';
 import { ppkiTopics } from '@/config/partPPKI';
 import { prasekolahTopics } from '@/config/partPrasekolah';
 import { lampiranTopics } from '@/config/partLampiran';
+import { KOKU_MERGED, PPKI_PAGES, UNIT_INTRO_IDS, hemIntroTopic, kokuIntroTopic, ppkiIntroTopics } from '@/config/unitPengenalan';
 import { FLAT_TOC_PARTS, OVERRIDES, REMOVED_IDS, partRujukanSections, unitTopicIds } from '@/config/partRujukan';
 import { createBlock, uid } from '@/lib/blocks';
 import { allIds } from '@/lib/outline';
@@ -375,6 +376,63 @@ function migrateV19(p: Partial<BookState>) {
   merge('p-lampiran', lampiranTopics());
 }
 
+/**
+ * v20: halaman pengenalan HEM, Kokurikulum & PPKI diseragamkan dengan format Unit Kurikulum (dasar → visi & misi → objektif &
+ * matlamat → pengenalan/KPI). Halaman yang belum disunting dimuat semula; dalam edisi tahun baharu, halaman yang belum disunting
+ * sejak edisi dicipta (updatedAt = masa cipta edisi) diganti dengan kandungan baharu yang digulung ke tahun edisi.
+ */
+function migrateV20(p: Partial<BookState>) {
+  const year = useProjectStore.getState().profile.year;
+  const stamp = p.cover?.updatedAt ?? null;
+  const untouched = (id: string) => {
+    const sec = p.sections?.[id];
+    if (!sec) return true;
+    if (sec.review?.status === 'siap') return false;
+    return sec.updatedAt === null || (stamp !== null && sec.updatedAt === stamp);
+  };
+  const defs = defaultSections();
+  if (p.sections) {
+    for (const id of UNIT_INTRO_IDS) {
+      if (!untouched(id) || !defs[id]) continue;
+      const old = p.sections[id];
+      if (!old || old.updatedAt === null) { delete p.sections[id]; continue; } // dimuat semula daripada lalai
+      p.sections[id] = { ...defaultForYear(id, defs[id], year), updatedAt: old.updatedAt, ...(old.review ? { review: old.review } : {}) };
+    }
+    // halaman baharu dalam edisi bertarikh: cipta terus (digulung ke tahun edisi, bertanda perlu dikemas kini)
+    for (const id of ['kk-objektif', 'pk-dasar', 'pk-objektif']) {
+      if (p.sections[id] || stamp === null || year <= 2026) continue;
+      p.sections[id] = { ...defaultForYear(id, defs[id], year), updatedAt: stamp, review: { year, status: 'perlu' } };
+    }
+    for (const id of Object.keys(p.sections)) {
+      const sec = p.sections[id];
+      if ((id.startsWith('pk-') || id === 'pendidikan-khas') && sec.subtitle === 'PPKI') p.sections[id] = { ...sec, subtitle: '' };
+    }
+  }
+  if (!p.outline) return;
+  const merged = new Set(KOKU_MERGED.filter((id) => untouched(id)));
+  const reshape = (partId: string, intro: OutlineTopic) => {
+    const part = p.outline!.find((x) => x.id === partId);
+    if (!part) return;
+    const all = part.topics.flatMap((t) => [t.id, ...t.children]);
+    const want = new Set([intro.id, ...intro.children]);
+    const extras = all.filter((id) => !want.has(id) && !merged.has(id));
+    const first = part.topics.findIndex((t) => t.id === intro.id);
+    const rest = part.topics.filter((_t, i) => i !== first).map((t) => ({ ...t, children: t.children.filter((c) => !want.has(c) && !merged.has(c)) })).filter((t) => !want.has(t.id) && !merged.has(t.id));
+    const leftover = extras.filter((id) => !rest.some((t) => t.id === id || t.children.includes(id)));
+    part.topics = [{ id: intro.id, children: [...intro.children, ...leftover] }, ...rest];
+  };
+  reshape('p-hem', hemIntroTopic());
+  reshape('p-koku', kokuIntroTopic());
+  const pk = p.outline.find((x) => x.id === 'p-pkhas');
+  if (pk) {
+    const fresh = ppkiIntroTopics();
+    const freshIds = new Set(fresh.flatMap((t) => [t.id, ...t.children]));
+    const extras = pk.topics.flatMap((t) => [t.id, ...t.children]).filter((id) => !freshIds.has(id));
+    pk.topics = [...fresh.filter((t) => t.children.length || PPKI_PAGES.includes(t.id)), ...extras.map((id) => ({ id, children: [] }))];
+    pk.tocChildren = false;
+  }
+}
+
 export const useBookStore = create<BookState>()(
   persist(
     (set) => {
@@ -519,7 +577,7 @@ export const useBookStore = create<BookState>()(
     {
       name: 'bpps2026-book',
       storage: appStorage(),
-      version: 19,
+      version: 20,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -541,6 +599,7 @@ export const useBookStore = create<BookState>()(
         if (version < 17) migrateV17(p);
         if (version < 18) migrateV18(p);
         if (version < 19) migrateV19(p);
+        if (version < 20) migrateV20(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

@@ -14,6 +14,9 @@ export const PLACEHOLDER = /^\[\s+([^\]\n]+?)\s+\]$/;
 export const isPlaceholder = (text: string) => PLACEHOLDER.test(text.trim());
 export const placeholderLabel = (text: string) => text.trim().match(PLACEHOLDER)?.[1] ?? text;
 
+/** Objektif / matlamat unit: kekal kad navy walaupun teks lebih panjang supaya seragam antara unit. */
+const OBJ_HEADINGS = /^(OBJEKTIF|MATLAMAT) (UNIT|PROGRAM)\b/i;
+
 export type BlockVariant = '' | 'panel' | 'panel-soft' | 'cal' | 'cal-head';
 
 /**
@@ -28,7 +31,7 @@ export function blockVariants(blocks: AnyBlock[]): BlockVariant[] {
     if (isCalendarTable(b)) return 'cal';
     if (b.type === 'heading' && isCalendarTable(next)) return 'cal-head';
     if (prev?.type === 'heading' && PANEL_HEADINGS.test(prev.text.trim())) {
-      if (b.type === 'paragraph') return b.text.length <= 320 ? 'panel' : 'panel-soft';
+      if (b.type === 'paragraph') return b.text.length <= (OBJ_HEADINGS.test(prev.text) ? 640 : 320) ? 'panel' : 'panel-soft';
       if (b.type === 'list' || b.type === 'keyvalue') return 'panel-soft';
     }
     return '';

@@ -4,6 +4,7 @@ import type { Block, CommitteeRow, MemberRef, OutlineTopic, SectionContent } fro
 import { uid } from '@/lib/blocks';
 import { ADMIN_POSITIONS } from '@/config/defaultStaff';
 import { member } from '@/config/partKoku';
+import { ppkiIntroTopics } from '@/config/unitPengenalan';
 
 const [GB, PKP, PKHEM, PKKO, PKPTG, PKPK] = ADMIN_POSITIONS;
 const SUB = 'PPKI';
@@ -26,9 +27,7 @@ const kv = (pairs: [string, string][]): Block => ({ id: uid(), type: 'keyvalue',
 const std = (title: string, blocks: Block[]): SectionContent => ({ ...sec(title, blocks), layout: 'standard' });
 
 /** Struktur bahagian PPKI: pengenalan → visi/misi → enrolmen → JPKS → carta → JK induk → bidang tugas → takwim. */
-export const ppkiTopics = (): OutlineTopic[] => [
-  { id: 'pendidikan-khas', children: ['pk-visi', 'pk-murid', 'pk-jpks', 'pk-carta', 'pk-jk-induk', 'pk-tugas', 'pk-takwim'] },
-];
+export const ppkiTopics = (): OutlineTopic[] => ppkiIntroTopics();
 
 /** Program PPKI 2026 (lajur PPKI dalam Takwim Induk SKBTS 2026), disusun ikut bulan: [bulan, tarikh, program]. */
 const TAKWIM_PPKI: [string, string, string][] = [

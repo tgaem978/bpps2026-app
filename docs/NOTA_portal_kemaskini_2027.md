@@ -99,3 +99,20 @@ Dalam mod portal, stor pelayar disimpan dalam memori sahaja - membuka portal dal
 - **/portal** (penyelaras): warna navy/emas (token reka bentuk portal), latar grid pelan, halaman log masuk bergaya kulit buku (logo KPM & sekolah, PORTAL KEMAS KINI, pil SESI AKADEMIK tahun edisi daripada `/api/health`, lukisan bangunan), kepala navy berjalur emas dengan butang **Hantar** emas, kad selamat datang dengan kiraan (halaman unit, perlu dikemas kini, belum dihantar, menunggu semakan) dan bar kemajuan emas.
 - **/kemaskini** (pentadbir): jalur hero navy-emas, nombor langkah 01-05 dalam lencana emas, kad berjalur emas.
 - Pembetulan: unit lalai bagi "PENGURUSAN & PENTADBIRAN" kini dinamakan "Pengurusan & Pentadbiran" (sebelum ini "& Pentadbiran").
+
+## 11. Pengenalan unit seragam (Kurikulum = HEM = Kokurikulum = PPKI)
+Setiap unit kini dibuka dengan empat halaman pengenalan yang sama susunan, gaya dan jenis maklumat seperti Unit Kurikulum (`src/config/unitPengenalan.ts`):
+
+| Kurikulum | Hal Ehwal Murid | Kokurikulum | PPKI |
+|---|---|---|---|
+| Ketetapan Dasar | Ketetapan Dasar | Ketetapan Dasar | Ketetapan Dasar *(baharu)* |
+| Visi dan Misi | Visi dan Misi | Visi dan Misi | Visi dan Misi |
+| Objektif dan Matlamat | Objektif dan Matlamat | Objektif dan Matlamat *(baharu)* | Objektif dan Matlamat *(baharu)* |
+| Pengenalan (KPI) | Pengenalan (KPI) | Pengenalan (KPI) | Pengenalan (KPI) |
+
+- **Ketetapan Dasar**: bermula dengan *1. LATAR BELAKANG* dan *2. OBJEKTIF* ("Penetapan dasar ini digariskan atas tujuan berikut:"), diikuti dasar, mesyuarat dan seksyen lain bernombor; subtajuk dinombor semula termasuk julat (cth. 8.3 - 8.4). Piagam Pelanggan dan Strategi Kokurikulum digabungkan ke dalam Ketetapan Dasar.
+- **Visi dan Misi**: jadual berikon Visi, Misi, Motto, KPI Sekolah {tahun}, Matlamat, Objektif (baris kosong menjadi ruang isian).
+- **Objektif dan Matlamat**: dua kad navy berlabel emas + ruang Catatan (kad kekal navy hingga 640 aksara supaya seragam antara unit).
+- **Pengenalan (KPI)**: KEY PERFORMANCE INDICATOR (KPI) UNIT … dengan ruang isian KPI 1-3 untuk diisi penyelaras melalui portal.
+- PPKI: Maklumat Program dipindah ke halaman Murid PPKI; halaman lain PPKI kekal.
+- Migrasi (v20): halaman yang belum disunting dikemas kini ke susunan baharu; halaman yang telah disunting / bertanda *Siap* tidak disentuh. Dalam edisi 2027, halaman baharu ditanda *Perlu dikemas kini*.

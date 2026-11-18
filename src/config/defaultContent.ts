@@ -13,6 +13,7 @@ import { partPpkiSections, ppkiTopics } from '@/config/partPPKI';
 import { partPrasekolahSections, prasekolahTopics } from '@/config/partPrasekolah';
 import { lampiranTopics, partLampiranSections } from '@/config/partLampiran';
 import { partMaklumatSections } from '@/config/partMaklumat';
+import { unitPengenalanSections } from '@/config/unitPengenalan';
 import { partPentadbiranSections, pentadbiranTopics } from '@/config/partPentadbiran';
 import { OVERRIDES, REMOVED_IDS, hemOrder, kokuOrder, kurikulumTopics, maklumatAmTopics, partRujukanSections, unitTopicIds } from '@/config/partRujukan';
 
@@ -59,7 +60,7 @@ export const defaultOutline = (): OutlinePart[] => [
       { id: 'takwim-01', children: ['takwim-02', 'takwim-03', 'takwim-04', 'takwim-05', 'takwim-06', 'takwim-07', 'takwim-08', 'takwim-09', 'takwim-10', 'takwim-11', 'takwim-12'] },
     ],
   },
-  { id: 'p-pkhas', title: 'PENDIDIKAN KHAS (PPKI)', note: '{{jawatan:GPK Pendidikan Khas}}', divider: true, topics: ppkiTopics() },
+  { id: 'p-pkhas', title: 'PENDIDIKAN KHAS (PPKI)', note: '{{jawatan:GPK Pendidikan Khas}}', divider: true, tocChildren: false, topics: ppkiTopics() },
   { id: 'p-prasekolah', title: 'PRASEKOLAH', note: '{{jawatan:Guru Prasekolah}}', divider: true, topics: prasekolahTopics() },
   { id: 'p-lampiran', title: 'LAMPIRAN', note: '', divider: true, topics: lampiranTopics() },
 ];
@@ -106,6 +107,9 @@ export const defaultSections = (): Record<string, SectionContent> => {
   for (const [id, patch] of Object.entries(OVERRIDES)) if (all[id]) all[id] = { ...all[id], ...patch };
   // Kurikulum / HEM / Kokurikulum: tiada lencana kecil (lencana = nama bahagian) dan tajuk Isi Kandungan sama dengan rujukan.
   for (const id of unitTopicIds()) if (all[id]) all[id] = { ...all[id], subtitle: '' };
+  // Halaman pengenalan HEM, Kokurikulum & PPKI diseragamkan dengan format Unit Kurikulum.
+  Object.assign(all, unitPengenalanSections(all));
+  for (const id of Object.keys(all)) if ((id.startsWith('pk-') || id === 'pendidikan-khas') && all[id].subtitle === 'PPKI') all[id] = { ...all[id], subtitle: '' };
   return all;
 };
 
