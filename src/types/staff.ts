@@ -13,10 +13,15 @@ export interface StaffField {
 
 export type FieldValue = string | string[];
 
+/** Zum (1 = penuh) dan titik fokus (0-1 lebar / tinggi imej) bagi gambar dalam bulatan carta. */
+export interface PhotoFrame { zoom: number; x: number; y: number }
+
 export interface Teacher {
   id: string;
   /** URL atau data URL gambar (potret 4:5) */
   photo: string;
+  /** Bingkai gambar dalam bulatan carta (zum + titik fokus); tiada = lalai. */
+  photoFrame?: PhotoFrame;
   values: Record<string, FieldValue>;
 }
 

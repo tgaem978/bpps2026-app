@@ -2,13 +2,13 @@
  * Hanya tajuk, susunan dan struktur halaman diambil; nama orang dalam rujukan (sekolah lain) TIDAK digunakan.
  * Ruang yang belum ada data dibiarkan kosong untuk diisi (boleh disunting sepenuhnya dalam editor).
  * Halaman sedia ada yang tiada padanan dalam rujukan dikekalkan di tempatnya (tidak dipadam). */
-import type { Block, CommitteeRow, MemberRef, OrgTreeBox, OrgTreeColumn, OutlineTopic, SectionContent } from '@/types/book';
+import type { Block, CommitteeRow, MemberRef, OutlineTopic, SectionContent } from '@/types/book';
 import { uid } from '@/lib/blocks';
 import { ADMIN_POSITIONS } from '@/config/defaultStaff';
 import { partKKSections } from '@/config/partKK';
 import { partHemSections } from '@/config/partHEM';
-import { partKokuSections } from '@/config/partKoku';
 import { hemIntroTopic, kokuIntroTopic } from '@/config/unitPengenalan';
+import { KURI_UNIT_PAGES } from '@/config/bidangTugas';
 import { DASAR_HEM, DASAR_HEM_2, DASAR_KURI, JADUAL_PONTENG, TUGAS_HEM, TUGAS_KURI, teks } from '@/config/teksRujukan';
 
 const [GB, PKP, PKHEM, PKKO, PKPTG, PKPK] = ADMIN_POSITIONS;
@@ -27,8 +27,6 @@ const sec = (title: string, subtitle: string, blocks: Block[], layout: SectionCo
 const pos = (...values: string[]): MemberRef[] => values.map((value) => ({ kind: 'position', value }));
 const r = (role: string, members: MemberRef[] = []): CommitteeRow => ({ id: uid(), role, members });
 const committee = (rows: CommitteeRow[]): Block => ({ id: uid(), type: 'committee', title: '', rows });
-const box = (title: string, items: string[] = []): OrgTreeBox => ({ id: uid(), title, items });
-const col = (position: string, boxes: OrgTreeBox[]): OrgTreeColumn => ({ id: uid(), position, boxes });
 const topic = (id: string, ...children: string[]): OutlineTopic => ({ id, children });
 
 /** Barisan pentadbir; `unit` = GPK yang menjadi Timbalan Pengerusi (yang lain Naib Pengerusi). */
@@ -39,6 +37,40 @@ const adminRows = (unit: string): CommitteeRow[] => [
 ];
 const blankRows = (ajk = 4): CommitteeRow[] => [
   r('Setiausaha'), r('Naib Setiausaha'), ...Array.from({ length: ajk }, (_, i) => r(`Ahli Jawatankuasa ${i + 1}`)),
+];
+
+
+/* ---------------------------------------------------------------- Carta Organisasi Induk unit
+ * Format seragam semua unit: Pengerusi (Guru Besar) → Timbalan Pengerusi (GPK unit) → Naib Pengerusi (GPK lain)
+ * → Setiausaha → penyelaras / ketua (nama diisi automatik daripada Pangkalan Data Guru). */
+const tch = (...ids: string[]): MemberRef[] => ids.map((id) => ({ kind: 'teacher', id }));
+const st = (role: string, ...ids: string[]): CommitteeRow => ({ id: uid(), role, members: tch(...ids), stack: ids.length > 1 });
+const grp = (role: string): CommitteeRow => ({ id: uid(), role, members: [], group: true });
+/** Blok carta unit: barisan pentadbir + baris unit; dipadatkan supaya muat satu halaman. */
+export const unitChart = (unit: string, rows: CommitteeRow[]): Block => ({
+  id: uid(), type: 'committee', title: '', display: 'chart', focus: unit, onePage: true, rows: [...adminRows(unit), ...rows],
+});
+const CARTA_KURI = (): CommitteeRow[] => [
+  st('Setiausaha Kurikulum', 't31', 't91'), st('Setiausaha Pentaksiran', 't51'), st('Setiausaha PBD', 't90'),
+  grp('Ketua Panitia'),
+  st('Bahasa Melayu', 't43'), st('Bahasa Inggeris', 't15'), st('Bahasa Arab', 't110'), st('Matematik', 't49'),
+  st('Sains', 't7'), st('Reka Bentuk Teknologi', 't29'), st('Sejarah', 't39'), st('Pendidikan Islam', 't65'),
+  st('Pendidikan Moral', 't72'), st('Pend. Jasmani & Kesihatan', 't45'), st('Pendidikan Muzik', 't71'), st('Pendidikan Seni Visual', 't107'),
+  grp('Guru Penyelaras'),
+  st('ICT & Jadual Waktu', 't8'), st('Data & SK@S', 't64'), st('Pemulihan Khas', 't78'), st('Program Transisi', 't111'), st('ADNI', 't17'),
+];
+const CARTA_HEM = (): CommitteeRow[] => [
+  st('Setiausaha Hal Ehwal Murid', 't68', 't106'),
+  grp('Guru Penyelaras Unit'),
+  st('Bimbingan & Kaunseling', 't70', 't105'), st('Disiplin & SSDM', 't55', 't83'), st('Pengawas Sekolah', 't19', 't81'), st('Data Murid (IDME)', 't51', 't85'),
+  st('Kebajikan, BAP & KWAPM', 't29', 't28'), st('Kesihatan & Rawatan', 't67', 't95'), st('Keselamatan', 't65', 't88'), st('Kebersihan & Keceriaan', 't68', 't78'),
+  st('Kantin & RMT', 't18', 't34'), st('SPBT & Kedai Buku', 't46', 't9'), st('Pencegahan Dadah (PPDa)', 't39', 't79'), st('Program Susu Sekolah', 't48', 't114'),
+];
+const CARTA_KOKU = (): CommitteeRow[] => [
+  st('Setiausaha Kokurikulum', 't62'), st('Setiausaha Sukan', 't23'),
+  st('Naib Setiausaha Kokurikulum', 't40', 't77'), st('Naib Setiausaha Sukan', 't47', 't85'),
+  grp('Penyelaras Unit (Pagi / Petang)'),
+  st('Unit Beruniform', 't25', 't92'), st('Kelab & Persatuan', 't24', 't97'), st('Sukan & Permainan', 't26', 't99'),
 ];
 
 /* ---------------------------------------------------------------- 1. MAKLUMAT AM */
@@ -189,13 +221,14 @@ const withTugas = (base: SectionContent, tugas: string[]): SectionContent => ({
 export const kurikulumTopics = (): OutlineTopic[] => [
   topic('k-dasar', 'k-visi', 'k-objektif', 'k-pengenalan'),
   topic('kx-carta-induk'),
-  topic('k-jk-induk'),
+  // Jawatankuasa Induk → Senarai Jawatankuasa Unit → setiap jawatankuasa mengikut turutan senarai (ahli + bidang tugas sehalaman)
+  topic('k-jk-induk', 'k-jk-unit'),
   topic('kx-jk-petang'),
   topic('kx-jk-prasekolah'),
   topic('k-panitia', 'k-ketua-panitia'),
-  ...KURI_HALAMAN.slice(2, -1).map(([id]) => topic(id)),
-  // halaman tambahan sekolah (tiada dalam rujukan) - sambungan di hujung bahagian, tidak dalam Isi Kandungan
-  topic('kx-jk-celik-jawi', 'k-jk-unit', 'k-bidang-tugas', 'k-bilik-khas', 'k-takwim'),
+  ...KURI_HALAMAN.slice(2).map(([id]) => topic(id)),
+  ...KURI_UNIT_PAGES.map(([id]) => topic(id)),
+  topic('k-bidang-tugas', 'k-bilik-khas', 'k-takwim'),
 ];
 
 /* ----- Hal Ehwal Murid ----- */
@@ -214,16 +247,15 @@ const HEM_KOSONG: [string, string][] = [
   ['hx-ssdm', 'JAWATANKUASA SSDM / MURID CICIR / LAPORAN PONTENG / AMALAN BAIK'],
   ['hx-aset', 'JAWATANKUASA ASET ALIH KERAJAAN'],
 ];
-const HEM_UNIT = ['Bimbingan dan Kaunseling', 'Disiplin dan Pengawas', 'Data HEM (IDME / APDM / SMPK)', 'Kantin dan Kedai Buku', 'SPBT', 'RMT / PSS', 'Kebersihan, Kesihatan dan Keselamatan (3K)', 'Bantuan Kerajaan / Ehsan', 'PPDa'];
 
+/** Turutan jawatankuasa HEM = turutan Senarai Jawatankuasa Unit HEM (hem-jk). */
+export const HEM_JK_ORDER = ['hx-bk', 'hx-disiplin', 'hx-data', 'hx-bantuan-kerajaan', 'hx-bantuan-ehsan', 'hx-pss', 'hx-kantin', 'hx-rmt', 'hx-spbt', 'hx-kedai',
+  'hx-3k-bersih', 'hx-3k-sihat', 'hx-3k-selamat', 'hx-ppda', 'hx-ssdm', 'hx-penempatan', 'hx-orientasi', 'hx-lokar', 'hx-fizikal', 'hx-aset'];
 export const hemOrder = (): OutlineTopic[] => [
   hemIntroTopic(),
   topic('hx-carta'),
   topic('hem-jk-induk', 'hem-jk'),
-  topic('hx-data'), topic('hx-disiplin'), topic('hx-bk'), topic('hx-ppda'), topic('hx-spbt'), topic('hx-kantin'), topic('hx-kedai'),
-  topic('hx-3k-bersih'), topic('hx-3k-sihat'), topic('hx-3k-selamat'),
-  topic('hx-bantuan-kerajaan'), topic('hx-bantuan-ehsan'), topic('hx-rmt'), topic('hx-pss'),
-  ...HEM_KOSONG.map(([id]) => topic(id)),
+  ...HEM_JK_ORDER.map((id) => topic(id)),
 ];
 
 /** Bidang Tugas HEM mengikut rujukan; jika rujukan tiada, kekalkan Bidang Tugas sedia ada sekolah. */
@@ -254,22 +286,19 @@ const hemHalaman = (): Record<string, SectionContent> => ({
 export const kokuOrder = (): OutlineTopic[] => [
   kokuIntroTopic(),
   topic('kx-carta-koku'),
+  // Jawatankuasa Induk → Senarai Jawatankuasa Unit → setiap jawatankuasa (guru penasihat menyusul jawatankuasanya)
+  topic('kk-jk-induk', 'kk-khas'),
+  topic('kk-jk-03', 'kk-jk-02', 'kk-jk-04', 'kk-jk-05'),
+  topic('kk-jk-11', 'kk-jk-10', 'kk-jk-12', 'kk-jk-13'),
+  topic('kk-jk-07', 'kk-jk-06', 'kk-jk-08', 'kk-jk-09'),
   topic('kk-pembangunan-sukan'),
-  topic('kk-jk-induk'),
-  topic('kk-jk-02', 'kk-jk-03', 'kk-jk-04', 'kk-jk-05'),
-  topic('kk-jk-10', 'kk-jk-11', 'kk-jk-12', 'kk-jk-13'),
-  topic('kk-jk-06', 'kk-jk-07', 'kk-jk-08', 'kk-jk-09'),
+  topic('kk-khas-1'), topic('kk-khas-2'), topic('kk-khas-3'), topic('kk-khas-4'), topic('kk-khas-5'),
   topic('kk-pasukan-1', 'kk-pasukan-2', 'kk-pasukan-3'),
   topic('kk-rumah-sukan', 'kk-rumah-biru', 'kk-rumah-hijau', 'kk-rumah-kuning', 'kk-rumah-merah', 'kk-rumah-ungu'),
   topic('kk-tugas'),
-  // halaman tambahan sekolah (tiada dalam rujukan) - sambungan di hujung bahagian, tidak dalam Isi Kandungan
-  topic('kk-perhimpunan', 'kk-khas', 'kk-khas-1', 'kk-khas-2', 'kk-khas-3', 'kk-khas-4', 'kk-khas-5', 'kk-takwim'),
+  topic('kk-perhimpunan', 'kk-takwim'),
 ];
 
-const listOf = (id: string): string[] => {
-  const b = partKokuSections()[id]?.blocks.find((x) => x.type === 'list');
-  return b && b.type === 'list' ? b.items : [];
-};
 const MONTHS_FULL = ['JANUARI', 'FEBRUARI', 'MAC', 'APRIL', 'MEI', 'JUN', 'JULAI', 'OGOS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DISEMBER'];
 
 /** Semua ID tajuk/subtajuk Kurikulum, HEM dan Kokurikulum dalam struktur lalai. */
@@ -281,7 +310,6 @@ export const pentadbiranExtra = 'pp-bilik-khas';
 
 /** Semua ID halaman baharu (migrasi: halaman baharu yang belum disunting dimuat semula). */
 export const partRujukanSections = (): Record<string, SectionContent> => {
-  const used = KURI_HALAMAN.map(([, , , needle]) => needle).filter((n): n is string => !!n);
   const out: Record<string, SectionContent> = {
     'ma-peribadi': peribadi(),
     'ma-minggu-akademik': sec('MINGGU AKADEMIK 2026 (NEGERI KUMPULAN B)', '', [
@@ -308,36 +336,23 @@ export const partRujukanSections = (): Record<string, SectionContent> => {
     'k-dasar': sec('KETETAPAN DASAR UNIT KURIKULUM', '', teks(DASAR_KURI)),
     'k-jk-induk': withTugas(partKKSections()['k-jk-induk'], TUGAS_KURI['k-jk-induk']),
     'k-panitia': withTugas(partKKSections()['k-panitia'], TUGAS_KURI['k-panitia']),
-    'kx-carta-induk': sec('CARTA ORGANISASI JAWATANKUASA INDUK KURIKULUM', '', [{
-      id: uid(), type: 'committee', title: '', display: 'chart', focus: PKP, onePage: true,
-      rows: [
-        r('Pengerusi', pos(GB)), r('Naib Pengerusi', pos(PKP, PKHEM, PKKO, PKPTG, PKPK)),
-        r('Setiausaha Kurikulum'),
-        { id: uid(), role: 'Ketua Panitia', members: [], group: true },
-        r('Bahasa'), r('Sains & Matematik'), r('Pendidikan Islam / Moral'), r('Pendidikan Jasmani & Kesenian'),
-      ],
-    }], 'open'),
+    'kx-carta-induk': sec('CARTA ORGANISASI JAWATANKUASA INDUK KURIKULUM', '', [unitChart(PKP, CARTA_KURI())], 'open'),
     // jawatankuasa unit sedia ada yang telah dipadankan ke halamannya sendiri tidak diulang di sini
-    'k-jk-unit': sec('JAWATANKUASA UNIT KURIKULUM', '', partKKSections()['k-jk-unit'].blocks.filter((b) => b.type !== 'committee' || !used.some((n) => b.title.includes(n)))),
+    'k-jk-unit': sec('SENARAI JAWATANKUASA UNIT KURIKULUM', '', []), // senarai dijana daripada turutan halaman (senaraiJk.ts)
     'hem-dasar': sec('KETETAPAN DASAR UNIT HAL EHWAL MURID', '', [
       ...teks(DASAR_HEM),
       tbl(JADUAL_PONTENG.columns, JADUAL_PONTENG.rows, { colWidths: [22, 39, 39], colAlign: ['left', 'center', 'center'] }),
       ...teks(DASAR_HEM_2),
     ]),
     'hem-jk-induk': { ...H['hem-jk-induk'], blocks: [...H['hem-jk-induk'].blocks.map(cloneBlock), h('Bidang Tugas'), ...teks(TUGAS_HEM['hem-jk-induk'])], updatedAt: null },
-    'hx-carta': sec('CARTA ORGANISASI JAWATANKUASA HAL EHWAL MURID', '', [{
-      id: uid(), type: 'orgtree', title: '', root: GB, side: [],
-      columns: [col(PKHEM, [box('UNIT HAL EHWAL MURID', HEM_UNIT)])],
-    }], 'open'),
-    'kx-carta-koku': sec('CARTA ORGANISASI UNIT KOKURIKULUM', '', [{
-      id: uid(), type: 'orgtree', title: '', root: GB, side: [],
-      columns: [col(PKKO, [box('UNIT BERUNIFORM', listOf('kk-jk-02')), box('UNIT SUKAN & PERMAINAN', listOf('kk-jk-10')), box('KELAB & PERSATUAN', listOf('kk-jk-06'))])],
-    }], 'open'),
+    'hx-carta': sec('CARTA ORGANISASI JAWATANKUASA HAL EHWAL MURID', '', [unitChart(PKHEM, CARTA_HEM())], 'open'),
+    'kx-carta-koku': sec('CARTA ORGANISASI UNIT KOKURIKULUM', '', [unitChart(PKKO, CARTA_KOKU())], 'open'),
     'kk-perhimpunan': sec('JADUAL PERHIMPUNAN BULANAN UNIT BERUNIFORM', '', [
       tbl(['BULAN', 'TARIKH', 'UNIT BERUNIFORM', 'GURU PENASIHAT'], MONTHS_FULL.map((m) => [m, '', '', '']), { colWidths: [20, 20, 30, 30], colAlign: ['left', 'center', 'left', 'left'] }),
     ]),
     ...hemHalaman(),
   };
   for (const [id, title, unit, needle] of KURI_HALAMAN) out[id] = kuriPage(id, title, unit, needle ? unitJk(needle) : undefined);
+  for (const [id, title, needle] of KURI_UNIT_PAGES) out[id] = kuriPage(id, title, PKP, unitJk(needle));
   return out;
 };

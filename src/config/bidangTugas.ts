@@ -1,0 +1,302 @@
+/* Bidang Tugas bagi jawatankuasa yang belum mempunyai senarai tugas dalam dokumen asal.
+ * Setiap halaman jawatankuasa = senarai ahli + BIDANG TUGAS dalam halaman yang sama.
+ * Teks ialah draf lazim pengurusan sekolah rendah KPM - boleh disunting oleh penyelaras unit. */
+
+export const BIDANG_TUGAS: Record<string, string[]> = {
+  /* ---------------- Pengurusan & Pentadbiran ---------------- */
+  'pp-jk-pentadbiran': [
+    'Merancang dan menyelaras urusan pentadbiran am pejabat sekolah mengikut Piagam Pelanggan.',
+    'Mengagihkan tugas dan memantau prestasi Anggota Kumpulan Pelaksana (AKP) secara berkala.',
+    'Mengurus rekod perkhidmatan, cuti, kehadiran dan Laporan Penilaian Prestasi Tahunan (LNPT) staf sokongan.',
+    'Memastikan pengurusan surat-menyurat, fail dan rekod sekolah teratur, selamat dan mematuhi arahan keselamatan.',
+    'Menyelaras urusan perolehan, aset dan stor bersama Jawatankuasa Kewangan dan Aset.',
+    'Mengadakan mesyuarat sekurang-kurangnya dua (2) kali setahun dan menyediakan laporan kepada Guru Besar.',
+  ],
+  'pp-jk-maklumat': [
+    'Mengurus, mengemas kini dan mengesahkan data sekolah dalam sistem KPM (EMIS, SAPS, MOEIS / IDME, HRMIS) mengikut takwim.',
+    'Menyediakan Profil Sekolah dan data statistik murid, guru dan staf untuk rujukan pentadbir dan pihak luar.',
+    'Memastikan ketepatan, kerahsiaan dan keselamatan data serta sandaran (backup) dibuat secara berkala.',
+    'Menyelaras penyerahan data kepada PPD, JPN dan KPM dalam tempoh yang ditetapkan.',
+    'Mewujudkan bilik / sudut gerakan maklumat dan paparan data terkini sekolah.',
+    'Melaporkan isu data dan cadangan penambahbaikan dalam mesyuarat jawatankuasa.',
+  ],
+  'pp-jk-papan': [
+    'Merancang susun atur dan tema papan kenyataan sekolah mengikut keperluan semasa.',
+    'Memastikan maklumat rasmi (pekeliling, takwim, carta organisasi, jadual) dipamerkan dan dikemas kini setiap bulan.',
+    'Mengagihkan tanggungjawab papan kenyataan kepada unit, panitia dan kelas.',
+    'Memastikan paparan kemas, ceria, tepat dari segi bahasa dan bebas daripada bahan yang tidak sesuai.',
+    'Membuat pemantauan berkala dan menurunkan bahan yang telah luput tarikh.',
+  ],
+  'pp-jk-bk': [
+    'Merancang dan melaksanakan program bimbingan dan kaunseling sekolah berasaskan keperluan murid.',
+    'Menyelaras perkhidmatan kaunseling individu dan kelompok serta menyimpan rekod secara sulit.',
+    'Melaksanakan program pembangunan sahsiah, kerjaya, psikososial dan kesejahteraan mental murid.',
+    'Bekerjasama dengan Unit Disiplin, guru kelas dan ibu bapa dalam menangani masalah murid.',
+    'Menyediakan laporan aktiviti dan statistik perkhidmatan B&K kepada pentadbir dan PPD.',
+  ],
+  'pp-jk-kajian': [
+    'Menggalakkan guru menjalankan kajian tindakan untuk menambah baik amalan PdPc.',
+    'Menyelaras bengkel penulisan cadangan dan laporan kajian tindakan.',
+    'Membimbing dan memantau pelaksanaan kajian tindakan guru mengikut kitaran yang ditetapkan.',
+    'Mengumpul, menilai dan mendokumentasikan amalan terbaik sekolah.',
+    'Menganjurkan sesi perkongsian / seminar amalan terbaik di peringkat sekolah dan menghantar penyertaan ke peringkat PPD / JPN.',
+  ],
+  'pp-jk-mentor': [
+    'Menentukan pasangan mentor dan mentee bagi guru baharu, guru novis dan guru yang memerlukan bimbingan.',
+    'Merancang program bimbingan profesional dan pencerapan rakan sebaya.',
+    'Memantau perkembangan mentee melalui rekod pertemuan dan pencerapan berkala.',
+    'Memberi bimbingan pengurusan bilik darjah, PdPc dan tugas-tugas sekolah kepada mentee.',
+    'Menyediakan laporan keberkesanan program mentor-mentee pada akhir tahun.',
+  ],
+  'pp-jk-pusat-sumber': [
+    'Merancang dan mengurus Pusat Sumber Sekolah sebagai pusat bahan bantu belajar, rujukan dan media.',
+    'Memastikan perolehan, perekodan, pengelasan dan penyelenggaraan bahan serta peralatan PSS teratur.',
+    'Menyelaras penggunaan bilik media, ICT dan peralatan audio visual oleh guru dan murid.',
+    'Melaksanakan program galakan membaca dan kemahiran maklumat bersama Jawatankuasa NILAM.',
+    'Menyediakan laporan penggunaan dan inventori PSS kepada pentadbir.',
+  ],
+  'pp-jk-nilam': [
+    'Merancang dan melaksanakan Program NILAM selaras dengan garis panduan KPM.',
+    'Memastikan rekod bacaan murid dikemas kini dan disahkan oleh guru kelas / guru Bahasa.',
+    'Menganalisis pencapaian NILAM mengikut kelas dan tahap serta melaporkannya kepada pentadbir.',
+    'Menganjurkan aktiviti galakan membaca seperti Minggu Membaca, pertandingan dan pameran buku.',
+    'Mengurus pemberian anugerah / sijil NILAM kepada murid yang layak.',
+  ],
+  'pp-jk-siar': [
+    'Mengurus sistem siar raya, audio dan peralatan teknikal bagi perhimpunan dan majlis sekolah.',
+    'Memastikan peralatan berfungsi, diselenggara dan disimpan dengan selamat.',
+    'Menyediakan jadual bertugas teknikal untuk setiap acara sekolah.',
+    'Mendokumentasikan acara sekolah (foto / video) dan menyerahkan bahan kepada unit berkaitan.',
+    'Membuat permohonan pembaikan atau perolehan peralatan melalui pentadbir.',
+  ],
+  'pp-jk-pibg': [
+    'Menyelaras hubungan antara sekolah dengan Persatuan Ibu Bapa dan Guru (PIBG) mengikut Peraturan-Peraturan PIBG.',
+    'Membantu menyediakan Mesyuarat Agung Tahunan dan mesyuarat AJK PIBG.',
+    'Merancang aktiviti PIBG yang menyokong program akademik, sahsiah dan kebajikan murid.',
+    'Memastikan pengurusan kewangan PIBG telus, direkod dan diaudit.',
+    'Menggalakkan penglibatan ibu bapa dan komuniti dalam aktiviti sekolah.',
+  ],
+
+  'pp-program-kurikulum': [
+    'Merancang program khas Unit Kurikulum mengikut takwim sekolah dan menetapkan pegawai pelaksana.',
+    'Menyediakan kertas kerja, anggaran kos dan mendapatkan kelulusan pentadbir sebelum program.',
+    'Memantau pelaksanaan program dan memastikan objektif tercapai.',
+    'Menyediakan laporan dan post-mortem dalam tempoh dua (2) minggu selepas program.',
+  ],
+  'pp-program-hem': [
+    'Merancang program khas Unit Hal Ehwal Murid mengikut takwim sekolah dan menetapkan pegawai pelaksana.',
+    'Menyediakan kertas kerja, anggaran kos dan mendapatkan kelulusan pentadbir sebelum program.',
+    'Memastikan aspek keselamatan dan kebajikan murid diberi keutamaan.',
+    'Menyediakan laporan dan post-mortem dalam tempoh dua (2) minggu selepas program.',
+  ],
+  'pp-program-koku': [
+    'Merancang program khas Unit Kokurikulum mengikut takwim sekolah dan menetapkan pegawai pelaksana.',
+    'Menyediakan kertas kerja, anggaran kos dan mendapatkan kelulusan pentadbir sebelum program.',
+    'Memastikan peralatan, kemudahan dan aspek keselamatan aktiviti mencukupi.',
+    'Menyediakan laporan dan post-mortem dalam tempoh dua (2) minggu selepas program.',
+  ],
+
+  /* ---------------- Kurikulum ---------------- */
+  'k-bilik-khas': [
+    'Memastikan setiap bilik khas mempunyai guru penyelaras dan jadual penggunaan yang dipamerkan.',
+    'Menyelenggara kebersihan, keselamatan dan keceriaan bilik khas.',
+    'Merekod inventori peralatan dan melaporkan kerosakan kepada pentadbir.',
+    'Memastikan peraturan penggunaan bilik dipatuhi oleh guru dan murid.',
+    'Menyediakan laporan penggunaan bilik khas pada akhir tahun.',
+  ],
+  'kx-jk-petang': [
+    'Menyelaras pengurusan kurikulum, HEM dan kokurikulum sesi petang selaras dengan dasar sekolah.',
+    'Menyediakan jadual waktu, guru ganti dan jadual bertugas harian sesi petang.',
+    'Memantau kehadiran guru dan murid serta melaporkan isu kepada GPK Petang.',
+    'Memastikan keselamatan, kebersihan dan disiplin murid sesi petang terkawal.',
+    'Mengadakan mesyuarat guru petang dan menyampaikan maklumat pentadbiran kepada semua guru.',
+  ],
+  'kx-jk-pak21': [
+    'Merancang dan menyelaras pelaksanaan Pembelajaran Abad Ke-21 (PAK21) dalam PdPc semua mata pelajaran.',
+    'Menyelaras Komuniti Pembelajaran Profesional (PLC) seperti Lesson Study, Learning Walk dan Teacher Sharing Session.',
+    'Membimbing guru menggunakan pendekatan pembelajaran aktif, kolaboratif dan berpusatkan murid.',
+    'Memantau pelaksanaan PAK21 melalui pencerapan dan rekod PLC.',
+    'Mendokumentasikan dan berkongsi amalan terbaik PAK21 dalam kalangan guru.',
+  ],
+  'kx-jk-pusat-sumber': [
+    'Memastikan bahan bantu belajar dan sumber digital menyokong pelaksanaan kurikulum.',
+    'Menyelaras penggunaan bilik media dan peralatan ICT untuk PdPc.',
+    'Membantu panitia mendapatkan dan menyimpan bahan PdPc yang sesuai.',
+    'Bekerjasama dengan Jawatankuasa NILAM melaksanakan program literasi dan galakan membaca.',
+    'Menyediakan laporan penggunaan bahan sumber oleh guru dan murid.',
+  ],
+  'kx-jk-apresiasi-6': [
+    'Merancang dan melaksanakan Majlis Apresiasi Murid Tahun 6 pada akhir tahun.',
+    'Menyediakan kertas kerja, anggaran perbelanjaan dan mendapatkan kelulusan pentadbir.',
+    'Menyelaras penyediaan sijil, cenderamata dan senarai penerima anugerah.',
+    'Mengagihkan tugas AJK pelaksana dan memantau persediaan majlis.',
+    'Menyediakan laporan dan post-mortem majlis.',
+  ],
+  'kx-jk-transisi': [
+    'Merancang dan melaksanakan Program Transisi Tahun 1 selama tempoh yang ditetapkan KPM.',
+    'Menyediakan modul / aktiviti transisi yang menyeronokkan untuk membantu murid menyesuaikan diri.',
+    'Menyaring tahap kesediaan murid dan mengenal pasti murid yang memerlukan intervensi awal.',
+    'Bekerjasama dengan guru prasekolah, guru kelas Tahun 1 dan ibu bapa.',
+    'Menyediakan laporan pelaksanaan dan pencapaian program transisi.',
+  ],
+  'kx-jk-plans': [
+    'Merancang dan melaksanakan Program Literasi dan Numerasi Sekolah (PLaNS) bagi murid Tahun 2 dan Tahun 3.',
+    'Menjalankan saringan dan mengenal pasti murid yang belum menguasai kemahiran asas 3M.',
+    'Menyediakan bahan dan aktiviti intervensi mengikut tahap penguasaan murid.',
+    'Memantau kemajuan murid dan merekod pencapaian secara berkala.',
+    'Melaporkan pencapaian program kepada Jawatankuasa Induk Kurikulum.',
+  ],
+  'kx-jk-bicara': [
+    'Merancang dan mengadakan Hari Bicara Akademik (Hari Bertemu Ibu Bapa) mengikut takwim.',
+    'Menyediakan jadual pertemuan guru kelas / guru mata pelajaran dengan ibu bapa.',
+    'Memastikan laporan pencapaian murid (PBD / UASA) disediakan sebelum hari pertemuan.',
+    'Merekod kehadiran dan maklum balas ibu bapa untuk tindakan susulan.',
+    'Menyediakan laporan pelaksanaan kepada pentadbir.',
+  ],
+  'kx-jk-kemenjadian': [
+    'Merancang Majlis Apresiasi Kemenjadian Murid bagi menghargai pencapaian akademik dan sahsiah murid.',
+    'Menetapkan kriteria anugerah dan mengumpul data pencapaian murid daripada guru dan panitia.',
+    'Menyediakan sijil, hadiah dan atur cara majlis.',
+    'Menyelaras jemputan ibu bapa, tetamu dan pihak media.',
+    'Menyediakan laporan dan post-mortem majlis.',
+  ],
+
+  /* ---------------- Hal Ehwal Murid ---------------- */
+  'hx-bantuan-ehsan': [
+    'Mengenal pasti murid yang memerlukan bantuan ehsan (murid miskin, anak yatim, mangsa bencana dan kes kecemasan).',
+    'Mengurus kutipan, agihan dan rekod Tabung Kebajikan / Baitulmal sekolah secara telus.',
+    'Menyelaras bantuan daripada PIBG, NGO, zakat dan penyumbang luar.',
+    'Melawat atau mendapatkan maklumat latar belakang murid bersama guru kelas apabila perlu.',
+    'Menyediakan laporan agihan bantuan kepada pentadbir dan penyumbang.',
+  ],
+  'hx-pss': [
+    'Mengurus pelaksanaan Program Susu Sekolah (PSS) mengikut garis panduan KPM.',
+    'Menyediakan senarai murid penerima dan jadual agihan susu mengikut kelas.',
+    'Memastikan susu diterima, disimpan dan diedarkan dalam keadaan baik serta mengikut tarikh luput.',
+    'Merekod agihan harian dan stok serta menyediakan laporan bulanan.',
+    'Memastikan sisa dan kotak susu dikumpul dan dilupuskan dengan bersih.',
+  ],
+  'hx-penempatan': [
+    'Menyebarkan maklumat permohonan kemasukan ke Tingkatan 1, Sekolah Agama (SMKA / KAA) dan Sekolah Berasrama Penuh kepada ibu bapa.',
+    'Membantu ibu bapa dan murid Tahun 6 membuat permohonan dalam talian mengikut tarikh yang ditetapkan.',
+    'Menyemak dan mengesahkan dokumen serta data murid yang memohon.',
+    'Memantau keputusan penempatan dan membantu urusan rayuan.',
+    'Menyediakan statistik penempatan murid Tahun 6 untuk rekod sekolah.',
+  ],
+  'hx-orientasi': [
+    'Merancang dan melaksanakan Program Orientasi murid Tahun 1 dan Prasekolah.',
+    'Menyediakan atur cara, bahan taklimat dan kit maklumat untuk murid dan ibu bapa.',
+    'Memperkenalkan peraturan, rutin harian, kemudahan dan warga sekolah kepada murid baharu.',
+    'Menyelaras guru bertugas dan pengawas pembimbing semasa minggu orientasi.',
+    'Mendapatkan maklum balas ibu bapa dan menyediakan laporan program.',
+  ],
+  'hx-ssdm': [
+    'Mengurus Sistem Sahsiah Diri Murid (SSDM) dan memastikan rekod salah laku serta amalan baik dikemas kini.',
+    'Memantau kehadiran murid, mengenal pasti murid ponteng / tidak hadir berterusan dan mengeluarkan surat amaran.',
+    'Mengesan dan mengambil tindakan susulan terhadap murid cicir bersama guru kelas dan Guru B&K.',
+    'Menyediakan laporan ponteng dan murid cicir bulanan kepada pentadbir dan PPD.',
+    'Mengiktiraf murid yang menunjukkan amalan baik dan kehadiran penuh.',
+  ],
+
+  /* ---------------- Kokurikulum ---------------- */
+  'kk-jk-induk': [
+    'Merancang, menyelaras dan menilai semua aktiviti kokurikulum sekolah selaras dengan dasar KPM.',
+    'Menentukan agihan guru penasihat, jurulatih dan pengurus pasukan bagi semua unit kokurikulum.',
+    'Menyediakan Takwim Kokurikulum dan memastikan aktiviti mingguan dilaksanakan mengikut jadual.',
+    'Mengurus pentaksiran PAJSK dan merekod pencapaian murid dalam sistem yang ditetapkan.',
+    'Menguruskan peruntukan kewangan kokurikulum dan aset unit beruniform, kelab dan sukan.',
+    'Memastikan aspek keselamatan murid dipatuhi dalam semua aktiviti dan pertandingan.',
+    'Mengadakan mesyuarat sekurang-kurangnya tiga (3) kali setahun dan menyediakan laporan tahunan.',
+  ],
+  'kk-jk-03': [
+    'Merancang dan menyelaras aktiviti semua unit beruniform sekolah sepanjang tahun.',
+    'Memastikan setiap murid berdaftar dalam satu unit beruniform dan rekod kehadiran dikemas kini.',
+    'Menyelaras perhimpunan bulanan, perkhemahan dan kursus unit beruniform.',
+    'Memastikan guru penasihat menghadiri kursus / latihan yang berkaitan.',
+    'Menyediakan laporan aktiviti dan pencapaian unit beruniform kepada Jawatankuasa Induk Kokurikulum.',
+  ],
+  'kk-jk-11': [
+    'Merancang dan menyelaras aktiviti sukan dan permainan mingguan serta latihan pasukan sekolah.',
+    'Menyelaras penyertaan pasukan sekolah dalam kejohanan peringkat zon, daerah, negeri dan kebangsaan.',
+    'Mengurus Kejohanan Olahraga Tahunan dan Hari Sukan Sekolah bersama guru rumah sukan.',
+    'Memastikan peralatan dan kemudahan sukan mencukupi, selamat dan diselenggara.',
+    'Menyediakan laporan pencapaian sukan kepada Jawatankuasa Induk Kokurikulum.',
+  ],
+  'kk-jk-07': [
+    'Merancang dan menyelaras aktiviti kelab dan persatuan setiap minggu mengikut takwim.',
+    'Memastikan setiap murid berdaftar dalam satu kelab / persatuan dan rekod kehadiran dikemas kini.',
+    'Menggalakkan pertandingan, pameran dan aktiviti ilmiah yang memupuk bakat murid.',
+    'Menyelaras laporan aktiviti dan buku log kelab / persatuan.',
+    'Menyediakan laporan pencapaian kelab dan persatuan kepada Jawatankuasa Induk Kokurikulum.',
+  ],
+  'kk-pembangunan-sukan': [
+    'Merancang pembangunan sukan sekolah berdasarkan dasar Satu Murid Satu Sukan (1M1S).',
+    'Mengenal pasti dan membangunkan bakat murid melalui latihan berstruktur dan program pembangunan atlet.',
+    'Menyelaras jurulatih, pengurus pasukan dan jadual latihan pasukan sekolah.',
+    'Menilai prestasi atlet dan pasukan selepas setiap kejohanan.',
+    'Menyediakan laporan pembangunan sukan kepada pentadbir.',
+  ],
+  'kk-khas-1': [
+    'Menyelaras pelaksanaan Ujian SEGAK mengikut tarikh yang ditetapkan KPM (Penggal 1 dan Penggal 2).',
+    'Menyelaras pentaksiran PAJSK dan iKeps serta memastikan markah dimasukkan ke dalam sistem.',
+    'Memberi taklimat dan panduan kepada guru kelas dan guru PJK tentang prosedur pentaksiran.',
+    'Menganalisis keputusan dan mengenal pasti murid yang memerlukan intervensi kecergasan.',
+    'Menyediakan laporan pencapaian kepada Jawatankuasa Induk Kokurikulum.',
+  ],
+  'kk-khas-2': [
+    'Memastikan setiap murid menyertai sekurang-kurangnya satu (1) sukan selaras dengan dasar 1M1S.',
+    'Menyediakan jadual aktiviti sukan 1M1S dan mengagihkan guru pembimbing.',
+    'Merekod penyertaan murid dan memantau pelaksanaan aktiviti mingguan.',
+    'Menganjurkan pertandingan dalaman bagi mencungkil bakat murid.',
+    'Menyediakan laporan pelaksanaan 1M1S.',
+  ],
+  'kk-khas-3': [
+    'Merancang Majlis Anugerah Kecemerlangan Kokurikulum pada akhir tahun.',
+    'Menetapkan kriteria anugerah dan mengumpul data pencapaian murid daripada semua unit.',
+    'Menyediakan sijil, piala, hadiah dan atur cara majlis.',
+    'Menyelaras jemputan, persembahan dan dokumentasi majlis.',
+    'Menyediakan laporan dan post-mortem majlis.',
+  ],
+  'kk-khas-4': [
+    'Merancang laluan, tarikh dan atur cara Kejohanan Merentas Desa sekolah.',
+    'Mendapatkan kebenaran ibu bapa dan memaklumkan pihak berkuasa / komuniti setempat.',
+    'Menyediakan petugas keselamatan, rawatan kecemasan dan stesen air di sepanjang laluan.',
+    'Merekod keputusan peserta mengikut kategori dan rumah sukan.',
+    'Menyediakan laporan pelaksanaan dan keselamatan program.',
+  ],
+  'kk-khas-5': [
+    'Merancang aktiviti pendidikan luar dan lawatan sambil belajar mengikut garis panduan KPM.',
+    'Memastikan kertas kerja, kebenaran pentadbir, PPD dan ibu bapa diperoleh sebelum lawatan.',
+    'Menyediakan nisbah guru pengiring dan pelan keselamatan yang mencukupi.',
+    'Memastikan pengangkutan, insurans dan rekod peserta lengkap.',
+    'Menyediakan laporan lawatan dalam tempoh yang ditetapkan.',
+  ],
+
+  /* ---------------- PPKI ---------------- */
+  'pk-jpks': [
+    'Merancang dan menyelaras dasar serta pelaksanaan Program Pendidikan Khas Integrasi di sekolah.',
+    'Membincangkan penempatan, pertukaran dan penilaian MBPK berdasarkan laporan pengesahan pengamal perubatan.',
+    'Memantau pelaksanaan Rancangan Pendidikan Individu (RPI) dan Program Pendidikan Inklusif.',
+    'Memastikan kemudahan, peralatan dan peruntukan PPKI digunakan dengan betul.',
+    'Bermesyuarat sekurang-kurangnya dua (2) kali setahun dan melaporkan keputusan kepada pentadbir.',
+  ],
+  'pk-jk-induk': [
+    'Menyelaras pengurusan pentadbiran, kurikulum, HEM dan kokurikulum PPKI selaras dengan dasar sekolah.',
+    'Memastikan setiap MBPK mempunyai RPI dan pentaksiran dijalankan mengikut tahap keupayaan murid.',
+    'Menyelaras penglibatan MBPK dalam aktiviti kokurikulum dan program sekolah.',
+    'Memastikan keselamatan, kebajikan dan kesihatan MBPK sepanjang berada di sekolah.',
+    'Menjalin kerjasama dengan ibu bapa, PPD, JPN dan agensi luar.',
+    'Menyediakan laporan pelaksanaan PPKI kepada JPKS dan pentadbir.',
+  ],
+};
+
+/** Jawatankuasa unit Kurikulum yang dipecahkan kepada halaman sendiri: [id, tajuk halaman, kata kunci tajuk jawatankuasa asal]. */
+export const KURI_UNIT_PAGES: [string, string, string][] = [
+  ['kx-jk-pak21', 'JAWATANKUASA PEMBELAJARAN ABAD KE-21 (PAK21) & PLC', 'PAK 21'],
+  ['kx-jk-pusat-sumber', 'JAWATANKUASA PUSAT SUMBER SEKOLAH (KURIKULUM)', 'PUSAT SUMBER'],
+  ['kx-jk-transisi', 'JAWATANKUASA PROGRAM TRANSISI TAHUN 1', 'TRANSISI'],
+  ['kx-jk-plans', 'JAWATANKUASA PROGRAM LITERASI DAN NUMERASI SEKOLAH (PLaNS)', 'PLANS'],
+  ['kx-jk-bicara', 'JAWATANKUASA HARI BICARA AKADEMIK', 'BICARA'],
+  ['kx-jk-apresiasi-6', 'JAWATANKUASA APRESIASI TAHUN 6', 'APRESIASI TAHUN 6'],
+  ['kx-jk-kemenjadian', 'JAWATANKUASA MAJLIS APRESIASI KEMENJADIAN MURID', 'KEMENJADIAN'],
+];

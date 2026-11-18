@@ -195,6 +195,9 @@ export function paginate(blocks: AnyBlock[], ctx: BookCtx, o: PaginateOpts): Seg
  * 3. Jika masih banyak ruang, panel "Catatan" bergaris mengisi baki halaman. */
 const ZOOMS = [1.06, 1.12, 1.18, 1.24, 1.3, 1.4, 1.5, 1.6, 1.75];
 const FILLER_MIN_MM = 34;
+/** Skala padat bagi halaman jawatankuasa yang melimpah sedikit (supaya ahli + bidang tugas sehalaman). */
+const SHRINKS = [0.95, 0.9, 0.86, 0.82];
+const isCommitteePage = (blocks: AnyBlock[]) => blocks.some((b) => b.type === 'committee' || b.type === 'table') && blocks.some((b) => b.type === 'heading' && /TUGAS/i.test(b.text));
 const usedPx = (segs: Segment[]) => segs.reduce((a, s) => a + (s.h ?? 0), 0);
 const CHARTS = new Set(['orgchart', 'orgtree']);
 const isChart = (b: AnyBlock) => CHARTS.has(b.type) || (b.type === 'committee' && b.display === 'chart');
@@ -324,6 +327,13 @@ export function useBookPlan(): PagePlan[] {
           if (p.length !== 1 || p[0][0].some((s) => s.density)) break;
           pages = p;
           zoom = z;
+        }
+      }
+      // Jawatankuasa + Bidang Tugas mesti dalam SATU halaman: jika melimpah sedikit, padatkan seluruh halaman (hingga 82%).
+      if (canBalance && pages.length === 2 && isCommitteePage(sec.blocks)) {
+        for (const z of SHRINKS) {
+          const p = paginate(sec.blocks, ctx, { ...o, zoom: z });
+          if (p.length === 1) { pages = p; zoom = z; break; }
         }
       }
       const byId = new Map<string, AnyBlock>(sec.blocks.map((b) => [b.id, b]));

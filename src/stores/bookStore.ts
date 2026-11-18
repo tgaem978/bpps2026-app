@@ -11,6 +11,8 @@ import { lampiranTopics } from '@/config/partLampiran';
 import { KOKU_MERGED, PPKI_PAGES, UNIT_INTRO_IDS, hemIntroTopic, kokuIntroTopic, ppkiIntroTopics } from '@/config/unitPengenalan';
 import { FLAT_TOC_PARTS, OVERRIDES, REMOVED_IDS, partRujukanSections, unitTopicIds } from '@/config/partRujukan';
 import { createBlock, uid } from '@/lib/blocks';
+import { BIDANG_TUGAS, KURI_UNIT_PAGES } from '@/config/bidangTugas';
+import { SENARAI_JK, senaraiItems, senaraiSection, tugasBlocks } from '@/config/senaraiJk';
 import { allIds } from '@/lib/outline';
 import { defaultForYear } from '@/lib/rollover';
 import { appStorage } from '@/lib/storage';
@@ -381,6 +383,72 @@ function migrateV19(p: Partial<BookState>) {
  * matlamat → pengenalan/KPI). Halaman yang belum disunting dimuat semula; dalam edisi tahun baharu, halaman yang belum disunting
  * sejak edisi dicipta (updatedAt = masa cipta edisi) diganti dengan kandungan baharu yang digulung ke tahun edisi.
  */
+/** v21: Carta Organisasi Induk unit dilengkapkan (format seragam, keahlian penuh) — halaman yang belum disunting dimuat semula. */
+const CARTA_UNIT_IDS = ['kx-carta-induk', 'hx-carta', 'kx-carta-koku', 'pra-carta'];
+/**
+ * v22: halaman jawatankuasa setiap unit disusun mengikut Senarai Jawatankuasa Unit, setiap jawatankuasa disertakan
+ * BIDANG TUGAS (halaman sama) dan jawatankuasa unit Kurikulum dipecah kepada halaman sendiri.
+ * Suntingan pengguna dikekalkan: halaman yang telah disunting hanya ditambah Bidang Tugas jika belum ada.
+ */
+function migrateV22(p: Partial<BookState>) {
+  if (!p.sections) return;
+  const year = useProjectStore.getState().profile.year;
+  const stamp = p.cover?.updatedAt ?? null;
+  const defs = defaultSections();
+  const untouched = (sec: SectionContent | undefined) => !sec || (sec.review?.status !== 'siap' && (sec.updatedAt === null || (stamp !== null && sec.updatedAt === stamp)));
+  const fresh = (id: string, old?: SectionContent): SectionContent => ({
+    ...defaultForYear(id, defs[id], year),
+    updatedAt: old?.updatedAt ?? (year > 2026 ? stamp : null),
+    ...(old?.review ? { review: old.review } : year > 2026 && stamp !== null ? { review: { year, status: 'perlu' as const } } : {}),
+  });
+  // halaman baharu
+  const NEW = [...KURI_UNIT_PAGES.map(([id]) => id), 'pp-senarai-jk'];
+  for (const id of NEW) if (!p.sections[id] && defs[id]) p.sections[id] = fresh(id);
+  // Bidang Tugas pada halaman jawatankuasa yang belum mempunyainya
+  for (const id of Object.keys(BIDANG_TUGAS)) {
+    const sec = p.sections[id];
+    if (sec && !sec.blocks.some((b) => b.type === 'heading' && /TUGAS/i.test(b.text))) p.sections[id] = { ...sec, blocks: [...sec.blocks, ...tugasBlocks(id)] };
+  }
+  // struktur: turutan halaman jawatankuasa mengikut senarai (halaman tambahan pengguna dikekalkan di hujung bahagian)
+  if (p.outline) {
+    const def = defaultOutline();
+    for (const partId of ['p-pentadbiran', 'p-kurikulum', 'p-hem', 'p-koku']) {
+      const part = p.outline.find((x) => x.id === partId);
+      const dpart = def.find((x) => x.id === partId);
+      if (!part || !dpart) continue;
+      const had = new Set(part.topics.flatMap((t) => [t.id, ...t.children]));
+      const keep = (id: string) => had.has(id) || NEW.includes(id);
+      const topics: OutlineTopic[] = dpart.topics.filter((t) => keep(t.id)).map((t) => ({ ...t, children: t.children.filter(keep) }));
+      const placed = new Set(topics.flatMap((t) => [t.id, ...t.children]));
+      // topik lalai yang dibuang tetapi anaknya masih ada: anak menjadi topik sendiri
+      dpart.topics.filter((t) => !keep(t.id)).forEach((t) => t.children.filter((c) => keep(c) && !placed.has(c)).forEach((c) => { topics.push({ id: c, children: [] }); placed.add(c); }));
+      for (const t of part.topics) for (const id of [t.id, ...t.children]) if (!placed.has(id)) { topics.push({ id, children: [] }); placed.add(id); }
+      part.topics = topics;
+    }
+    // halaman senarai yang belum disunting dijana semula mengikut turutan & tajuk semasa
+    for (const [id, partId, unit] of SENARAI_JK) {
+      const old = p.sections[id];
+      if (!untouched(old)) continue;
+      const items = senaraiItems(partId, p.outline, p.sections);
+      const base = senaraiSection(unit, items, old);
+      p.sections[id] = old ? base : { ...base, ...(year > 2026 && stamp !== null ? { updatedAt: stamp, review: { year, status: 'perlu' as const } } : {}) };
+    }
+  }
+}
+
+function migrateV21(p: Partial<BookState>) {
+  if (!p.sections) return;
+  const year = useProjectStore.getState().profile.year;
+  const stamp = p.cover?.updatedAt ?? null;
+  const defs = defaultSections();
+  for (const id of CARTA_UNIT_IDS) {
+    const old = p.sections[id];
+    if (!old || !defs[id] || old.review?.status === 'siap') continue;
+    if (old.updatedAt === null) { delete p.sections[id]; continue; }
+    if (stamp !== null && old.updatedAt === stamp) p.sections[id] = { ...defaultForYear(id, defs[id], year), updatedAt: old.updatedAt, ...(old.review ? { review: old.review } : {}) };
+  }
+}
+
 function migrateV20(p: Partial<BookState>) {
   const year = useProjectStore.getState().profile.year;
   const stamp = p.cover?.updatedAt ?? null;
@@ -577,7 +645,7 @@ export const useBookStore = create<BookState>()(
     {
       name: 'bpps2026-book',
       storage: appStorage(),
-      version: 20,
+      version: 22,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -600,6 +668,8 @@ export const useBookStore = create<BookState>()(
         if (version < 18) migrateV18(p);
         if (version < 19) migrateV19(p);
         if (version < 20) migrateV20(p);
+        if (version < 21) migrateV21(p);
+        if (version < 22) migrateV22(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

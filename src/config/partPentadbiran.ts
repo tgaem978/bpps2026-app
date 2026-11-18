@@ -163,7 +163,7 @@ export const pentadbiranTopics = (): OutlineTopic[] => [
   { id: 'senarai-pagi', children: ['senarai-petang', 'senarai-akp'] },
   { id: 'pp-delima', children: [] },
   { id: 'guru-kelas', children: [] },
-  { id: 'pp-jk-tertinggi', children: JK_IDS.slice(1) },
+  { id: 'pp-senarai-jk', children: JK_IDS },
   { id: 'pp-pencerapan', children: ['pp-erph', 'pp-pencerapan-guru', 'pp-semakan-hasil'] },
   { id: 'pp-bilik-khas', children: [] },
   { id: 'pp-program-kurikulum', children: ['pp-program-hem', 'pp-program-koku'] },

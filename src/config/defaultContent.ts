@@ -1,3 +1,4 @@
+import { jawatankuasaSections } from '@/config/senaraiJk';
 import type { Block, CoverContent, OutlinePart, SectionContent, SectionLayout } from '@/types/book';
 import { uid } from '@/lib/blocks';
 import { templateAssets } from '@/templates/bpps';
@@ -109,6 +110,8 @@ export const defaultSections = (): Record<string, SectionContent> => {
   for (const id of unitTopicIds()) if (all[id]) all[id] = { ...all[id], subtitle: '' };
   // Halaman pengenalan HEM, Kokurikulum & PPKI diseragamkan dengan format Unit Kurikulum.
   Object.assign(all, unitPengenalanSections(all));
+  // Setiap halaman jawatankuasa disertakan Bidang Tugas; Senarai Jawatankuasa Unit dijana mengikut turutan halaman.
+  Object.assign(all, jawatankuasaSections(all, defaultOutline()));
   for (const id of Object.keys(all)) if ((id.startsWith('pk-') || id === 'pendidikan-khas') && all[id].subtitle === 'PPKI') all[id] = { ...all[id], subtitle: '' };
   return all;
 };

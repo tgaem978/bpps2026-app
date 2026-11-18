@@ -8,6 +8,8 @@ import { kvIcon } from './themeArt';
 import { Camera } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import { PANEL_HEADINGS, isCalendarTable, isPlaceholder, placeholderLabel } from '@/lib/variants';
+import { useStaffStore } from '@/stores/staffStore';
+import { useFramedPhoto } from '@/lib/photoFrame';
 
 /** Siluet potret elegan bila tiada gambar. */
 export function Avatar({ name }: { name: string }) {
@@ -60,7 +62,7 @@ function rowNameFit(names: string[], slotMm: number, lead: boolean): NameFit[] {
 function Card({ role, names, sub, note, leader, photo, who, fit }: { role: string; names: string[]; sub?: string; note?: string; leader?: boolean; photo?: string; who?: string; fit?: NameFit }) {
   return (
     <div className={`bp-card ${leader ? 'bp-card-leader' : 'bp-card-plain'}${names.length > 1 ? ' bp-card-multi' : ''}`}>
-      {leader && <div className="bp-oc-photo">{photo ? <img src={photo} alt="" /> : <Avatar name={who ?? names[0] ?? ''} />}</div>}
+      {leader && <div className="bp-oc-photo">{photo ? <FramedImg src={photo} /> : <Avatar name={who ?? names[0] ?? ''} />}</div>}
       <p className="bp-card-role">{chartRole(role)}</p>
       <div className="bp-card-names">
         {names.length ? names.map((nm, k) => isPlaceholder(nm) || !nm ? <p key={k} className="bp-card-name bp-card-empty" aria-label="Belum diisi" /> : <p key={k} className={`bp-card-name${leader && fit?.one ? ' bp-one' : ''}`} style={leader && fit && fit.scale < 1 ? { fontSize: `calc(var(--oc-name) * ${fit.scale.toFixed(3)})` } : undefined}>{nm}</p>) : <p className="bp-card-name bp-card-empty" aria-label="Belum diisi" />}
@@ -69,6 +71,12 @@ function Card({ role, names, sub, note, leader, photo, who, fit }: { role: strin
       {note && <p className="bp-card-note">{note}</p>}
     </div>
   );
+}
+
+/** Gambar bulat carta mengikut bingkai guru (zum & fokus) daripada Pangkalan Data Guru. */
+function FramedImg({ src }: { src: string }) {
+  const frame = useStaffStore((s) => s.teachers.find((t) => t.photo === src)?.photoFrame);
+  return <img src={useFramedPhoto(src, frame)} alt="" />;
 }
 
 type OcPerson = { name: string; position: string; photo: string };

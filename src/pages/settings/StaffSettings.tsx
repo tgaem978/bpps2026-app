@@ -8,6 +8,7 @@ import { resizeImage } from '@/lib/blocks';
 import { nameOf, positionOf, sortTeachers, valueText } from '@/lib/resolve';
 import { useProjectStore } from '@/stores/projectStore';
 import { Avatar } from '@/components/book/BlockView';
+import { PhotoFrameEditor } from '@/components/editor/PhotoFrameEditor';
 
 const field = 'w-full rounded-md border border-border bg-surface px-3 py-2 text-sm';
 const btn = 'inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium hover:bg-surface-2';
@@ -215,7 +216,7 @@ function TeacherRow({ t, open, onToggle }: { t: Teacher; open: boolean; onToggle
               const f = e.target.files?.[0];
               e.target.value = '';
               if (!f) return;
-              try { updateTeacher(t.id, { photo: await resizeImage(f) }); } catch (err) { toast((err as Error).message, 'error'); }
+              try { updateTeacher(t.id, { photo: await resizeImage(f), photoFrame: undefined }); } catch (err) { toast((err as Error).message, 'error'); }
             }}
           />
         </label>
@@ -244,9 +245,10 @@ function TeacherRow({ t, open, onToggle }: { t: Teacher; open: boolean; onToggle
           ))}
           {t.photo && (
             <div className="flex items-end">
-              <button className={btn} onClick={() => updateTeacher(t.id, { photo: '' })}><X size={14} /> Buang gambar</button>
+              <button className={btn} onClick={() => updateTeacher(t.id, { photo: '', photoFrame: undefined })}><X size={14} /> Buang gambar</button>
             </div>
           )}
+          {t.photo && <PhotoFrameEditor src={t.photo} frame={t.photoFrame} onChange={(photoFrame) => updateTeacher(t.id, { photoFrame })} />}
         </div>
       )}
     </div>
