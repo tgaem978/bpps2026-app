@@ -308,11 +308,11 @@ export function useBookPlan(): PagePlan[] {
     const body: Pending[] = [];
     const tocRows: TocRowsBlock['rows'] = [];
     const tocIndex: { row: number; at: number }[] = []; // baris TOC → indeks dalam body
-    const pushSection = (id: string, level: 1 | 2, inToc = true) => {
+    const pushSection = (id: string, level: 1 | 2, inToc = true, bare = false) => {
       const sec = sections[id];
       if (!sec) return;
       if (inToc) {
-        tocRows.push({ level, title: sec.subtitle ? `${sec.title} — ${sec.subtitle}` : sec.title, page: 0 });
+        tocRows.push({ level, title: sec.subtitle && !bare ? `${sec.title} — ${sec.subtitle}` : sec.title, page: 0 });
         tocIndex.push({ row: tocRows.length - 1, at: body.length });
       }
       const layout = sec.layout ?? 'standard';
@@ -352,7 +352,8 @@ export function useBookPlan(): PagePlan[] {
       tocIndex.push({ row: tocRows.length - 1, at: body.length });
       if (part.divider) body.push({ kind: 'divider', key: `d-${part.id}`, partId: part.id });
       for (const t of part.topics) {
-        pushSection(t.id, 1);
+        // Topik berhalaman sambungan sama tajuk (cth. Planner Guru 12 bulan): satu entri tanpa lencana bulan.
+        pushSection(t.id, 1, true, t.tocChildren === false && t.children.length > 0 && t.children.every((c) => sections[c]?.title === sections[t.id]?.title));
         t.children.forEach((c) => pushSection(c, 2, part.tocChildren !== false && t.tocChildren !== false));
       }
     }

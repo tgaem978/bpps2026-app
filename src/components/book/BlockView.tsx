@@ -343,7 +343,8 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0, varia
       const cal: boolean = isCalendarTable(block) as boolean;
       // Sel kosong berstruktur bukan "perlu diisi": baris jumlah/tajuk (ada sel **tebal**) dan sambungan lajur kumpulan pertama.
       const needRow = (ri: number, ci: number) => !block.rows[ri].some((c) => /^\*\*/.test(c.trim())) && !(ci === 0 && block.rows.slice(0, ri).some((x) => (x[0] ?? '').trim()));
-      const cellClass = (ci: number) => (firstGold && ci === 0 ? 'bp-num' : (ci === 0 && num && block.style !== 'gold') || stats[ci].line > 34 ? 'bp-l' : 'bp-c');
+      // Penjajaran seragam: nama / kod / tarikh (hingga ±48 aksara) di tengah; ayat panjang rata kiri; perenggan dalam sel diratakan (justify).
+      const cellClass = (ci: number) => (firstGold && ci === 0 ? 'bp-num' : stats[ci].line > 72 ? 'bp-l bp-j' : (ci === 0 && num && block.style !== 'gold') || stats[ci].line > 48 ? 'bp-l' : 'bp-c');
       return (
         <div className={`bp-block bp-table-wrap${dense}${x}`} style={gs}>
           <table className={`bp-table ${block.style === 'gold' ? 'bp-table-gold' : ''}${isCalendarTable(block) ? ' bp-cal' : ''}`}>

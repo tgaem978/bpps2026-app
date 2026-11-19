@@ -3,7 +3,8 @@ import { persist } from 'zustand/middleware';
 import type { Block, BlockType, CoverContent, OutlinePart, OutlineTopic, ReviewMark, SectionContent } from '@/types/book';
 import { kokuTopics, ppkiChildren } from '@/config/partKoku';
 import { HEM_TUGAS_ORDER, hemIds, hemTopics } from '@/config/partHEM';
-import { PLANNER_IDS, defaultCover, defaultOutline, defaultSections, newSection, plannerPart } from '@/config/defaultContent';
+import { PLANNER_IDS, defaultCover, defaultOutline, defaultSections, newSection, plannerTopic } from '@/config/defaultContent';
+import { PROGRAM_KHAS } from '@/config/partPentadbiran';
 import { pentadbiranTopics } from '@/config/partPentadbiran';
 import { ppkiTopics } from '@/config/partPPKI';
 import { prasekolahTopics } from '@/config/partPrasekolah';
@@ -427,11 +428,33 @@ function migrateV26(p: Partial<BookState>) {
     if (p.sections[id] || !defs[id]) continue;
     p.sections[id] = { ...defaultForYear(id, defs[id], year), ...(year > 2026 && stamp !== null ? { updatedAt: stamp } : {}) };
   }
-  if (p.outline && !p.outline.some((x) => x.id === 'p-planner')) {
-    const part = plannerPart();
-    part.title = part.title.replace('2026', String(year));
-    const at = p.outline.findIndex((x) => x.id === 'p-takwim');
-    p.outline.splice(at >= 0 ? at + 1 : p.outline.length, 0, part);
+  if (p.outline && !p.outline.some((x) => x.id === 'p-planner' || x.topics.some((t) => t.id === PLANNER_IDS[0]))) {
+    const tk = p.outline.find((x) => x.id === 'p-takwim');
+    if (tk) tk.topics.push(plannerTopic());
+  }
+}
+
+/**
+ * v27: Planner Guru menjadi tajuk ketiga di bawah Takwim Sekolah (bukan bahagian sendiri);
+ * nama program khas setiap unit diisi pada Pengurusan Program Khas Sekolah (nama penyelaras dikosongkan untuk diisi unit).
+ */
+function migrateV27(p: Partial<BookState>) {
+  if (p.outline) {
+    const pl = p.outline.find((x) => x.id === 'p-planner');
+    const tk = p.outline.find((x) => x.id === 'p-takwim');
+    if (pl && tk) {
+      for (const t of pl.topics) if (!tk.topics.some((x) => x.id === t.id)) tk.topics.push(t.id === PLANNER_IDS[0] ? { ...t, tocChildren: false } : t);
+      p.outline = p.outline.filter((x) => x.id !== 'p-planner');
+    }
+  }
+  if (!p.sections) return;
+  for (const [id, unit] of [['pp-program-kurikulum', 'UNIT KURIKULUM'], ['pp-program-hem', 'UNIT HAL EHWAL MURID'], ['pp-program-koku', 'UNIT KOKURIKULUM']] as const) {
+    const sec = p.sections[id];
+    if (!sec) continue;
+    p.sections[id] = { ...sec, blocks: sec.blocks.map((b) => {
+      if (b.type !== 'table' || b.columns[0] !== 'NAMA PROGRAM' || b.rows.some((r) => (r[0] ?? '').trim())) return b;
+      return { ...b, numbered: true, colWidths: [50, 16, 34], colAlign: ['left', 'center', 'center'], rows: b.rows.map((r, i) => [PROGRAM_KHAS[unit][i] ?? '', ...r.slice(1)]) };
+    }) };
   }
 }
 
@@ -732,7 +755,7 @@ export const useBookStore = create<BookState>()(
     {
       name: 'bpps2026-book',
       storage: appStorage(),
-      version: 26,
+      version: 27,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -761,6 +784,7 @@ export const useBookStore = create<BookState>()(
         if (version < 24) migrateV24(p);
         if (version < 25) migrateV24(p, true);
         if (version < 26) migrateV26(p);
+        if (version < 27) migrateV27(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

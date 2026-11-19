@@ -150,10 +150,25 @@ const JK_IDS = [
 ];
 
 /* ---------------------------------------------------------------- program khas */
-const programTable = (): Block =>
-  tbl(['NAMA PROGRAM', 'JAWATAN', 'NAMA GURU'], Array.from({ length: 10 }, () => ['', 'PENYELARAS', '']), { numbered: false, colWidths: [42, 18, 40] });
+/** Program khas setiap unit (daripada Takwim Tahunan Unit sedia ada); nama guru penyelaras diisi oleh unit. */
+export const PROGRAM_KHAS: Record<string, string[]> = {
+  'UNIT KURIKULUM': [
+    'Program Transisi Tahun 1', 'Minggu Riang Ria Sekolahku', 'Orientasi Tahun 4', "Ihya' Ramadhan & Bulan Panitia Pendidikan Islam", 'Minggu Panitia Bahasa Inggeris',
+    'Minggu / Karnival STEM', 'Bulan Bahasa (BM, BI & BA)', 'Hari Bicara Akademik Bersama Ibu Bapa / Penjaga', 'Program Mission A+ (UPSA & UASA)', 'Majlis Apresiasi Kemenjadian Murid (MAKeM)',
+  ],
+  'UNIT HAL EHWAL MURID': [
+    "Jom Datang Ke Sekolah 'Datang Dengan Harapan, Pulang Dengan Kejayaan'", 'Sudut Mini Booth Bertema HEM', 'Program Kebersihan & Keceriaan Kelas', 'Kursus Kepimpinan & Majlis Watikah Pemimpin Kecil', 'Program Pendidikan Pencegahan Dadah (PPDa)',
+    'Pemeriksaan Kesihatan Murid', 'Sambutan Hari Guru Peringkat Sekolah', 'Pertandingan Keceriaan Kelas Bertema Patriotik', 'Latihan Kebakaran (Fire Drill)', 'Majlis Apresiasi HEM (Anugerah Kehadiran Penuh)',
+  ],
+  'UNIT KOKURIKULUM': [
+    'Mesyuarat Agung Kelab, Persatuan & Unit Beruniform', 'Perhimpunan Bulanan Kokurikulum', 'Kejohanan Olahraga Tahunan Sekolah', 'Sukaneka Tahap 1, Prasekolah & PPKI', 'Kejohanan Merentas Desa',
+    'Perkhemahan Perdana Unit Beruniform', 'Ujian SEGAK & Pentaksiran PAJSK', 'Program Satu Murid Satu Sukan (1M1S)', 'Pendidikan Luar & Lawatan', 'Majlis Anugerah Kecemerlangan Kokurikulum',
+  ],
+};
+const programTable = (unit: string): Block =>
+  tbl(['NAMA PROGRAM', 'JAWATAN', 'NAMA GURU'], Array.from({ length: 10 }, (_, i) => [PROGRAM_KHAS[unit]?.[i] ?? '', 'PENYELARAS', '']), { numbered: true, colWidths: [50, 16, 34], colAlign: ['left', 'center', 'center'] });
 const programPage = (unit: string, rows: CommitteeRow[]): SectionContent =>
-  sec('PENGURUSAN PROGRAM KHAS SEKOLAH', unit, [committee(rows), programTable()]);
+  sec('PENGURUSAN PROGRAM KHAS SEKOLAH', unit, [committee(rows), programTable(unit)]);
 
 /* ---------------------------------------------------------------- jadual guru */
 const MONTHS = ['JAN', 'FEB', 'MAC', 'APR', 'MEI', 'JUN', 'JUL', 'OGO', 'SEP', 'OKT', 'NOV', 'DIS'];

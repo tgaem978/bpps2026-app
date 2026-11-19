@@ -39,7 +39,8 @@ function Sheet({ pt, children, className = '' }: { pt: PageType; children: React
 
 function useFooterText(template: string, ctx: BookCtx) {
   const motto = useBookStore((s) => s.cover.motto);
-  return resolveTokens(template.replace(/\{\{\s*motto\s*\}\}/g, motto), ctx);
+  // Tahun dalam teks kaki sentiasa tahun edisi (cth. teks kaki tersuai "TAHUN 2026" dalam buku 2027 → "TAHUN 2027").
+  return resolveTokens(template.replace(/\{\{\s*motto\s*\}\}/g, motto), ctx).replace(/\b(?:19|20)\d{2}\b/g, String(ctx.profile.year));
 }
 
 const FOOT_FONT = '"Arial Narrow", "Liberation Sans Narrow", "Roboto Condensed", Arial, sans-serif';

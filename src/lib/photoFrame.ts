@@ -3,10 +3,10 @@ import type { PhotoFrame } from '@/types/staff';
 
 /**
  * Bingkai gambar potret dalam bulatan carta: zum + titik fokus (pecahan 0-1 lebar/tinggi imej asal).
- * Lalai: zum 1.3 dengan fokus sedikit di atas tengah, supaya muka (bukan latar) mengisi bulatan,
+ * Lalai: zum 1.6 dengan fokus pada muka (40% tinggi imej), supaya muka (bukan latar) mengisi bulatan,
  * kepala tidak terlalu tinggi dan tidak terpotong.
  */
-export const DEFAULT_FRAME: PhotoFrame = { zoom: 1.3, x: 0.5, y: 0.45 };
+export const DEFAULT_FRAME: PhotoFrame = { zoom: 1.6, x: 0.5, y: 0.4 };
 export const ZOOM_MIN = 1;
 export const ZOOM_MAX = 2.5;
 

@@ -161,3 +161,11 @@ Data rasmi 2027 (`src/config/kalendarAkademik.ts`) digunakan apabila edisi 2027 
 - Setiap halaman: grid bulanan (Isnin dahulu) dengan nombor minggu persekolahan (MP); hari cuti diserlah (merah kelepasan am, ungu perayaan KPM, biru cuti persekolahan, krim hujung minggu); **aktiviti setiap unit** daripada Takwim Induk dengan warna unit (Pentadbiran navy, Kurikulum hijau, HEM oren, Kokurikulum biru kehijauan, PPKI merah jambu).
 - Bahagian bawah: **Tarikh Penting** (automatik), **Senarai Tugasan** (petak semak), **Guru Ganti (Relief)** dan **Catatan**.
 - Semua data kalendar, cuti dan aktiviti dimuatkan automatik daripada Takwim Induk / Takwim Tahunan Unit; hanya senarai tugasan & catatan disunting dalam halaman Planner (baris kosong dicetak untuk ditulis tangan).
+
+## 20. Kemasan (foto, jadual, program khas, Planner, kaki halaman)
+- Foto dalam bulatan carta: bingkai lalai baharu (zum 1.6, fokus 40% tinggi imej) — muka di tengah bulatan.
+- Jadual: penjajaran seragam — nama / kod / tarikh (hingga ±48 aksara) di tengah, ayat panjang rata kiri, perenggan dalam sel diratakan.
+- Pengurusan Program Khas Sekolah (Kurikulum, HEM, Kokurikulum): 10 nama program setiap unit diisi daripada takwim unit; nama guru penyelaras dikosongkan untuk diisi unit.
+- Planner Guru kini tajuk ketiga di bawah **Takwim Sekolah** (Kalendar · Takwim Induk · Planner Guru), satu entri dalam Isi Kandungan.
+- Teks kaki halaman sentiasa memaparkan tahun edisi (teks kaki tersuai "TAHUN 2026" dalam buku 2027 dipaparkan "TAHUN 2027").
+- Migrasi v27.

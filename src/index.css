@@ -115,6 +115,7 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 .bp-table td.bp-num { background: var(--m-num-bg) !important; color: var(--m-num-color); font-weight: 700; }
 .bp-table td.bp-c { text-align: center; }
 .bp-table td.bp-l { text-align: left; }
+.bp-table td.bp-j { text-align: justify; text-align-last: left; }
 .bp-table td.bp-small { font-size: .82em; }
 .bp-table-gold th { background: var(--m-th-accent); color: #000; }
 .bp-staff .bp-name-col { width: 34%; }
