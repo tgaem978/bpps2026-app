@@ -228,7 +228,7 @@ function SectionContentPage({ page }: { page: Extract<PagePlan, { kind: 'content
       )}
       {page.layout === 'notes' && page.part === page.parts - 1 && <NotesPanels count={empty ? 5 : 3} />}
       {empty && page.layout !== 'notes' && !page.filler && <p className="bp-empty">Tiada kandungan.</p>}
-      {page.filler && <Filler kind={page.filler} h={page.kind === 'content' ? page.fillH : undefined} />}
+      {page.filler && <Filler kind={page.filler} />}
     </ContentFrame>
   );
 }

@@ -194,3 +194,4 @@ Data rasmi 2027 (`src/config/kalendarAkademik.ts`) digunakan apabila edisi 2027 
 - **Lajur nama guru:** satu nama sesel. Lajur nama dengan lajur lain di sebelah kanan (cth. selepas BIL) → rata kiri; lajur nama terakhir dengan satu nama sesel → tengah; jadual lajur nama selari (SESI PAGI | SESI PETANG) → jajaran sama; sel berbilang nama → senarai bertitik (•) rata kiri.
 - **Ruang Catatan:** hanya jika baki ruang ≥ 34 mm, dan tingginya ≤ 60% isi utama halaman (minimum 40 mm); baki selebihnya dibiarkan kosong. Baris jadual tidak lagi diregang.
 - **Bidang Tugas Guru & AKP:** baris teks ditukar kepada format sama dengan Bidang Tugas lain — subtajuk tebal / ayat pengenalan + senarai bernombor (sub-perkara a), b) …). Migrasi v34.
+- **Dikembalikan (atas permintaan):** fungsi muat sehalaman — zum besar/kecil automatik, pemadatan jadual & regangan baris serta panel Catatan penuh seperti sebelum bahagian 24. Peraturan lajur nama guru & format Bidang Tugas dikekalkan.
