@@ -1,6 +1,7 @@
 import { jawatankuasaSections } from '@/config/senaraiJk';
 import { takwimUnitSections } from '@/config/takwimUnit';
 import { seragamJk, seragamSections } from '@/config/cartaSeragam';
+import { tugasSections } from '@/config/tugasSeragam';
 import type { Block, CoverContent, OutlinePart, OutlineTopic, SectionContent, SectionLayout } from '@/types/book';
 import { uid } from '@/lib/blocks';
 import { templateAssets } from '@/templates/bpps';
@@ -128,6 +129,7 @@ export const defaultSections = (): Record<string, SectionContent> => {
   // Istilah & barisan pentadbir carta / jawatankuasa induk diseragamkan.
   Object.assign(all, seragamSections(all));
   Object.assign(all, seragamJk(all, defaultOutline()));
+  Object.assign(all, tugasSections(all));
   Object.assign(all, jawatankuasaSections(all, defaultOutline()));
   for (const id of Object.keys(all)) if ((id.startsWith('pk-') || id === 'pendidikan-khas') && all[id].subtitle === 'PPKI') all[id] = { ...all[id], subtitle: '' };
   return all;
