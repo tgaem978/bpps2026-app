@@ -177,3 +177,9 @@ Data rasmi 2027 (`src/config/kalendarAkademik.ts`) digunakan apabila edisi 2027 
 - Kumpulan 1–5 bergilir; ketua pagi / petang mengikut giliran ahli dalam halaman **Kumpulan Guru Bertugas**; tema minggu mengikut senarai sedia ada.
 - Edisi 2027 baharu dijana automatik; buku 2027 sedia ada dikemas kini melalui migrasi v28 (jika jadual belum disunting).
 - **Automatik:** jadual guru bertugas berpaut kepada halaman **Kumpulan Guru Bertugas** — ubah ahli / susunan ahli kumpulan di situ dan kumpulan, ketua pagi / petang serta guru PPKI dalam jadual dikemas kini sendiri. Suis **Automatik** dalam penyunting jadual boleh dinyahtanda untuk suntingan manual. Migrasi v29.
+
+## 22. Istilah carta seragam & saiz foto
+- Tajuk diseragamkan: **CARTA ORGANISASI UNIT …** / **CARTA ORGANISASI PROGRAM …** dan **JAWATANKUASA INDUK UNIT …** / **JAWATANKUASA INDUK PROGRAM …** (tanpa tahun; tajuk dalaman berulang dibuang).
+- Barisan pentadbir semua carta & jawatankuasa induk: **Pengerusi** (Guru Besar) → **Timbalan Pengerusi** (GPK unit, di tengah) → **Naib Pengerusi** (GPK lain, tanpa nombor).
+- Foto pentadbir: zum dikurangkan (1.35) — muka kekal di tengah bulatan, tidak terlalu besar.
+- Halaman carta + senarai ahli yang melimpah sedikit dipadatkan supaya sehalaman. Migrasi v30.

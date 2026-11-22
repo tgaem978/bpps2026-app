@@ -1,5 +1,6 @@
 import { jawatankuasaSections } from '@/config/senaraiJk';
 import { takwimUnitSections } from '@/config/takwimUnit';
+import { seragamSections } from '@/config/cartaSeragam';
 import type { Block, CoverContent, OutlinePart, OutlineTopic, SectionContent, SectionLayout } from '@/types/book';
 import { uid } from '@/lib/blocks';
 import { templateAssets } from '@/templates/bpps';
@@ -124,6 +125,8 @@ export const defaultSections = (): Record<string, SectionContent> => {
   // Setiap halaman jawatankuasa disertakan Bidang Tugas; Senarai Jawatankuasa Unit dijana mengikut turutan halaman.
   // Takwim Induk berpaut: aktiviti unit dipindah ke Takwim Tahunan Unit (sumber), Takwim Induk dijana automatik.
   Object.assign(all, takwimUnitSections(all));
+  // Istilah & barisan pentadbir carta / jawatankuasa induk diseragamkan.
+  Object.assign(all, seragamSections(all));
   Object.assign(all, jawatankuasaSections(all, defaultOutline()));
   for (const id of Object.keys(all)) if ((id.startsWith('pk-') || id === 'pendidikan-khas') && all[id].subtitle === 'PPKI') all[id] = { ...all[id], subtitle: '' };
   return all;

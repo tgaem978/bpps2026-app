@@ -200,7 +200,8 @@ const ZOOMS = [1.06, 1.12, 1.18, 1.24, 1.3, 1.4, 1.5, 1.6, 1.75];
 const FILLER_MIN_MM = 34;
 /** Skala padat bagi halaman jawatankuasa yang melimpah sedikit (supaya ahli + bidang tugas sehalaman). */
 const SHRINKS = [0.95, 0.9, 0.86, 0.82];
-const isCommitteePage = (blocks: AnyBlock[]) => blocks.some((b) => b.type === 'committee' || b.type === 'table') && blocks.some((b) => b.type === 'heading' && /TUGAS/i.test(b.text));
+const isCommitteePage = (blocks: AnyBlock[]) => (blocks.some((b) => b.type === 'committee' || b.type === 'table') && blocks.some((b) => b.type === 'heading' && /TUGAS/i.test(b.text)))
+  || (blocks.some((b) => b.type === 'committee' && b.display === 'chart') && blocks.some((b) => b.type === 'table')); // carta + senarai ahli
 const usedPx = (segs: Segment[]) => segs.reduce((a, s) => a + (s.h ?? 0), 0);
 const CHARTS = new Set(['orgchart', 'orgtree']);
 const isChart = (b: AnyBlock) => CHARTS.has(b.type) || (b.type === 'committee' && b.display === 'chart');
