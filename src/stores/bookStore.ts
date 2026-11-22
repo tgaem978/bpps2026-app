@@ -5,7 +5,7 @@ import { kokuTopics, ppkiChildren } from '@/config/partKoku';
 import { HEM_TUGAS_ORDER, hemIds, hemTopics } from '@/config/partHEM';
 import { PLANNER_IDS, defaultCover, defaultOutline, defaultSections, newSection, plannerTopic } from '@/config/defaultContent';
 import { PROGRAM_KHAS } from '@/config/partPentadbiran';
-import { seragamSections } from '@/config/cartaSeragam';
+import { seragamJk, seragamSections } from '@/config/cartaSeragam';
 import { pentadbiranTopics } from '@/config/partPentadbiran';
 import { ppkiTopics } from '@/config/partPPKI';
 import { prasekolahTopics } from '@/config/partPrasekolah';
@@ -782,7 +782,7 @@ export const useBookStore = create<BookState>()(
     {
       name: 'bpps2026-book',
       storage: appStorage(),
-      version: 31,
+      version: 33,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -815,6 +815,8 @@ export const useBookStore = create<BookState>()(
         if (version < 28) migrateV28(p);
         if (version < 29) migrateV29(p);
         if (version < 31 && p.sections) Object.assign(p.sections, seragamSections(p.sections)); // v30-31: istilah carta seragam
+        if (version < 32 && p.sections && p.outline) Object.assign(p.sections, seragamJk(p.sections, p.outline)); // v32: barisan pentadbir JK seragam
+        if (version < 33 && p.sections) Object.assign(p.sections, seragamSections(p.sections)); // v33: JK berjadual Kokurikulum → format jawatankuasa
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),
