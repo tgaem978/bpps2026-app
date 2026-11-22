@@ -443,7 +443,7 @@ function migrateV29(p: Partial<BookState>) {
     if (!sec) continue;
     const t = sec.blocks.find((b) => b.type === 'table');
     // hanya jadual yang sudah mengikut kalendar tahun ini (lebar lajur v28) — jadual suntingan manual tidak diubah
-    if (t && t.type === 'table' && t.auto === undefined && (t.colWidths?.join() === '10,6,12,10,22,22,18' || t.colWidths?.join() === '12,7,15,66')) {
+    if (t && t.type === 'table' && t.auto === undefined && (['10,6,12,10,22,22,18', '9,6,12,12,22,22,17'].includes(t.colWidths?.join() ?? '') || t.colWidths?.join() === '12,7,15,66')) {
       p.sections[id] = { ...sec, blocks: sec.blocks.map((b) => (b === t ? { ...t, auto: true } : b)) };
     }
   }

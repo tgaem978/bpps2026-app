@@ -228,16 +228,16 @@ function SectionContentPage({ page }: { page: Extract<PagePlan, { kind: 'content
       )}
       {page.layout === 'notes' && page.part === page.parts - 1 && <NotesPanels count={empty ? 5 : 3} />}
       {empty && page.layout !== 'notes' && !page.filler && <p className="bp-empty">Tiada kandungan.</p>}
-      {page.filler && <Filler kind={page.filler} />}
+      {page.filler && <Filler kind={page.filler} h={page.kind === 'content' ? page.fillH : undefined} />}
     </ContentFrame>
   );
 }
 
 /** Pengisi baki halaman: panel catatan bergaris, atau ilustrasi bangunan (halaman akhir Isi Kandungan). */
-export function Filler({ kind }: { kind: FillerKind }) {
+export function Filler({ kind, h }: { kind: FillerKind; h?: number }) {
   if (kind === 'art') return <div className="be-fill be-fill-art" aria-hidden><BuildingArt /></div>;
   return (
-    <div className="be-fill be-fill-notes">
+    <div className="be-fill be-fill-notes" style={h ? { flex: 'none', height: `calc(var(--mm) * ${h})` } : undefined}>
       <div className="be-fill-head"><span>CATATAN</span></div>
       <div className="be-fill-lines" />
       <BuildingArt className="be-fill-mark" />

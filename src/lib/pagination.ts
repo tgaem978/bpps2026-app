@@ -13,7 +13,7 @@ import { useStaffStore } from '@/stores/staffStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { useUiStore } from '@/stores/uiStore';
 import type { BookCtx } from '@/lib/resolve';
-import { blockVariants } from '@/lib/variants';
+import { blockVariants, isCalendarTable } from '@/lib/variants';
 
 /**
  * Penomboran halaman automatik. Setiap blok diukur dalam bekas tersembunyi yang
@@ -28,7 +28,7 @@ export type PagePlan =
   | { kind: 'cover'; key: string; number: null }
   | { kind: 'toc'; key: string; number: number; block: TocRowsBlock; from: number; to: number; filler?: FillerKind }
   | { kind: 'divider'; key: string; number: number; partId: string }
-  | { kind: 'content'; key: string; number: number; sectionId: string; layout: SectionLayout; columns: Segment[][]; part: number; parts: number; zoom?: number; filler?: FillerKind };
+  | { kind: 'content'; key: string; number: number; sectionId: string; layout: SectionLayout; columns: Segment[][]; part: number; parts: number; zoom?: number; filler?: FillerKind; fillH?: number };
 
 /** keep[i] = unit i mesti bersama unit seterusnya (tajuk, subtajuk, label kumpulan). */
 interface Measured { overhead: number; units: number[]; keep: boolean[] }
@@ -139,7 +139,8 @@ export function paginate(blocks: AnyBlock[], ctx: BookCtx, o: PaginateOpts): Seg
     if (block.type === 'table' || block.type === 'takwim' || onePageChart) {
       // Satu jadual/carta satu halaman jika boleh: padatkan sedikit jika perlu, dan mula di halaman baharu
       // jika ia muat sepenuhnya di sana tetapi tidak dalam baki ruang halaman semasa.
-      const levels = onePageChart ? [1, 2, 3] : [1, 2];
+      // Saiz fon jadual seragam di seluruh buku: hanya takwim / kalendar dan carta dipadatkan supaya muat sehalaman.
+      const levels = onePageChart ? [1, 2, 3] : block.type === 'takwim' || isCalendarTable(block) ? [1, 2] : [];
       if (total(m) > available) {
         for (const d of levels) {
           const md = ms(block, d, variant);
@@ -192,53 +193,19 @@ export function paginate(blocks: AnyBlock[], ctx: BookCtx, o: PaginateOpts): Seg
   return pages.length ? pages : [Array.from({ length: o.columns }, () => [])];
 }
 
-/* ------------------------------------------------------------------ Auto-imbang halaman (tema Biru Navy & Emas)
- * 1. Bahagian satu halaman yang jarang: kandungan dibesarkan (zum) setakat yang masih muat satu halaman.
- * 2. Baki ruang diagih kepada blok yang boleh diregang (baris jadual, kad maklumat, senarai) hingga had yang selesa.
- * 3. Jika masih banyak ruang, panel "Catatan" bergaris mengisi baki halaman. */
-const ZOOMS = [1.06, 1.12, 1.18, 1.24, 1.3, 1.4, 1.5, 1.6, 1.75];
+/* ------------------------------------------------------------------ Imbangan halaman (tema Biru Navy & Emas)
+ * Tipografi & saiz jadual seragam pada setiap halaman (tiada zum / regangan automatik). Baki ruang yang besar diisi
+ * panel "Catatan" bergaris yang tingginya tidak melebihi isi utama halaman. */
 const FILLER_MIN_MM = 34;
-/** Skala padat bagi halaman jawatankuasa yang melimpah sedikit (supaya ahli + bidang tugas sehalaman). */
-const SHRINKS = [0.95, 0.9, 0.86, 0.82];
-const isCommitteePage = (blocks: AnyBlock[]) => (blocks.some((b) => b.type === 'committee' || b.type === 'table') && blocks.some((b) => b.type === 'heading' && /TUGAS/i.test(b.text)))
-  || (blocks.some((b) => b.type === 'committee' && b.display === 'chart') && blocks.some((b) => b.type === 'table')); // carta + senarai ahli
 const usedPx = (segs: Segment[]) => segs.reduce((a, s) => a + (s.h ?? 0), 0);
-const CHARTS = new Set(['orgchart', 'orgtree']);
-const isChart = (b: AnyBlock) => CHARTS.has(b.type) || (b.type === 'committee' && b.display === 'chart');
-function zoomCap(blocks: AnyBlock[]): number {
-  if (blocks.some((b) => b.type === 'planner')) return 1; // planner bersaiz tetap sehalaman
-  if (blocks.length && blocks.every(isChart)) return 1.75;
-  if (blocks.some((b) => b.type === 'table' || b.type === 'takwim' || b.type === 'stafflist' || isChart(b))) return 1.18;
-  return 1.3;
-}
-/** Had regangan (mm) bagi satu segmen: setiap baris/kad boleh bertambah tinggi hingga had yang masih kemas. */
-function growCapMm(b: AnyBlock | undefined, s: Segment): number {
-  if (!b) return 0;
-  const n = s.to - s.from;
-  switch (b.type) {
-    case 'table': return n * 6;
-    case 'takwim': case 'stafflist': return n * 4;
-    case 'keyvalue': return n * 6;
-    case 'committee': return b.display === 'chart' ? 0 : n * 4;
-    case 'list': return n * 2.2;
-    case 'paragraph': return Math.max(0, n - 1) * 2.5;
-    case 'image': return ((s.h ?? 0) / pxPerMm) * 0.6;
-    default: return 0;
-  }
-}
-function balancePage(segs: Segment[], byId: Map<string, AnyBlock>, availablePx: number, stretch: boolean): FillerKind | undefined {
-  let slack = (availablePx - usedPx(segs)) / pxPerMm;
-  if (slack < 8) return undefined;
-  if (stretch) {
-    const caps = segs.map((s) => growCapMm(byId.get(s.blockId), s));
-    const cap = caps.reduce((a, b) => a + b, 0);
-    const give = Math.min(slack - 2, cap);
-    if (give > 1 && cap > 0) {
-      segs.forEach((s, i) => { if (caps[i] > 0) s.grow = (s.h ?? 0) / pxPerMm + (give * caps[i]) / cap; });
-      slack -= give;
-    }
-  }
-  return slack >= FILLER_MIN_MM ? 'notes' : undefined;
+const CHART_ZOOMS = [1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.75];
+const isChart = (b: AnyBlock) => b.type === 'orgchart' || b.type === 'orgtree' || (b.type === 'committee' && b.display === 'chart');
+/** Baki ruang halaman: panel Catatan (tinggi ≤ 60% isi utama, minimum 40 mm) hanya jika ruang mencukupi; selebihnya dibiarkan kosong. */
+function balancePage(segs: Segment[], availablePx: number): { filler: FillerKind; fillH: number } | undefined {
+  const usedMm = usedPx(segs) / pxPerMm;
+  const slack = availablePx / pxPerMm - usedMm;
+  if (slack < FILLER_MIN_MM) return undefined;
+  return { filler: 'notes', fillH: Math.round(Math.min(slack - 3, Math.max(usedMm * 0.6, 40))) };
 }
 
 let fontsVersion = 0;
@@ -326,27 +293,18 @@ export function useBookPlan(): PagePlan[] {
       let zoom = 1;
       const canBalance = balance && !fullImg && cols === 1 && layout !== 'notes';
       const available = o.heightMm * pxPerMm * SAFETY;
-      if (canBalance && pages.length === 1 && usedPx(pages[0][0]) > 0 && usedPx(pages[0][0]) < available * 0.86) {
-        const cap = zoomCap(sec.blocks);
-        for (const z of ZOOMS) {
-          if (z > cap) break;
+      // Tiada zum automatik bagi teks & jadual (tipografi seragam). Halaman carta semata-mata dibesarkan supaya carta memenuhi halaman.
+      if (canBalance && pages.length === 1 && sec.blocks.length > 0 && sec.blocks.every(isChart)) {
+        for (const z of CHART_ZOOMS) {
           const p = paginate(sec.blocks, ctx, { ...o, zoom: z });
-          if (p.length !== 1 || p[0][0].some((s) => s.density)) break;
+          if (p.length !== 1 || p[0][0].some((x) => x.density)) break;
           pages = p;
           zoom = z;
         }
       }
-      // Jawatankuasa + Bidang Tugas mesti dalam SATU halaman: jika melimpah sedikit, padatkan seluruh halaman (hingga 82%).
-      if (canBalance && pages.length === 2 && isCommitteePage(sec.blocks)) {
-        for (const z of SHRINKS) {
-          const p = paginate(sec.blocks, ctx, { ...o, zoom: z });
-          if (p.length === 1) { pages = p; zoom = z; break; }
-        }
-      }
-      const byId = new Map<string, AnyBlock>(sec.blocks.map((b) => [b.id, b]));
       pages.forEach((columns, part) => {
-        const filler = canBalance ? balancePage(columns[0], byId, available, true) : undefined;
-        body.push({ kind: 'content', key: `${id}-${part}`, sectionId: id, layout, columns, part, parts: pages.length, ...(zoom !== 1 ? { zoom } : {}), ...(filler ? { filler } : {}) });
+        const fill = canBalance ? balancePage(columns[0], available) : undefined;
+        body.push({ kind: 'content', key: `${id}-${part}`, sectionId: id, layout, columns, part, parts: pages.length, ...(zoom !== 1 ? { zoom } : {}), ...(fill ? fill : {}) });
       });
     };
     for (const part of outline) {

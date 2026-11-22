@@ -339,7 +339,7 @@ export function dutyRosterSections(sections: Record<string, SectionContent>, yea
       return {
         ...base,
         subtitle: nums.length ? `MINGGU ${Math.min(...nums)}-${Math.max(...nums)}` : base.subtitle,
-        blocks: base.blocks.map((b) => (b !== tbl ? b : { ...tbl, auto: true, colWidths: [10, 6, 12, 10, 22, 22, 18], colAlign: ['center', 'center', 'center', 'center', 'center', 'center', 'center'], rows: part.map(({ w, cells }, i) => [months[i], w.label, wkRange(w.mon), ...cells]) })),
+        blocks: base.blocks.map((b) => (b !== tbl ? b : { ...tbl, auto: true, colWidths: [9, 6, 12, 12, 22, 22, 17], colAlign: ['center', 'center', 'center', 'center', 'center', 'center', 'center'], rows: part.map(({ w, cells }, i) => [months[i], w.label, wkRange(w.mon), ...cells]) })),
       };
     };
     out['jadual-bertugas-1'] = build(sections['jadual-bertugas-1'], t1, half(true));

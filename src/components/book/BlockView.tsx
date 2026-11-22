@@ -25,6 +25,27 @@ export function Avatar({ name }: { name: string }) {
   );
 }
 
+/** Lajur nama guru: tajuk lajur nama / guru / ketua …, atau kebanyakan sel berupa nama orang (BIN, BINTI, A/P …). */
+const NAME_HEAD = /NAMA|GURU|KETUA|PENYELARAS|PENASIHAT|JURULATIH|PENGURUS|^AJK|AHLI|SESI PAGI|SESI PETANG/i;
+const NOT_NAME_HEAD = /BIL|JUMLAH|BILANGAN|JAWATAN|\bTUGAS|PROGRAM|KELAS$|MATA PELAJARAN|TARIKH|TEMA/i;
+const PERSON = /\b(BIN|BINTI|BT\.?|B\.|A\/L|A\/P|ANAK)\b|@/i;
+export function isNameColumn(head: string, cells: string[]): boolean {
+  if (NOT_NAME_HEAD.test(head) && !/^NAMA$|NAMA GURU|GURU BANTU|GURU KELAS|KETUA/i.test(head)) return false;
+  const filled = cells.map((c) => c.trim()).filter((c) => c && c !== '–' && !/^CUTI\b/i.test(c));
+  if (!filled.length) return NAME_HEAD.test(head);
+  const people = filled.filter((c) => PERSON.test(c)).length;
+  return NAME_HEAD.test(head) ? people >= filled.length * 0.3 || /NAMA|GURU/i.test(head) : people >= filled.length * 0.6;
+}
+/** Nama dalam satu sel: dipisah baris baharu atau koma (jika setiap bahagian berupa nama). */
+export function namesIn(v: string): string[] {
+  const t = v.trim();
+  if (!t) return [];
+  const lines = t.split('\n').map((x) => x.trim()).filter(Boolean);
+  if (lines.length > 1) return lines;
+  const parts = t.split(/\s*,\s*/).filter(Boolean);
+  return parts.length > 1 && parts.every((x) => x.split(/\s+/).length >= 2 && (PERSON.test(x) || x === x.toUpperCase())) ? parts : [t];
+}
+
 /** Sel kalendar: hari + kod serlahan (u = kelepasan am, p = perayaan KPM, s = cuti persekolahan). */
 const CAL_CODE = /^(\d{1,2})([ups])?$/;
 
@@ -344,7 +365,18 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0, varia
       // Sel kosong berstruktur bukan "perlu diisi": baris jumlah/tajuk (ada sel **tebal**) dan sambungan lajur kumpulan pertama.
       const needRow = (ri: number, ci: number) => !block.rows[ri].some((c) => /^\*\*/.test(c.trim())) && !(ci === 0 && block.rows.slice(0, ri).some((x) => (x[0] ?? '').trim()));
       // Penjajaran seragam: nama / kod / tarikh (hingga ±48 aksara) di tengah; ayat panjang rata kiri; perenggan dalam sel diratakan (justify).
-      const cellClass = (ci: number) => (firstGold && ci === 0 ? 'bp-num' : stats[ci].line > 72 ? 'bp-l bp-j' : (ci === 0 && num && block.style !== 'gold') || stats[ci].line > 48 ? 'bp-l' : 'bp-c');
+      // Lajur nama guru: satu nama sesel. Rata kiri jika ada lajur lain di sebelah kanannya (cth. selepas BIL);
+      // di tengah jika lajur terakhir dan setiap sel satu nama; sel berbilang nama → senarai bertitik, rata kiri.
+      const nameCol = block.columns.map((c, ci) => !cal && isNameColumn(c, block.rows.map((r) => r[ci] ?? '')));
+      const multiCol = nameCol.map((on, ci) => on && block.rows.some((r) => namesIn(r[ci] ?? '').length > 1));
+      // Jadual lajur nama selari (cth. SESI PAGI | SESI PETANG): semua lajur dijajarkan sama.
+      const allNames = block.columns.length > 1 && nameCol.every(Boolean);
+      const nameAlign = (ci: number) => (multiCol[ci] ? 'bp-l' : allNames ? (multiCol.some(Boolean) ? 'bp-l' : 'bp-c') : ci < block.columns.length - 1 ? 'bp-l' : 'bp-c');
+      const cellClass = (ci: number) => (firstGold && ci === 0 ? 'bp-num' : nameCol[ci] ? nameAlign(ci) : stats[ci].line > 72 ? 'bp-l bp-j' : (ci === 0 && num && block.style !== 'gold') || stats[ci].line > 48 ? 'bp-l' : 'bp-c');
+      const cellBody = (ci: number, v: string) => {
+        const names = nameCol[ci] ? namesIn(v) : [];
+        return names.length > 1 ? <ul className="bp-names">{names.map((n, k) => <li key={k}><Rich text={t(n)} /></li>)}</ul> : <Rich text={t(v)} />;
+      };
       return (
         <div className={`bp-block bp-table-wrap${dense}${x}`} style={gs}>
           <table className={`bp-table ${block.style === 'gold' ? 'bp-table-gold' : ''}${isCalendarTable(block) ? ' bp-cal' : ''}`}>
@@ -362,7 +394,7 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0, varia
               {block.rows.slice(from, end).map((r, ri) => (
                 <tr key={ri} className="u" style={block.rowHeights?.[from + ri] ? { height: `calc(var(--mm) * ${block.rowHeights[from + ri]})` } : undefined}>
                   {num && <td className="bp-num">{from + ri + 1}</td>}
-                  {cal ? block.columns.map((_, ci) => { const m = (r[ci] ?? '').trim().match(CAL_CODE); return <td key={ci} data-f={`c${from + ri}-${ci}`} className={`bp-c${m?.[2] ? ` bp-cal-${m[2]}` : ''}`}>{m ? m[1] : r[ci]}</td>; }) : block.columns.map((_, ci) => <td key={ci} data-f={`c${from + ri}-${ci}`} className={`${cellClass(ci)}${needCol[ci] && !(r[ci] ?? '').trim() && needRow(from + ri, ci) ? ' bp-td-blank' : ''}`} style={fmtStyle({ ...block, align: block.colAlign?.[ci] ?? block.align }, { pad: true })}><Rich text={t(r[ci] ?? '')} /></td>)}
+                  {cal ? block.columns.map((_, ci) => { const m = (r[ci] ?? '').trim().match(CAL_CODE); return <td key={ci} data-f={`c${from + ri}-${ci}`} className={`bp-c${m?.[2] ? ` bp-cal-${m[2]}` : ''}`}>{m ? m[1] : r[ci]}</td>; }) : block.columns.map((_, ci) => <td key={ci} data-f={`c${from + ri}-${ci}`} className={`${cellClass(ci)}${needCol[ci] && !(r[ci] ?? '').trim() && needRow(from + ri, ci) ? ' bp-td-blank' : ''}`} style={fmtStyle({ ...block, align: nameCol[ci] ? undefined : block.colAlign?.[ci] ?? block.align }, { pad: true })}>{cellBody(ci, r[ci] ?? '')}</td>)}
                 </tr>
               ))}
             </tbody>

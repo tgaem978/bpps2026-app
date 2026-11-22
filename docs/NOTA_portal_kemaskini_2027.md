@@ -188,3 +188,8 @@ Data rasmi 2027 (`src/config/kalendarAkademik.ts`) digunakan apabila edisi 2027 
 - Semua halaman jawatankuasa (Pentadbiran, Kurikulum, HEM, Kokurikulum, PPKI) menggunakan barisan pentadbir yang sama seperti carta: **Pengerusi** (Guru Besar) → **Timbalan Pengerusi** (GPK unit) → **Naib Pengerusi** (GPK lain, satu baris, dengan jawatan) — menggantikan "Naib Pengerusi I/II/III/IV".
 - Jawatankuasa Kokurikulum yang ditulis sebagai jadual JAWATAN | NAMA (iKeps/SEGAK/PAJSK, 1M1S, Anugerah, Merentas Desa, Pendidikan Luar & Lawatan, Pembangunan Sukan) ditukar kepada format jawatankuasa; nama dipadankan dengan Pangkalan Data Guru.
 - Jadual eRPH / Pencerapan: lajur bulanan & pencerapan tidak lagi ditanda "perlu diisi". Migrasi v31–v33.
+
+## 24. Keseragaman menyeluruh (tipografi, jadual, nama guru, ruang Catatan)
+- **Saiz seragam:** zum besar/kecil automatik dan pemadatan fon jadual dibuang — semua teks & jadual menggunakan saiz yang sama di setiap halaman (kecuali takwim / kalendar yang dipadatkan supaya sebulan sehalaman, dan halaman carta semata-mata yang dibesarkan memenuhi halaman).
+- **Lajur nama guru:** satu nama sesel. Lajur nama dengan lajur lain di sebelah kanan (cth. selepas BIL) → rata kiri; lajur nama terakhir dengan satu nama sesel → tengah; jadual lajur nama selari (SESI PAGI | SESI PETANG) → jajaran sama; sel berbilang nama → senarai bertitik (•) rata kiri.
+- **Ruang Catatan:** hanya jika baki ruang ≥ 34 mm, dan tingginya ≤ 60% isi utama halaman (minimum 40 mm); baki selebihnya dibiarkan kosong. Baris jadual tidak lagi diregang.
