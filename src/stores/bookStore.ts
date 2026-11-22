@@ -782,7 +782,7 @@ export const useBookStore = create<BookState>()(
     {
       name: 'bpps2026-book',
       storage: appStorage(),
-      version: 30,
+      version: 31,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -814,7 +814,7 @@ export const useBookStore = create<BookState>()(
         if (version < 27) migrateV27(p);
         if (version < 28) migrateV28(p);
         if (version < 29) migrateV29(p);
-        if (version < 30 && p.sections) Object.assign(p.sections, seragamSections(p.sections)); // v30: istilah carta seragam
+        if (version < 31 && p.sections) Object.assign(p.sections, seragamSections(p.sections)); // v30-31: istilah carta seragam
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

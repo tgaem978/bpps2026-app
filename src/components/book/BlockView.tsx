@@ -29,7 +29,7 @@ export function Avatar({ name }: { name: string }) {
 const CAL_CODE = /^(\d{1,2})([ups])?$/;
 
 /** Lajur jadual yang memang dibiarkan kosong (diisi tangan / pilihan). */
-const NO_NEED_COL = /CATATAN|TANDA ?TANGAN|T\.? ?TANGAN|PARAF|ULASAN|COP|^BULAN$|TINDAKAN|JUMLAH MINGGU|^$/i;
+const NO_NEED_COL = /CATATAN|TANDA ?TANGAN|T\.? ?TANGAN|PARAF|ULASAN|COP|^BULAN$|TINDAKAN|JUMLAH MINGGU|PENCERAPAN|SEMAKAN|^(JAN|FEB|MAC|APR|MEI|JUN|JUL|OGO|OGOS|SEP|OKT|NOV|DIS)$|^$/i; // lajur rekod sepanjang tahun / tulisan tangan
 
 /** Teks dengan **tebal** (format dokumen BPPS). */
 export function Rich({ text }: { text: string }) {
