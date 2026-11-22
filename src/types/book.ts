@@ -25,6 +25,8 @@ export interface TableBlock extends BaseBlock, TextFmt {
   numbered?: boolean;
   /** Lajur pertama berlatar emas (cth. jadual kumpulan bertugas). */
   firstCol?: 'gold';
+  /** Jadual berpaut (cth. jadual guru bertugas): dijana automatik semasa paparan. */
+  auto?: boolean;
 }
 export interface KeyValueBlock extends BaseBlock, TextFmt { type: 'keyvalue'; pairs: { key: string; value: string }[] }
 export interface ImageBlock extends BaseBlock {

@@ -434,6 +434,20 @@ function migrateV26(p: Partial<BookState>) {
   }
 }
 
+/** v29: jadual guru bertugas (dijana v28) ditanda automatik — ketua bertugas mengikut halaman Kumpulan Guru Bertugas. */
+function migrateV29(p: Partial<BookState>) {
+  if (!p.sections || !hasAcademic(useProjectStore.getState().profile.year)) return;
+  for (const id of ['jadual-bertugas-1', 'jadual-bertugas-2', 'jadual-bertugas-ppki']) {
+    const sec = p.sections[id];
+    if (!sec) continue;
+    const t = sec.blocks.find((b) => b.type === 'table');
+    // hanya jadual yang sudah mengikut kalendar tahun ini (lebar lajur v28) — jadual suntingan manual tidak diubah
+    if (t && t.type === 'table' && t.auto === undefined && (t.colWidths?.join() === '10,6,12,10,22,22,18' || t.colWidths?.join() === '12,7,15,66')) {
+      p.sections[id] = { ...sec, blocks: sec.blocks.map((b) => (b === t ? { ...t, auto: true } : b)) };
+    }
+  }
+}
+
 /** v28: Jadual Kumpulan Guru Bertugas & PPKI dijana mengikut kalendar rasmi tahun edisi (jika belum disunting). */
 function migrateV28(p: Partial<BookState>) {
   if (!p.sections) return;
@@ -767,7 +781,7 @@ export const useBookStore = create<BookState>()(
     {
       name: 'bpps2026-book',
       storage: appStorage(),
-      version: 28,
+      version: 29,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -798,6 +812,7 @@ export const useBookStore = create<BookState>()(
         if (version < 26) migrateV26(p);
         if (version < 27) migrateV27(p);
         if (version < 28) migrateV28(p);
+        if (version < 29) migrateV29(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

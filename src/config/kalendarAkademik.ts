@@ -320,7 +320,8 @@ export function dutyRosterSections(sections: Record<string, SectionContent>, yea
   const t2 = sections['jadual-bertugas-2']?.blocks.find((b): b is TableBlock => b.type === 'table');
   if (groups.length && t1 && t2) {
     const ci = t1.columns.findIndex((c) => /CATATAN/i.test(c));
-    const themes = [...t1.rows, ...t2.rows].map((r) => (ci >= 0 ? r[ci] ?? '' : '').trim()).filter(Boolean);
+    // tema minggu bertugas sahaja (baris cuti / minggu tanpa kumpulan dikecualikan)
+    const themes = [...t1.rows, ...t2.rows].filter((r) => /^M\d+$/.test((r[1] ?? '').trim()) && (r[3] ?? '').trim() && (r[3] ?? '').trim() !== '–').map((r) => (ci >= 0 ? r[ci] ?? '' : '').trim()).filter((x) => x && !/^CUTI\b/i.test(x));
     const served = groups.map(() => 0);
     let gi = 0;
     let ti = 0;
@@ -338,7 +339,7 @@ export function dutyRosterSections(sections: Record<string, SectionContent>, yea
       return {
         ...base,
         subtitle: nums.length ? `MINGGU ${Math.min(...nums)}-${Math.max(...nums)}` : base.subtitle,
-        blocks: base.blocks.map((b) => (b !== tbl ? b : { ...tbl, colWidths: [10, 6, 12, 10, 22, 22, 18], colAlign: ['center', 'center', 'center', 'center', 'center', 'center', 'center'], rows: part.map(({ w, cells }, i) => [months[i], w.label, wkRange(w.mon), ...cells]) })),
+        blocks: base.blocks.map((b) => (b !== tbl ? b : { ...tbl, auto: true, colWidths: [10, 6, 12, 10, 22, 22, 18], colAlign: ['center', 'center', 'center', 'center', 'center', 'center', 'center'], rows: part.map(({ w, cells }, i) => [months[i], w.label, wkRange(w.mon), ...cells]) })),
       };
     };
     out['jadual-bertugas-1'] = build(sections['jadual-bertugas-1'], t1, half(true));
@@ -350,14 +351,33 @@ export function dutyRosterSections(sections: Record<string, SectionContent>, yea
   if (tp) {
     const gi = tp.columns.findIndex((c) => /GURU/i.test(c));
     const names: string[] = [];
-    for (const r of tp.rows) for (const n of (r[gi] ?? '').split(',').map((x) => x.trim()).filter(Boolean)) if (!names.includes(n)) names.push(n);
+    for (const r of tp.rows.filter((x) => /^M\d+$/.test((x[1] ?? '').trim()) && !/^CUTI\b|^–$/i.test((x[gi] ?? '').trim()))) for (const n of (r[gi] ?? '').split(',').map((x) => x.trim()).filter(Boolean)) if (!names.includes(n)) names.push(n);
     let k = 0;
     const months = monthCol(weeks);
     const rows = weeks.map((w, i) => {
       const who = w.duty && names.length ? [0, 1, 2].map(() => names[k++ % names.length]).join(', ') : w.note || '–';
       return [months[i], w.label, wkRange(w.mon), who];
     });
-    out['jadual-bertugas-ppki'] = { ...sections['jadual-bertugas-ppki'], blocks: sections['jadual-bertugas-ppki'].blocks.map((b) => (b !== tp ? b : { ...tp, colWidths: [12, 7, 15, 66], colAlign: ['center', 'center', 'center', 'left'], rows })) };
+    out['jadual-bertugas-ppki'] = { ...sections['jadual-bertugas-ppki'], blocks: sections['jadual-bertugas-ppki'].blocks.map((b) => (b !== tp ? b : { ...tp, auto: true, colWidths: [12, 7, 15, 66], colAlign: ['center', 'center', 'center', 'left'], rows })) };
   }
   return out;
+}
+
+let dutyMemo: { srcs: (SectionContent | undefined)[]; year: number; out: Record<string, SectionContent> } | null = null;
+const DUTY_IDS = ['kumpulan-bertugas', 'jadual-bertugas-1', 'jadual-bertugas-2', 'jadual-bertugas-ppki'];
+
+/**
+ * Jadual guru bertugas berpaut: jika jadual ditanda automatik (auto), kumpulan, ketua pagi / petang dan guru PPKI
+ * dijana semula daripada halaman Kumpulan Guru Bertugas setiap kali dipaparkan.
+ */
+export function linkDutySections(sections: Record<string, SectionContent>, year: number): Record<string, SectionContent> {
+  if (!hasAcademic(year)) return sections;
+  const auto = (id: string) => sections[id]?.blocks.some((b) => b.type === 'table' && b.auto);
+  if (!DUTY_IDS.slice(1).some(auto)) return sections;
+  const srcs = DUTY_IDS.map((id) => sections[id]);
+  if (!(dutyMemo && dutyMemo.year === year && dutyMemo.srcs.every((s, i) => s === srcs[i]))) {
+    const gen = dutyRosterSections(sections, year);
+    dutyMemo = { srcs, year, out: Object.fromEntries(Object.entries(gen).filter(([id]) => auto(id))) };
+  }
+  return { ...sections, ...dutyMemo.out };
 }

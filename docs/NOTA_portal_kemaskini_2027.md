@@ -176,3 +176,4 @@ Data rasmi 2027 (`src/config/kalendarAkademik.ts`) digunakan apabila edisi 2027 
 - Minggu yang semua harinya cuti (Tahun Baru Cina 8–12 Feb; Hari Raya Aidiladha / Hari Wesak 17–21 Mei) tidak diberi kumpulan bertugas dan dilabel sebab cutinya.
 - Kumpulan 1–5 bergilir; ketua pagi / petang mengikut giliran ahli dalam halaman **Kumpulan Guru Bertugas**; tema minggu mengikut senarai sedia ada.
 - Edisi 2027 baharu dijana automatik; buku 2027 sedia ada dikemas kini melalui migrasi v28 (jika jadual belum disunting).
+- **Automatik:** jadual guru bertugas berpaut kepada halaman **Kumpulan Guru Bertugas** — ubah ahli / susunan ahli kumpulan di situ dan kumpulan, ketua pagi / petang serta guru PPKI dalam jadual dikemas kini sendiri. Suis **Automatik** dalam penyunting jadual boleh dinyahtanda untuk suntingan manual. Migrasi v29.

@@ -93,6 +93,12 @@ export default function TableEditor({ block, onChange }: { block: TableBlock; on
 
   return (
     <div className="grid gap-2">
+      {block.auto !== undefined && (
+        <label className="flex items-start gap-2 rounded-md border border-[#C9A13B]/50 bg-[#FBF6E6] p-2.5 text-xs">
+          <input type="checkbox" className="mt-0.5" checked={!!block.auto} onChange={(e) => onChange({ ...block, auto: e.target.checked })} />
+          <span><b>Automatik</b> — kumpulan, ketua bertugas (pagi / petang) dan guru bertugas dijana daripada halaman <b>Kumpulan Guru Bertugas</b> serta Kalendar Akademik. Ubah ahli kumpulan di halaman itu; jadual ini mengikut sendiri. Nyahtanda untuk menyunting jadual secara manual.</span>
+        </label>
+      )}
       <label className="flex flex-wrap items-center gap-2 text-xs text-muted">
         Gaya jadual
         <select className="rounded-md border border-border bg-surface px-2 py-1 text-xs" value={block.style ?? 'navy'} onChange={(e) => onChange({ ...block, style: e.target.value as 'navy' | 'gold' })}>

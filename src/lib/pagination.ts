@@ -1,5 +1,6 @@
 import { linkKalendarSections, linkTakwimSections } from '@/lib/takwimLink';
 import { linkPlannerSections } from '@/lib/planner';
+import { linkDutySections } from '@/config/kalendarAkademik';
 import { createContext, createElement, useContext, useEffect, useMemo } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { AnyBlock, SectionContent, SectionLayout, TocRowsBlock } from '@/types/book';
@@ -258,7 +259,7 @@ export function useSections(): Record<string, SectionContent> {
   const ov = useContext(SectionOverride);
   // Takwim Induk berpaut: lajur unit dijana daripada Takwim Tahunan setiap unit; serlahan Kalendar daripada jenis hari cuti Takwim Induk.
   const year = useProjectStore((s) => s.profile.year);
-  return useMemo(() => linkPlannerSections(linkKalendarSections(linkTakwimSections(ov ? { ...store, ...ov } : store)), year), [store, ov, year]);
+  return useMemo(() => linkDutySections(linkPlannerSections(linkKalendarSections(linkTakwimSections(ov ? { ...store, ...ov } : store)), year), year), [store, ov, year]);
 }
 
 /** Konteks data (pangkalan data guru + profil) untuk BlockView. */
