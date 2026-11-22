@@ -14,7 +14,7 @@ import { FLAT_TOC_PARTS, OVERRIDES, REMOVED_IDS, partRujukanSections, unitTopicI
 import { createBlock, uid } from '@/lib/blocks';
 import { BIDANG_TUGAS, KURI_UNIT_PAGES } from '@/config/bidangTugas';
 import { MASTER_IDS } from '@/config/takwimUnit';
-import { hasAcademic, markTakwimRows } from '@/config/kalendarAkademik';
+import { dutyRosterSections, hasAcademic, markTakwimRows } from '@/config/kalendarAkademik';
 import { SENARAI_JK, senaraiItems, senaraiSection, tugasBlocks } from '@/config/senaraiJk';
 import { allIds } from '@/lib/outline';
 import { defaultForYear } from '@/lib/rollover';
@@ -434,6 +434,18 @@ function migrateV26(p: Partial<BookState>) {
   }
 }
 
+/** v28: Jadual Kumpulan Guru Bertugas & PPKI dijana mengikut kalendar rasmi tahun edisi (jika belum disunting). */
+function migrateV28(p: Partial<BookState>) {
+  if (!p.sections) return;
+  const year = useProjectStore.getState().profile.year;
+  if (!hasAcademic(year)) return;
+  const stamp = p.cover?.updatedAt ?? null;
+  const untouched = (sec: SectionContent | undefined) => !!sec && sec.review?.status !== 'siap' && (sec.updatedAt === null || (stamp !== null && sec.updatedAt === stamp));
+  for (const [id, sec] of Object.entries(dutyRosterSections(p.sections, year))) {
+    if (untouched(p.sections[id])) p.sections[id] = { ...sec, updatedAt: p.sections[id].updatedAt };
+  }
+}
+
 /**
  * v27: Planner Guru menjadi tajuk ketiga di bawah Takwim Sekolah (bukan bahagian sendiri);
  * nama program khas setiap unit diisi pada Pengurusan Program Khas Sekolah (nama penyelaras dikosongkan untuk diisi unit).
@@ -755,7 +767,7 @@ export const useBookStore = create<BookState>()(
     {
       name: 'bpps2026-book',
       storage: appStorage(),
-      version: 27,
+      version: 28,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -785,6 +797,7 @@ export const useBookStore = create<BookState>()(
         if (version < 25) migrateV24(p, true);
         if (version < 26) migrateV26(p);
         if (version < 27) migrateV27(p);
+        if (version < 28) migrateV28(p);
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

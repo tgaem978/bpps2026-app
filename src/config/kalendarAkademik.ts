@@ -261,3 +261,103 @@ export function markTakwimRows(rows: TakwimRow[], year: number, month: number): 
     return out;
   });
 }
+
+/* ------------------------------------------------------------------ Jadual Kumpulan Guru Bertugas */
+
+const MON_LABEL = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogos', 'Sep', 'Okt', 'Nov', 'Dis'];
+const MONTHS_UP = ['JANUARI', 'FEBRUARI', 'MAC', 'APRIL', 'MEI', 'JUN', 'JULAI', 'OGOS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DISEMBER'];
+const wkRange = (mon: number) => {
+  const a = new Date(mon); const b = new Date(mon + 4 * DAY_MS);
+  const d = (x: Date) => String(x.getUTCDate()).padStart(2, '0');
+  return a.getUTCMonth() === b.getUTCMonth() ? `${d(a)} - ${d(b)} ${MON_LABEL[b.getUTCMonth()]}` : `${d(a)} ${MON_LABEL[a.getUTCMonth()]} - ${d(b)} ${MON_LABEL[b.getUTCMonth()]}`;
+};
+
+interface DutyWeek { mon: number; label: string; duty: boolean; brk: boolean; note: string }
+
+/** Minggu sepanjang sesi: minggu persekolahan (M1 …) dan minggu cuti penggal / pertengahan tahun (CP I, CPT, CP II). */
+export function dutyWeeks(year: number): DutyWeek[] {
+  const a = ACADEMIC[year];
+  if (!a) return [];
+  const map = dayMap(year);
+  const out: DutyWeek[] = schoolWeeks(a).map(([mon, n]) => {
+    // minggu yang kesemua hari persekolahannya cuti (kelepasan am / perayaan KPM) tidak diberi kumpulan bertugas
+    const off = [0, 1, 2, 3, 4].every((i) => { const k = map.get(mon + i * DAY_MS)?.kind; return k === 'u' || k === 'p'; });
+    // sebab cuti seminggu: nama perayaan / kelepasan am (tanpa "Cuti Tambahan KPM" / "Cuti Ganti")
+    const why = off ? [...new Set([0, 1, 2, 3, 4].flatMap((i) => map.get(mon + i * DAY_MS)?.names ?? []).map((x) => x.replace(/^Cuti Tambahan KPM \((.*)\)$/, '$1').replace(/^Cuti Ganti /, '').replace(/\s*\(Hari Kedua\)/, '')))].join(' / ') : '';
+    return { mon, label: `M${n}`, duty: !off, brk: false, note: why ? `CUTI ${why.toUpperCase()}` : '' };
+  });
+  const brkLabel = ['CP I', 'CPT', 'CP II'];
+  let bi = 0;
+  for (const p of a.penggal) for (const s of p.segments) {
+    if (s.brk[0].startsWith('CUTI AKHIR')) continue;
+    const from = parse(s.brk[1]); const to = parse(s.brk[2]);
+    for (let t = from; t <= to; t += DAY_MS) {
+      if (dow(t) === 1 && t + 4 * DAY_MS <= to) out.push({ mon: t, label: brkLabel[bi] ?? 'CUTI', duty: false, brk: true, note: `${s.brk[0]} ${year}` });
+    }
+    bi++;
+  }
+  return out.sort((x, y) => x.mon - y.mon);
+}
+
+const lines = (s: string) => s.split('\n').map((x) => x.trim()).filter(Boolean);
+
+/**
+ * Jadual Kumpulan Guru Bertugas (2 halaman: Jan–Jun, Jul–Dis) dan Jadual Guru Bertugas PPKI bagi tahun edisi:
+ * tarikh setiap minggu, baris cuti penggal, kumpulan 1–5 bergilir (minggu cuti penuh dilangkau), ketua pagi / petang
+ * mengikut giliran ahli dalam halaman Kumpulan Guru Bertugas, dan tema minggu mengikut senarai sedia ada.
+ */
+export function dutyRosterSections(sections: Record<string, SectionContent>, year: number): Record<string, SectionContent> {
+  const weeks = dutyWeeks(year);
+  if (!weeks.length) return {};
+  const out: Record<string, SectionContent> = {};
+  const fri = (w: DutyWeek) => new Date(w.mon + 4 * DAY_MS).getUTCMonth();
+  const monthCol = (rows: DutyWeek[]) => { let last = -1; return rows.map((w) => { const m = fri(w); const lab = m !== last ? MONTHS_UP[m] : ''; last = m; return lab; }); };
+
+  // Kumpulan & ahli (giliran ketua)
+  const groupsTbl = sections['kumpulan-bertugas']?.blocks.find((b): b is TableBlock => b.type === 'table');
+  const groups = (groupsTbl?.rows ?? []).map((r) => ({ name: (r[0] ?? '').replace(/^KUMPULAN/i, 'Kumpulan').trim(), pagi: lines(r[1] ?? ''), petang: lines(r[2] ?? '') })).filter((g) => g.name);
+  const t1 = sections['jadual-bertugas-1']?.blocks.find((b): b is TableBlock => b.type === 'table');
+  const t2 = sections['jadual-bertugas-2']?.blocks.find((b): b is TableBlock => b.type === 'table');
+  if (groups.length && t1 && t2) {
+    const ci = t1.columns.findIndex((c) => /CATATAN/i.test(c));
+    const themes = [...t1.rows, ...t2.rows].map((r) => (ci >= 0 ? r[ci] ?? '' : '').trim()).filter(Boolean);
+    const served = groups.map(() => 0);
+    let gi = 0;
+    let ti = 0;
+    const rows = weeks.map((w) => {
+      if (!w.duty) return { w, cells: ['–', '–', '–', w.note] };
+      const g = groups[gi % groups.length];
+      const k = served[gi % groups.length]++;
+      gi++;
+      return { w, cells: [g.name, g.pagi.length ? g.pagi[k % g.pagi.length] : '', g.petang.length ? g.petang[k % g.petang.length] : '', themes.length ? themes[ti++ % themes.length] : ''] };
+    });
+    const half = (first: boolean) => rows.filter(({ w }) => (fri(w) <= 5) === first);
+    const build = (base: SectionContent, tbl: TableBlock, part: typeof rows): SectionContent => {
+      const months = monthCol(part.map((x) => x.w));
+      const nums = part.map(({ w }) => w.label).filter((l) => /^M\d+$/.test(l)).map((l) => Number(l.slice(1)));
+      return {
+        ...base,
+        subtitle: nums.length ? `MINGGU ${Math.min(...nums)}-${Math.max(...nums)}` : base.subtitle,
+        blocks: base.blocks.map((b) => (b !== tbl ? b : { ...tbl, colWidths: [10, 6, 12, 10, 22, 22, 18], colAlign: ['center', 'center', 'center', 'center', 'center', 'center', 'center'], rows: part.map(({ w, cells }, i) => [months[i], w.label, wkRange(w.mon), ...cells]) })),
+      };
+    };
+    out['jadual-bertugas-1'] = build(sections['jadual-bertugas-1'], t1, half(true));
+    out['jadual-bertugas-2'] = build(sections['jadual-bertugas-2'], t2, half(false));
+  }
+
+  // PPKI: 3 guru bertugas seminggu, bergilir mengikut senarai nama sedia ada
+  const tp = sections['jadual-bertugas-ppki']?.blocks.find((b): b is TableBlock => b.type === 'table');
+  if (tp) {
+    const gi = tp.columns.findIndex((c) => /GURU/i.test(c));
+    const names: string[] = [];
+    for (const r of tp.rows) for (const n of (r[gi] ?? '').split(',').map((x) => x.trim()).filter(Boolean)) if (!names.includes(n)) names.push(n);
+    let k = 0;
+    const months = monthCol(weeks);
+    const rows = weeks.map((w, i) => {
+      const who = w.duty && names.length ? [0, 1, 2].map(() => names[k++ % names.length]).join(', ') : w.note || '–';
+      return [months[i], w.label, wkRange(w.mon), who];
+    });
+    out['jadual-bertugas-ppki'] = { ...sections['jadual-bertugas-ppki'], blocks: sections['jadual-bertugas-ppki'].blocks.map((b) => (b !== tp ? b : { ...tp, colWidths: [12, 7, 15, 66], colAlign: ['center', 'center', 'center', 'left'], rows })) };
+  }
+  return out;
+}

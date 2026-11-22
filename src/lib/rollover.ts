@@ -4,7 +4,7 @@
  */
 import type { Block, CoverContent, OutlinePart, ReviewMark, SectionContent, TableBlock, TakwimBlock, TakwimRow } from '@/types/book';
 import { allIds } from '@/lib/outline';
-import { academicSection, hasAcademic, legendBlock, markGrid, markTakwimRows } from '@/config/kalendarAkademik';
+import { academicSection, dutyRosterSections, hasAcademic, legendBlock, markGrid, markTakwimRows } from '@/config/kalendarAkademik';
 
 /** Tahun kandungan lalai dalam kod (src/config/*). */
 export const BASE_YEAR = 2026;
@@ -202,6 +202,11 @@ export function rolloverBook(data: BookData, from: number, to: number, at = Date
     updatedAt: at,
     review: { ...review },
   };
+  // Jadual guru bertugas mengikut kalendar rasmi tahun baharu (jika tersedia)
+  for (const [id, sec] of Object.entries(dutyRosterSections(sections, to))) {
+    sections[id] = sec;
+    if (!regenerated.includes(id)) regenerated.push(id);
+  }
   return { data: { cover, sections, outline }, summary: { from, to, pages: ids.size + 1, regenerated, cleared } };
 }
 
