@@ -8,4 +8,6 @@ export interface SchoolProfile {
   projectCode: string;
   logo?: string;
   theme?: BookTheme;
+  /** Edisi salinan bagi tahun yang sama (cth. "2" → BPPS 2026(2)); tiada = edisi utama tahun itu. */
+  edition?: string;
 }

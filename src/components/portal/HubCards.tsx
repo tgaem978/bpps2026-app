@@ -3,8 +3,8 @@ import { CalendarPlus, CheckCircle2, CloudUpload, KeyRound, Loader2, LogOut, Ser
 import { useBookStore } from '@/stores/bookStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { useUiStore } from '@/stores/uiStore';
-import { computeReview, startNewEdition } from '@/lib/edition';
-import { editionYears, switchEdition, useEditions } from '@/lib/editions';
+import { computeReview, createContentCopy, startNewEdition } from '@/lib/edition';
+import { editionLabel, editionYears, switchEdition, useEditions } from '@/lib/editions';
 import { adminLogin, adminLogout, publishEdition, type ApiError } from '@/lib/portalApi';
 import type { AdminOverview, HealthInfo } from '@/types/portal';
 
@@ -33,6 +33,8 @@ export function Step({ n, title, icon, children, right }: { n: number; title: st
 export function EditionStep() {
   const { cover, sections, outline } = useBookStore();
   const year = useProjectStore((s) => s.profile.year);
+  const isCopy = useProjectStore((s) => !!s.profile.edition);
+  const [copyAsk, setCopyAsk] = useState(false);
   const toast = useUiStore((s) => s.toast);
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -62,9 +64,27 @@ export function EditionStep() {
       )}
       {years.length > 1 && (
         <p className="mt-3 text-sm">
-          Edisi dalam pelayar ini: {years.map((y) => <b key={y} className={`mr-1.5 inline-block rounded px-1.5 ${y === year ? 'bg-primary text-primary-fg' : 'bg-surface-2'}`}>{y}</b>)}
+          Edisi dalam pelayar ini: {years.map((y) => <b key={y} className={`mr-1.5 inline-block rounded px-1.5 ${String(y) === String(year) && !isCopy ? 'bg-primary text-primary-fg' : 'bg-surface-2'}`}>{editionLabel(y)}</b>)}
           <span className="text-muted"> · tukar edisi melalui pemilih tahun di bar atas.</span>
         </p>
+      )}
+      {!isCopy && years.includes(year - 1) && (
+        <div className="mt-4 rounded-md border border-border p-3 text-sm">
+          <p className="font-semibold">Edisi salinan {year - 1}(2)</p>
+          <p className="mt-1 text-muted">Salin <b className="text-text">semua kandungan edisi {year}</b> (teks, halaman, jadual, carta, jawatankuasa) ke edisi baharu tahun {year - 1}, dengan tarikh kalendar, takwim & minggu {year - 1} yang asal dan reka bentuk (kulit, header, footer, warna) edisi {year - 1}. Edisi {year} dan {year - 1} tidak berubah.</p>
+          {!copyAsk ? (
+            <button className={`${btn} mt-2`} onClick={() => setCopyAsk(true)}><CalendarPlus size={16} /> Cipta edisi {year - 1}(2)</button>
+          ) : (
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button className={btnPrimary} disabled={busy} onClick={async () => {
+                setBusy(true);
+                try { const r = await createContentCopy(year - 1); setCopyAsk(false); toast(`Edisi ${editionLabel(r.id)} dicipta dan kini dibuka.`); }
+                catch (e) { toast((e as Error).message, 'error'); } finally { setBusy(false); }
+              }}>Ya, cipta edisi {year - 1}(2)</button>
+              <button className={btn} onClick={() => setCopyAsk(false)}>Batal</button>
+            </div>
+          )}
+        </div>
       )}
       {nextExists ? (
         <button

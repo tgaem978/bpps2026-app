@@ -363,7 +363,9 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0, varia
       const needCol = block.columns.map((c) => !isCalendarTable(block) && !NO_NEED_COL.test(c));
       const cal: boolean = isCalendarTable(block) as boolean;
       // Sel kosong berstruktur bukan "perlu diisi": baris jumlah/tajuk (ada sel **tebal**) dan sambungan lajur kumpulan pertama.
-      const needRow = (ri: number, ci: number) => !block.rows[ri].some((c) => /^\*\*/.test(c.trim())) && !(ci === 0 && block.rows.slice(0, ri).some((x) => (x[0] ?? '').trim()));
+      // baris minggu cuti (CP I, CPT, CP II, CUTI …) dan minggu tanpa kumpulan bertugas juga dikecualikan
+      const brkRow = (r: string[]) => r.some((c) => /^(CP\b|CPT\b|CP I|CUTI\b)/i.test(c.trim())) || (/^M\d+$/.test((r[1] ?? '').trim()) && block.columns.some((c) => /KUMPULAN/i.test(c)) && !(r[block.columns.findIndex((c) => /KUMPULAN/i.test(c))] ?? '').trim());
+      const needRow = (ri: number, ci: number) => !brkRow(block.rows[ri]) && !block.rows[ri].some((c) => /^\*\*/.test(c.trim())) && !(ci === 0 && block.rows.slice(0, ri).some((x) => (x[0] ?? '').trim()));
       // Penjajaran seragam: nama / kod / tarikh (hingga ±48 aksara) di tengah; ayat panjang rata kiri; perenggan dalam sel diratakan (justify).
       // Lajur nama guru: satu nama sesel. Rata kiri jika ada lajur lain di sebelah kanannya (cth. selepas BIL);
       // di tengah jika lajur terakhir dan setiap sel satu nama; sel berbilang nama → senarai bertitik, rata kiri.

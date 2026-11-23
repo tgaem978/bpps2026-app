@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { BookCopy, CalendarRange, Loader2 } from 'lucide-react';
-import { editionYears, switchEdition, useEditions } from '@/lib/editions';
+import { editionIdOf, editionLabel, editionYears, switchEdition, useEditions, type EditionId } from '@/lib/editions';
 import { useProjectStore } from '@/stores/projectStore';
 import { useUiStore } from '@/stores/uiStore';
 
 /** Pemilih edisi (tahun) di bar atas. */
 export function EditionPicker() {
-  const year = useProjectStore((s) => s.profile.year);
+  const year = useProjectStore((s) => editionIdOf(s.profile));
   const { saved, ready, refresh } = useEditions();
   const toast = useUiStore((s) => s.toast);
   const [busy, setBusy] = useState(false);
@@ -19,13 +19,14 @@ export function EditionPicker() {
       <span className="sr-only">Edisi</span>
       <select
         className="bg-transparent font-semibold outline-none"
-        value={year}
+        value={String(year)}
         disabled={busy}
         onChange={async (e) => {
           setBusy(true);
           try {
-            await switchEdition(Number(e.target.value));
-            toast(`Kini menyunting edisi ${e.target.value}.`);
+            const id: EditionId = /^\d+$/.test(e.target.value) ? Number(e.target.value) : e.target.value;
+            await switchEdition(id);
+            toast(`Kini menyunting edisi ${editionLabel(id)}.`);
           } catch (err) {
             toast((err as Error).message, 'error');
           } finally {
@@ -33,7 +34,7 @@ export function EditionPicker() {
           }
         }}
       >
-        {years.map((y) => <option key={y} value={y}>BPPS {y}</option>)}
+        {years.map((y) => <option key={y} value={String(y)}>BPPS {editionLabel(y)}</option>)}
       </select>
     </label>
   );
@@ -41,10 +42,10 @@ export function EditionPicker() {
 
 /** Pilih edisi sebelum mula menyunting (sekali bagi setiap sesi pelayar, jika ada lebih daripada satu edisi). */
 export function EditionChooser() {
-  const year = useProjectStore((s) => s.profile.year);
+  const year = useProjectStore((s) => editionIdOf(s.profile));
   const { saved, ready, refresh, chosen } = useEditions();
   const toast = useUiStore((s) => s.toast);
-  const [busy, setBusy] = useState<number | null>(null);
+  const [busy, setBusy] = useState<EditionId | null>(null);
   useEffect(() => { if (!ready) void refresh(); }, [ready, refresh]);
   const years = editionYears(saved, year);
   if (chosen || !ready || years.length < 2) return null;
@@ -75,7 +76,7 @@ export function EditionChooser() {
                 }
               }}
             >
-              <span className="font-display text-lg font-bold">BPPS {y}</span>
+              <span className="font-display text-lg font-bold">BPPS {editionLabel(y)}</span>
               <span className="text-xs text-muted">{busy === y ? <Loader2 size={16} className="animate-spin" /> : y === year ? 'Edisi terakhir dibuka' : ''}</span>
             </button>
           ))}

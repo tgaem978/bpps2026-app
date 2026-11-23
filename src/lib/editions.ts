@@ -13,8 +13,17 @@ import type { CoverContent, OutlinePart, SectionContent } from '@/types/book';
 import type { StaffField, Teacher } from '@/types/staff';
 import type { SchoolProfile } from '@/types/school';
 
+/** Kunci edisi dalam pustaka: tahun (edisi utama) atau "2026-2" (salinan). */
+export type EditionId = number | string;
+export const editionIdOf = (p: SchoolProfile): EditionId => (p.edition ? `${p.year}-${p.edition}` : p.year);
+/** Label paparan: 2026, 2026(2) … */
+export const editionLabel = (id: EditionId) => (typeof id === 'string' && id.includes('-') ? id.replace(/-(.+)$/, '($1)') : String(id));
+const yearOfId = (id: EditionId) => (typeof id === 'number' ? id : Number(String(id).split('-')[0]));
+const sortIds = (a: EditionId, b: EditionId) => yearOfId(b) - yearOfId(a) || String(a).localeCompare(String(b));
+
 export interface EditionSnapshot {
-  year: number;
+  /** Kunci pustaka (nama medan dikekalkan untuk keserasian): tahun atau id salinan. */
+  year: EditionId;
   savedAt: number;
   profile: SchoolProfile;
   book: { cover: CoverContent; sections: Record<string, SectionContent>; outline: OutlinePart[] };
@@ -42,10 +51,10 @@ async function tx<T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBReq
   });
 }
 
-export const getEdition = (year: number) => tx<EditionSnapshot | undefined>('readonly', (s) => s.get(year));
+export const getEdition = (year: EditionId) => tx<EditionSnapshot | undefined>('readonly', (s) => s.get(year));
 export const putEdition = (snap: EditionSnapshot) => tx('readwrite', (s) => s.put(snap));
-export const deleteEdition = (year: number) => tx('readwrite', (s) => s.delete(year));
-async function listSaved(): Promise<{ year: number; savedAt: number }[]> {
+export const deleteEdition = (year: EditionId) => tx('readwrite', (s) => s.delete(year));
+async function listSaved(): Promise<{ year: EditionId; savedAt: number }[]> {
   const all = await tx<EditionSnapshot[]>('readonly', (s) => s.getAll());
   return all.map((e) => ({ year: e.year, savedAt: e.savedAt }));
 }
@@ -56,7 +65,7 @@ export function snapshotActive(): EditionSnapshot {
   const { fields, teachers } = useStaffStore.getState();
   const profile = useProjectStore.getState().profile;
   return {
-    year: profile.year, savedAt: Date.now(), profile,
+    year: editionIdOf(profile), savedAt: Date.now(), profile,
     book: JSON.parse(JSON.stringify({ cover, sections, outline })),
     staff: JSON.parse(JSON.stringify({ fields, teachers })),
     master: JSON.parse(JSON.stringify(useMasterStore.getState().overrides)),
@@ -77,7 +86,7 @@ const chosenInSession = () => {
 
 interface EditionListState {
   /** Tahun dalam pustaka (tidak termasuk edisi aktif jika belum disimpan). */
-  saved: { year: number; savedAt: number }[];
+  saved: { year: EditionId; savedAt: number }[];
   ready: boolean;
   /** Edisi telah dipilih dalam sesi pelayar ini (pemilih permulaan tidak dipaparkan lagi). */
   chosen: boolean;
@@ -94,7 +103,7 @@ export const useEditions = create<EditionListState>((set) => ({
   },
   refresh: async () => {
     try {
-      set({ saved: (await listSaved()).sort((a, b) => b.year - a.year), ready: true });
+      set({ saved: (await listSaved()).sort((a, b) => sortIds(a.year, b.year)), ready: true });
     } catch {
       set({ saved: [], ready: true });
     }
@@ -102,9 +111,11 @@ export const useEditions = create<EditionListState>((set) => ({
 }));
 
 /** Semua tahun yang boleh dipilih (pustaka + edisi aktif), terbaharu dahulu. */
-export function editionYears(saved: { year: number }[], active: number): number[] {
-  return [...new Set([active, ...saved.map((e) => e.year)])].sort((a, b) => b - a);
+export function editionYears(saved: { year: EditionId }[], active: EditionId): EditionId[] {
+  return [...new Set([active, ...saved.map((e) => e.year)])].sort(sortIds);
 }
+/** Id edisi aktif. */
+export const activeEditionId = () => editionIdOf(useProjectStore.getState().profile);
 
 /** Simpan edisi aktif ke pustaka. */
 export async function saveActiveEdition() {
@@ -113,12 +124,12 @@ export async function saveActiveEdition() {
 }
 
 /** Tukar ke edisi lain: edisi aktif disimpan dahulu, kemudian edisi pilihan dimuatkan. */
-export async function switchEdition(year: number) {
+export async function switchEdition(year: EditionId) {
   useEditions.getState().markChosen();
-  const active = useProjectStore.getState().profile.year;
-  if (year === active) return;
+  const active = activeEditionId();
+  if (String(year) === String(active)) return;
   const target = await getEdition(year);
-  if (!target) throw new Error(`Edisi ${year} tiada dalam pelayar ini.`);
+  if (!target) throw new Error(`Edisi ${editionLabel(year)} tiada dalam pelayar ini.`);
   await putEdition(snapshotActive());
   load(target);
   await useEditions.getState().refresh();

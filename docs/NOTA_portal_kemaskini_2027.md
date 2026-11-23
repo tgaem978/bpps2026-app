@@ -195,3 +195,10 @@ Data rasmi 2027 (`src/config/kalendarAkademik.ts`) digunakan apabila edisi 2027 
 - **Ruang Catatan:** hanya jika baki ruang ≥ 34 mm, dan tingginya ≤ 60% isi utama halaman (minimum 40 mm); baki selebihnya dibiarkan kosong. Baris jadual tidak lagi diregang.
 - **Bidang Tugas Guru & AKP:** baris teks ditukar kepada format sama dengan Bidang Tugas lain — subtajuk tebal / ayat pengenalan + senarai bernombor (sub-perkara a), b) …). Migrasi v34.
 - **Dikembalikan (atas permintaan):** fungsi muat sehalaman — zum besar/kecil automatik, pemadatan jadual & regangan baris serta panel Catatan penuh seperti sebelum bahagian 24. Peraturan lajur nama guru & format Bidang Tugas dikekalkan.
+
+## 25. Edisi salinan BPPS 2026(2)
+- Portal Kemas Kini → Langkah 1 (semasa edisi 2027 aktif): **Cipta edisi 2026(2)**.
+- Semua kandungan edisi 2027 (teks, halaman, struktur, jadual, carta, jawatankuasa, Bidang Tugas, Planner, Pangkalan Data Guru) disalin; "2027" dalam teks ditukar kepada "2026".
+- Halaman bertarikh menggunakan tarikh asal 2026: Kalendar Akademik, Cuti Perayaan, Minggu Akademik, Kalendar, Takwim Induk, Takwim Tahunan Unit, Jadual Kumpulan Guru Bertugas (& PPKI), Perhimpunan, eRPH / Pencerapan / Semakan Hasil.
+- Reka bentuk (muka hadapan, header, footer, warna, tetapan master) diambil daripada edisi 2026. Edisi 2026 dan 2027 tidak berubah.
+- Pemilih edisi kini menyokong edisi salinan: BPPS 2027 · BPPS 2026 · BPPS 2026(2).
