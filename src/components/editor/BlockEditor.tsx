@@ -171,6 +171,12 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
               </select>
             </label>
           </div>
+          {block.aside?.map((a, i) => (
+            <div key={i} className="grid gap-1 rounded-md border border-border p-2">
+              <input className={`${field} font-semibold`} value={a.title} onChange={(e) => onChange({ ...block, aside: block.aside!.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)) })} aria-label={`Tajuk panel ${i + 1}`} />
+              <textarea className={`${field} resize-y`} rows={Math.max(2, a.text.split('\n').length)} value={a.text} data-f={`a${i}`} onChange={(e) => onChange({ ...block, aside: block.aside!.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)) })} aria-label={`Teks panel ${i + 1}`} />
+            </div>
+          ))}
         </div>
       );
     case 'orgchart':

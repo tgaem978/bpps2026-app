@@ -37,6 +37,10 @@ export interface ImageBlock extends BaseBlock {
   fullPage?: boolean;
   /** Gambar mengisi bingkai kandungan satu halaman (header & footer sistem kekal) — halaman Pengenalan. */
   frameFill?: boolean;
+  /** Penanda bernombor di atas gambar (x, y = peratus lebar / tinggi gambar), cth. elemen lencana. */
+  pins?: { n: number; x: number; y: number }[];
+  /** Panel teks di sebelah kanan gambar (cth. falsafah & bentuk lencana). */
+  aside?: { title: string; text: string; tone?: 'navy' | 'soft' }[];
 }
 
 /** Satu aras carta organisasi: diisi automatik daripada guru yang memegang jawatan tersebut. */

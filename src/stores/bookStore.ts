@@ -783,7 +783,7 @@ export const useBookStore = create<BookState>()(
     {
       name: 'bpps2026-book',
       storage: appStorage(),
-      version: 34,
+      version: 35,
       migrate: (persisted, version) => {
         const p = persisted as Partial<BookState>;
         // Bahagian yang belum pernah disunting diganti dengan kandungan lalai baharu (prefill).
@@ -819,6 +819,14 @@ export const useBookStore = create<BookState>()(
         if (version < 32 && p.sections && p.outline) Object.assign(p.sections, seragamJk(p.sections, p.outline)); // v32: barisan pentadbir JK seragam
         if (version < 33 && p.sections) Object.assign(p.sections, seragamSections(p.sections)); // v33: JK berjadual Kokurikulum → format jawatankuasa
         if (version < 34 && p.sections) Object.assign(p.sections, tugasSections(p.sections)); // v34: Bidang Tugas Guru & AKP → senarai bernombor
+        if (version < 35 && p.sections) { // v35: halaman Lencana Sekolah lengkap (jika belum disunting)
+          const old = p.sections['b-logo'];
+          const stamp = p.cover?.updatedAt ?? null;
+          if (old && old.review?.status !== 'siap' && (old.updatedAt === null || old.updatedAt === stamp) && old.blocks.length <= 1) {
+            const year = useProjectStore.getState().profile.year;
+            p.sections['b-logo'] = { ...defaultForYear('b-logo', defaultSections()['b-logo'], year), updatedAt: old.updatedAt, ...(old.review ? { review: old.review } : {}) };
+          }
+        }
         return p as BookState;
       },
       merge: (persisted, current) => normalize(current, (persisted ?? {}) as Partial<Data>),

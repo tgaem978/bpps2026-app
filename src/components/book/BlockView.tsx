@@ -6,7 +6,7 @@ import { arrangeFocus, isLeader } from '@/lib/orgLayout';
 import { fmtStyle } from '@/lib/format';
 import { kvIcon } from './themeArt';
 import { Camera } from 'lucide-react';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { PANEL_HEADINGS, isCalendarTable, isPlaceholder, placeholderLabel } from '@/lib/variants';
 import { useStaffStore } from '@/stores/staffStore';
 import { PlannerView } from './PlannerView';
@@ -57,8 +57,15 @@ export function Rich({ text }: { text: string }) {
   const parts = text.split(/\*\*(.+?)\*\*/g);
   // "[ JAWATAN ]" (jawatan belum diisi dalam Pangkalan Data Guru) dipaparkan sebagai cip ruang-isi.
   // "[[cal:u]]" = petak warna petunjuk kalendar
-  const sw = (t: string, k: string) => t.split(/\[\[cal:([upsw])\]\]/g).map((x, j) => (j % 2 ? <span key={`${k}-${j}`} className={`bp-sw bp-cal-${x}`} aria-hidden /> : x));
-  const ph = (t: string, k: number) => t.split(/\[ ([^\]\n]{2,60}) \]/g).flatMap((x, j) => (j % 2 ? [<span key={`${k}-${j}`} className="bp-ph-in">{x}</span>] : sw(x, `${k}-${j}`)));
+  // "[[cal:u]]" = petak warna petunjuk kalendar; "[[warna:#38B74F]]" = petak warna bebas
+  const sw = (t: string, k: string) => t.split(/\[\[(?:cal:([upsw])|warna:(#[0-9a-fA-F]{6}))\]\]/g).reduce<ReactNode[]>((out, x, j) => {
+    const m = j % 3;
+    if (m === 0) { if (x) out.push(x); }
+    else if (m === 1 && x) out.push(<span key={`${k}-${j}`} className={`bp-sw bp-cal-${x}`} aria-hidden />);
+    else if (m === 2 && x) out.push(<span key={`${k}-${j}`} className="bp-sw bp-sw-free" style={{ background: x }} aria-hidden />);
+    return out;
+  }, []);
+  const ph = (t: string, k: number): ReactNode[] => t.split(/\[ ([^\]\n]{2,60}) \]/g).flatMap((x, j): ReactNode[] => (j % 2 ? [<span key={`${k}-${j}`} className="bp-ph-in">{x}</span>] : sw(x, `${k}-${j}`)));
   return <>{parts.map((p, i) => (i % 2 ? <strong key={i}>{ph(p, i)}</strong> : ph(p, i)))}</>;
 }
 
@@ -417,15 +424,34 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0, varia
           </dl>
         </div>
       );
-    case 'image':
+    case 'image': {
+      const img = block.pins?.length ? (
+        <span className="bp-pinwrap">
+          <img className="bp-pinimg" src={block.src} alt={block.caption || 'Gambar'} style={{ height: `calc(var(--mm) * ${block.height ?? 70})` }} />
+          {block.pins.map((pin) => <span key={pin.n} className="bp-pin" style={{ left: `${pin.x}%`, top: `${pin.y}%` }}>{pin.n}</span>)}
+        </span>
+      ) : <img src={block.src} alt={block.caption || 'Gambar'} style={block.height ? { height: `calc(var(--mm) * ${block.height})` } : undefined} />;
       return (
         <div className={`bp-block${x}`} style={gs}>
-          <figure className="bp-figure u">
-            <img src={block.src} alt={block.caption || 'Gambar'} style={block.height ? { height: `calc(var(--mm) * ${block.height})` } : undefined} />
+          <figure className={`bp-figure u${block.aside?.length ? ' bp-fig-aside' : ''}`}>
+            {block.aside?.length ? (
+              <>
+                <div className="bp-fig-main">{img}</div>
+                <div className="bp-aside">
+                  {block.aside.map((a, i) => (
+                    <div key={i} className={`bp-aside-panel bp-aside-${a.tone ?? 'soft'}`}>
+                      <p className="bp-aside-title">{t(a.title)}</p>
+                      {t(a.text).split('\n').filter((l) => l.trim()).map((l, j) => <p key={j} className="bp-aside-line"><Rich text={l} /></p>)}
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : img}
             {block.caption && <figcaption>{t(block.caption)}</figcaption>}
           </figure>
         </div>
       );
+    }
     case 'orgchart':
       return (
         <div className={`bp-block${x}`} style={gs}>
