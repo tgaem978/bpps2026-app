@@ -15,7 +15,7 @@ export const LENCANA_PINS = [
 
 const ELEMEN: [string, string][] = [
   ['Gerbang hijau & nama sekolah', 'Pintu masuk ke alam ilmu dan kejayaan; identiti dan kesepaduan warga SKBTS.'],
-  ['Angka tahun 2001', 'Penanda sejarah sekolah — mengingatkan asal-usul dan perjalanan SKBTS.'],
+  ['Angka tahun 2001', 'Tahun SKBTS mula dibuka — mengingatkan asal-usul dan perjalanan sekolah.'],
   ['Obor (api merah)', 'Semangat membara menimba ilmu dan cahaya yang menerangi jalan kecemerlangan.'],
   ['Buku terbuka', 'Ilmu sebagai teras pendidikan; sekolah ialah gedung ilmu yang sentiasa terbuka.'],
   ['Simbol atom', 'Sains, teknologi dan inovasi (STEM) serta kemahiran berfikir aras tinggi.'],

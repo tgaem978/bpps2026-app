@@ -17,7 +17,7 @@ export const partAStaff: { nama: string; kategori: string; tugas: string; sesi: 
   "photo": "gb"
  },
  {
-  "nama": "ZALENA BINTI YUSOH",
+  "nama": "ZALEHA BINTI YUSOH",
   "kategori": "GPK Pentadbiran",
   "tugas": "GPK PENTADBIRAN",
   "sesi": "Pagi",

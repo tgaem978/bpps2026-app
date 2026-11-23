@@ -682,7 +682,7 @@ const PB: Record<string, SectionContent> = {
    {
     "id": "0864602c05c5",
     "type": "paragraph",
-    "text": "SK Bandar Tasik Selatan mula beroperasi secara rasmi pada **1 Januari 2004**. Pada peringkat awal penubuhannya, sekolah ini hanya menerima bilangan murid yang kecil sebelum jumlahnya meningkat saban tahun sehingga menjadi salah satu sekolah gred A di bawah Pejabat Pendidikan Daerah (PPD) Bangsar/Pudu. Visi awal penubuhannya adalah untuk menjadi pusat kecemerlangan pendidikan bagi komuniti setempat, menyediakan akses pendidikan yang saksama bagi anak-anak di kawasan sekitar Sungai Besi dan Bandar Tasik Selatan."
+    "text": "SK Bandar Tasik Selatan mula dibuka pada tahun **2001**. Pada peringkat awal penubuhannya, sekolah ini hanya menerima bilangan murid yang kecil sebelum jumlahnya meningkat saban tahun sehingga menjadi salah satu sekolah gred A di bawah Pejabat Pendidikan Daerah (PPD) Bangsar/Pudu. Visi awal penubuhannya adalah untuk menjadi pusat kecemerlangan pendidikan bagi komuniti setempat, menyediakan akses pendidikan yang saksama bagi anak-anak di kawasan sekitar Sungai Besi dan Bandar Tasik Selatan."
    }
   ],
   "updatedAt": null

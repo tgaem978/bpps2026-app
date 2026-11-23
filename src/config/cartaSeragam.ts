@@ -59,7 +59,7 @@ export const seragamSections = (all: Record<string, SectionContent>): Record<str
 
 /** GPK unit lalai mengikut bahagian (Timbalan Pengerusi jawatankuasa). */
 const PART_UNIT: Record<string, string> = { 'p-pentadbiran': PKP, 'p-kurikulum': PKP, 'p-hem': PKHEM, 'p-koku': PKKO, 'p-pkhas': PKPK, 'p-prasekolah': PKP };
-const GPK_NAME: [RegExp, string][] = [[/ZALENA/i, PKP], [/HASRE/i, PKHEM], [/RIZAL/i, PKKO], [/VINCENT/i, PKPTG], [/SYAHIDA/i, PKPK]];
+const GPK_NAME: [RegExp, string][] = [[/ZALE[NH]A/i, PKP], [/HASRE/i, PKHEM], [/RIZAL/i, PKKO], [/VINCENT/i, PKPTG], [/SYAHIDA/i, PKPK]];
 const isGB = (r: CommitteeRow | undefined) => !!r && /^pengerusi$/i.test(r.role.trim()) && r.members.some((m) => (m.kind === 'position' && m.value === GB) || (m.kind === 'teacher' && m.id === 't1') || (m.kind === 'text' && /SHAMSUKAMAL/i.test(m.value)));
 
 /**
