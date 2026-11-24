@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ExternalLink, Send } from 'lucide-react';
+import { ExternalLink, Send, UsersRound } from 'lucide-react';
+import { navigate } from '@/lib/router';
 import { useProjectStore } from '@/stores/projectStore';
 import { adminSession, health as fetchHealth, overview, type ApiError } from '@/lib/portalApi';
 import type { AdminOverview, HealthInfo } from '@/types/portal';
@@ -80,6 +81,16 @@ export default function UpdateHubPage() {
           <InboxStep submissions={data.submissions} setSubmissions={(submissions) => setData({ ...data, submissions })} onRefresh={load} refreshing={loading} />
         </>
       )}
+
+      <section className={`${card} flex flex-col gap-3 md:flex-row md:items-center`}>
+        <div className="self-start rounded-lg bg-[#0B2A5B] p-2.5 text-[#E8C766]"><UsersRound size={22} aria-hidden /></div>
+        <div className="flex-1">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">Selepas kiriman diterima</p>
+          <h3 className="font-display text-lg font-bold">Data Induk Guru dikemas kini automatik</h3>
+          <p className="text-sm text-muted">Bidang tugas setiap guru (Pentadbiran, Kurikulum, HEM, Kokurikulum, PPKI, Prasekolah, Lain-lain) disusun semula daripada halaman buku yang telah diterima.</p>
+        </div>
+        <button className="inline-flex items-center gap-1.5 self-start rounded-md border border-border px-3 py-2 text-sm font-medium hover:bg-surface-2" onClick={() => navigate('/data-induk')}>Buka Data Induk Guru</button>
+      </section>
     </div>
   );
 }

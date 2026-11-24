@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 
-export type RoutePath = '/' | '/project' | '/settings' | '/preview' | '/kemaskini';
-const known: RoutePath[] = ['/', '/project', '/settings', '/preview', '/kemaskini'];
+export type RoutePath = '/' | '/project' | '/settings' | '/preview' | '/kemaskini' | '/data-induk';
+const known: RoutePath[] = ['/', '/project', '/settings', '/preview', '/kemaskini', '/data-induk'];
 
 function subscribe(cb: () => void) {
   window.addEventListener('popstate', cb);

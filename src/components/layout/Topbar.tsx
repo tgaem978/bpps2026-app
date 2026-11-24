@@ -1,4 +1,4 @@
-import { Download, Eye, Menu, Presentation, Save, Settings } from 'lucide-react';
+import { Download, Eye, Menu, Presentation, Save, Settings, UsersRound } from 'lucide-react';
 import { useUiStore } from '@/stores/uiStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { useNavigationStore } from '@/stores/navigationStore';
@@ -32,6 +32,9 @@ export default function Topbar() {
         <MarkToggle className={btn} label="Medan kosong" />
         <button onClick={saveNow} title="Simpan (Ctrl+S)" aria-label="Simpan" className={btn}>
           <Save size={16} aria-hidden /> <span className="hidden lg:inline">Simpan</span>
+        </button>
+        <button onClick={() => navigate('/data-induk')} title="Data Induk Guru (automatik)" aria-label="Data Induk Guru" className={btn}>
+          <UsersRound size={16} aria-hidden /> <span className="hidden xl:inline">Data Induk</span>
         </button>
         <button onClick={() => navigate('/preview')} title="Pratonton buku penuh" aria-label="Pratonton" className={btn}>
           <Eye size={16} aria-hidden /> <span className="hidden lg:inline">Pratonton</span>
