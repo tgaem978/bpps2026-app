@@ -41,6 +41,10 @@ export interface ImageBlock extends BaseBlock {
   pins?: { n: number; x: number; y: number }[];
   /** Panel teks di sebelah kanan gambar (cth. falsafah & bentuk lencana). */
   aside?: { title: string; text: string; tone?: 'navy' | 'soft' }[];
+  /** Grid beberapa gambar (cth. infografik KPM); jika ada, `src` diabaikan. `height` = tinggi setiap gambar. */
+  gallery?: { src: string; caption: string }[];
+  /** Bilangan lajur grid galeri; lalai 2. */
+  cols?: number;
 }
 
 /** Satu aras carta organisasi: diisi automatik daripada guru yang memegang jawatan tersebut. */

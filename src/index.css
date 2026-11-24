@@ -857,6 +857,10 @@ body.portal-be nav[aria-label] button[aria-current="page"] { box-shadow: inset 3
 .bp-sw.bp-sw-free { width: 2.2em; height: 1.15em; margin: 0 .55em 0 0; border: 1px solid rgba(11, 42, 91, .35); }
 
 /* Gambar + panel sisi (cth. lencana: falsafah & bentuk) */
+.bp-gallery { display: grid; justify-content: center; gap: calc(var(--mm) * 3) calc(var(--mm) * 4); }
+.bp-gallery-item { display: flex; flex-direction: column; align-items: center; gap: calc(var(--mm) * 1); }
+.bp-figure .bp-gallery-item img, .bp-grow > .bp-figure .bp-gallery-item img { display: block; width: auto; max-width: 100%; flex: none; min-height: auto; object-fit: contain; border-radius: calc(var(--mm) * 1); box-shadow: 0 0 0 calc(var(--mm) * .25) var(--bp-line, #D5DDEA); }
+.bp-gallery-cap { font-size: .82em; font-weight: 600; color: var(--bp-muted, #5C6B80); text-align: center; }
 .bp-figure.bp-fig-aside { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: calc(var(--mm) * 5); align-items: center; text-align: left; }
 .bp-fig-aside .bp-fig-main { display: flex; justify-content: center; }
 .bp-fig-aside figcaption { grid-column: 1 / -1; text-align: center; }

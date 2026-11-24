@@ -118,6 +118,7 @@ export const maklumatAmTopics = (): OutlineTopic[] => [
   topic('kata-aluan'),
   topic('b-rukun-negara'),
   topic('b-visi-kpm'),
+  { ...topic('ma-kp2027', 'ma-kp2027-2'), tocChildren: false }, // Kurikulum Persekolahan 2027 (infografik KPM)
   topic('maklumat-sekolah', 'b-sejarah', 'b-latar', 'b-visi-sekolah', 'b-matlamat', 'b-lagu', 'b-logo'),
   topic('b-pelan'),
   topic('b-pelan-kecemasan'),

@@ -430,6 +430,15 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0, varia
           <img className="bp-pinimg" src={block.src} alt={block.caption || 'Gambar'} style={{ height: `calc(var(--mm) * ${block.height ?? 70})` }} />
           {block.pins.map((pin) => <span key={pin.n} className="bp-pin" style={{ left: `${pin.x}%`, top: `${pin.y}%` }}>{pin.n}</span>)}
         </span>
+      ) : block.gallery?.length ? (
+        <div className="bp-gallery" style={{ gridTemplateColumns: `repeat(${block.cols ?? 2}, minmax(0, 1fr))` }}>
+          {block.gallery.map((g, i) => (
+            <div key={i} className="bp-gallery-item">
+              <img src={g.src} alt={g.caption || 'Gambar'} style={{ height: `calc(var(--mm) * ${block.height ?? 70})` }} />
+              {g.caption && <span className="bp-gallery-cap">{t(g.caption)}</span>}
+            </div>
+          ))}
+        </div>
       ) : <img src={block.src} alt={block.caption || 'Gambar'} style={block.height ? { height: `calc(var(--mm) * ${block.height})` } : undefined} />;
       return (
         <div className={`bp-block${x}`} style={gs}>
