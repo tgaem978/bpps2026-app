@@ -1,5 +1,5 @@
 /**
- * Portal Kemas Kini untuk penyelaras unit (/portal#KOD).
+ * Portal Kemas Kini untuk Setiausaha Unit (/portal#KOD).
  * Buku yang diterbitkan pentadbir dimuat ke dalam stor (memori sahaja - lihat lib/storage.ts), supaya penyunting
  * dan pratonton A4 yang sama dengan penjana boleh digunakan. Hanya halaman unit sendiri boleh disunting dan dihantar.
  */
@@ -160,7 +160,7 @@ function Login({ error, onDone }: { error?: string; onDone: () => void }) {
           )}
         </div>
         <div className="px-6 pb-6 pt-5">
-          <p className="text-sm text-muted">Masukkan kod akses unit anda (diberi oleh pentadbir), atau buka pautan penuh yang dikongsi melalui WhatsApp / e-mel.</p>
+          <p className="text-sm text-muted">Masukkan kod akses unit anda (diberi oleh Pentadbir Sistem), atau buka pautan penuh yang dikongsi melalui WhatsApp / e-mel.</p>
           <form
             className="mt-4 grid gap-3"
             onSubmit={async (e) => {
@@ -305,7 +305,7 @@ function Workspace({ state, reload, onLogout }: { state: PortalState; reload: ()
             <div className="p-4 text-sm">
               <p className="pt-display text-lg text-primary">Selamat datang{unit.coordinator ? `, ${unit.coordinator}` : ''}</p>
               <p className="mt-1 text-muted">
-                Sunting halaman unit anda untuk <b className="text-text">BPPS {edition.meta.year}</b>, kemudian tekan <b className="text-text">Hantar</b>. Pentadbir akan menyemak sebelum kemas kini dimasukkan ke dalam buku. Perubahan disimpan sementara dalam pelayar ini sehingga dihantar.
+                Sunting halaman unit anda untuk <b className="text-text">BPPS {edition.meta.year}</b>, kemudian tekan <b className="text-text">Hantar</b>. Pentadbir Sistem akan menyemak sebelum kemas kini dimasukkan ke dalam buku. Perubahan disimpan sementara dalam pelayar ini sehingga dihantar.
               </p>
             </div>
             <div className="grid grid-cols-2 border-t border-border sm:grid-cols-4">
@@ -346,7 +346,7 @@ function Workspace({ state, reload, onLogout }: { state: PortalState; reload: ()
                 {view === 'borang' && <button className={btn} onClick={() => setShowPreview((v) => !v)}>{showPreview ? <EyeOff size={15} /> : <Eye size={15} />} Pratonton</button>}
               </div>
               {pending[active] && !changed.includes(active) && (
-                <p className="mb-3 flex items-center gap-2 rounded-md bg-primary/5 px-3 py-2 text-xs text-primary"><Clock size={14} /> Versi ini telah dihantar pada {fmtTime(pending[active].at)} dan menunggu semakan pentadbir. Anda masih boleh mengubah dan menghantar semula.</p>
+                <p className="mb-3 flex items-center gap-2 rounded-md bg-primary/5 px-3 py-2 text-xs text-primary"><Clock size={14} /> Versi ini telah dihantar pada {fmtTime(pending[active].at)} dan menunggu semakan Pentadbir Sistem. Anda masih boleh mengubah dan menghantar semula.</p>
               )}
               {view === 'halaman' ? <PageEditor id={active} /> : <div className={`grid gap-5 ${showPreview ? 'xl:grid-cols-2' : ''}`}>
                 <div className="grid content-start gap-4">
@@ -365,7 +365,7 @@ function Workspace({ state, reload, onLogout }: { state: PortalState; reload: ()
               </div>
             </>
           ) : (
-            <p className="rounded-lg border-2 border-dashed border-border p-6 text-center text-sm text-muted">Tiada halaman untuk unit ini. Hubungi pentadbir.</p>
+            <p className="rounded-lg border-2 border-dashed border-border p-6 text-center text-sm text-muted">Tiada halaman untuk unit ini. Hubungi Pentadbir Sistem.</p>
           )}
         </main>
       </div>
@@ -401,7 +401,7 @@ function SendDialog({ state, changed, onClose, onSent }: { state: PortalState; c
 
   return (
     <Modal title="Hantar kemas kini" onClose={onClose}>
-      <p className="text-sm text-muted">Halaman yang dipilih akan dihantar kepada pentadbir untuk disemak.</p>
+      <p className="text-sm text-muted">Halaman yang dipilih akan dihantar kepada Pentadbir Sistem untuk disemak.</p>
       <ul className="mt-3 grid gap-1">
         {changed.map((id) => (
           <li key={id}>
@@ -417,7 +417,7 @@ function SendDialog({ state, changed, onClose, onSent }: { state: PortalState; c
         <input className={`${field} mt-1`} value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama anda" />
       </label>
       <label className="mt-3 block text-sm font-medium">
-        Catatan kepada pentadbir <span className="font-normal text-muted">(pilihan)</span>
+        Catatan Kepada Pentadbir Sistem <span className="font-normal text-muted">(pilihan)</span>
         <textarea className={`${field} mt-1 min-h-[72px]`} value={note} onChange={(e) => setNote(e.target.value)} placeholder="cth. Ahli JK dikemas kini mengikut mesyuarat unit 5 Jan." />
       </label>
       {err && <p className="mt-2 text-sm text-red-600">{err}</p>}

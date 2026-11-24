@@ -38,15 +38,15 @@ lalai yang belum disunting (`pendidikan-khas`, `prasekolah`, `lampiran`) dimuat 
 Penjana: menu **Portal Kemas Kini** (`/kemaskini`, `src/pages/UpdateHubPage.tsx`, `src/components/portal/*`). Portal unit: `/portal#KOD` (`src/portal/PortalApp.tsx`).
 
 Aliran:
-1. Pentadbir log masuk (kata laluan `ADMIN_PASSWORD`), **Terbitkan** buku ke portal (halaman, guru, master, profil - berkelompok).
-2. **Unit & pautan akses**: "Cipta unit lalai" = satu unit bagi setiap bahagian (kecuali Lampiran), penyelaras diisi daripada nota partition. Setiap unit: skop (bahagian penuh + tajuk tambahan), pautan `/portal#XXXX-XXXX-XXXX`, butang Salin / WhatsApp / Kod baharu / Nyahaktif.
-3. Penyelaras buka pautan (telefon/komputer) → sunting halaman unit dengan penyunting & pratonton A4 yang sama → **Hantar** (nama + catatan). Draf disimpan dalam pelayar penyelaras sehingga dihantar.
+1. Pentadbir Sistem log masuk (kata laluan `ADMIN_PASSWORD`), **Terbitkan** buku ke portal (halaman, guru, master, profil - berkelompok).
+2. **Unit & pautan akses**: "Cipta unit lalai" = satu unit bagi setiap bahagian (kecuali Lampiran), Setiausaha Unit diisi daripada nota partition. Setiap unit: skop (bahagian penuh + tajuk tambahan), pautan `/portal#XXXX-XXXX-XXXX`, butang Salin / WhatsApp / Kod baharu / Nyahaktif.
+3. Setiausaha Unit buka pautan (telefon/komputer) → sunting halaman unit dengan penyunting & pratonton A4 yang sama → **Hantar** (nama + catatan). Draf disimpan dalam pelayar penyelaras sehingga dihantar.
 4. **Peti masuk**: setiap halaman dalam kiriman dipaparkan dengan ringkasan perubahan (baris +/−), pratonton Semasa vs Cadangan, amaran jika halaman telah diubah dalam penjana selepas diterbitkan. **Terima** = halaman dalam buku diganti dan ditandakan siap ("Portal · Unit (nama)"), salinan portal diselaraskan. **Tolak** = buku tidak diubah.
-5. Penyelaras melihat status (Menunggu / Diterima / Ditolak) dalam **Sejarah**.
+5. Setiausaha Unit melihat status (Menunggu / Diterima / Ditolak) dalam **Sejarah**.
 
 Keselamatan: kod akses rawak 12 aksara (dalam serpihan `#`, dibuang daripada bar alamat selepas log masuk); token HMAC (pentadbir 12 jam, unit 30 hari);
 "Kod baharu" membatalkan sesi lama; unit hanya boleh menghantar halaman dalam skopnya; had cubaan log masuk (8 / 15 minit); kandungan disemak bentuknya.
-Dalam mod portal, stor pelayar disimpan dalam memori sahaja - membuka portal dalam pelayar pentadbir tidak menimpa data penjana.
+Dalam mod portal, stor pelayar disimpan dalam memori sahaja - membuka portal dalam pelayar Pentadbir Sistem tidak menimpa data penjana.
 
 ## 4. Pelayan (Cloudflare)
 - `worker/index.ts` + `wrangler.toml`: Worker (`main`) dengan Workers Assets (`run_worker_first = ["/api/*"]`) dan **satu Durable Object berasaskan SQLite** (`PortalStore`) - tersedia pada pelan percuma, dicipta automatik semasa `wrangler deploy` (migrasi `v1`). Tiada pangkalan data luar.
@@ -96,8 +96,8 @@ Dalam mod portal, stor pelayar disimpan dalam memori sahaja - membuka portal dal
 - Dalam dialog cetak: pilih *Simpan sebagai PDF*, saiz A4, margin *Tiada*, dan pastikan *Grafik latar* ditandakan jika pilihan itu dipaparkan.
 
 ## 10. Portal Kemas Kini - identiti Biru Navy & Emas
-- **/portal** (penyelaras): warna navy/emas (token reka bentuk portal), latar grid pelan, halaman log masuk bergaya kulit buku (logo KPM & sekolah, PORTAL KEMAS KINI, pil SESI AKADEMIK tahun edisi daripada `/api/health`, lukisan bangunan), kepala navy berjalur emas dengan butang **Hantar** emas, kad selamat datang dengan kiraan (halaman unit, perlu dikemas kini, belum dihantar, menunggu semakan) dan bar kemajuan emas.
-- **/kemaskini** (pentadbir): jalur hero navy-emas, nombor langkah 01-05 dalam lencana emas, kad berjalur emas.
+- **/portal** (Setiausaha Unit): warna navy/emas (token reka bentuk portal), latar grid pelan, halaman log masuk bergaya kulit buku (logo KPM & sekolah, PORTAL KEMAS KINI, pil SESI AKADEMIK tahun edisi daripada `/api/health`, lukisan bangunan), kepala navy berjalur emas dengan butang **Hantar** emas, kad selamat datang dengan kiraan (halaman unit, perlu dikemas kini, belum dihantar, menunggu semakan) dan bar kemajuan emas.
+- **/kemaskini** (Pentadbir Sistem): jalur hero navy-emas, nombor langkah 01-05 dalam lencana emas, kad berjalur emas.
 - Pembetulan: unit lalai bagi "PENGURUSAN & PENTADBIRAN" kini dinamakan "Pengurusan & Pentadbiran" (sebelum ini "& Pentadbiran").
 
 ## 11. Pengenalan unit seragam (Kurikulum = HEM = Kokurikulum = PPKI)
@@ -113,7 +113,7 @@ Setiap unit kini dibuka dengan empat halaman pengenalan yang sama susunan, gaya 
 - **Ketetapan Dasar**: bermula dengan *1. LATAR BELAKANG* dan *2. OBJEKTIF* ("Penetapan dasar ini digariskan atas tujuan berikut:"), diikuti dasar, mesyuarat dan seksyen lain bernombor; subtajuk dinombor semula termasuk julat (cth. 8.3 - 8.4). Piagam Pelanggan dan Strategi Kokurikulum digabungkan ke dalam Ketetapan Dasar.
 - **Visi dan Misi**: jadual berikon Visi, Misi, Motto, KPI Sekolah {tahun}, Matlamat, Objektif (baris kosong menjadi ruang isian).
 - **Objektif dan Matlamat**: dua kad navy berlabel emas + ruang Catatan (kad kekal navy hingga 640 aksara supaya seragam antara unit).
-- **Pengenalan (KPI)**: KEY PERFORMANCE INDICATOR (KPI) UNIT … dengan ruang isian KPI 1-3 untuk diisi penyelaras melalui portal.
+- **Pengenalan (KPI)**: KEY PERFORMANCE INDICATOR (KPI) UNIT … dengan ruang isian KPI 1-3 untuk diisi Setiausaha Unit melalui portal.
 - PPKI: Maklumat Program dipindah ke halaman Murid PPKI; halaman lain PPKI kekal.
 - Migrasi (v20): halaman yang belum disunting dikemas kini ke susunan baharu; halaman yang telah disunting / bertanda *Siap* tidak disentuh. Dalam edisi 2027, halaman baharu ditanda *Perlu dikemas kini*.
 
@@ -202,3 +202,8 @@ Data rasmi 2027 (`src/config/kalendarAkademik.ts`) digunakan apabila edisi 2027 
 - Halaman bertarikh menggunakan tarikh asal 2026: Kalendar Akademik, Cuti Perayaan, Minggu Akademik, Kalendar, Takwim Induk, Takwim Tahunan Unit, Jadual Kumpulan Guru Bertugas (& PPKI), Perhimpunan, eRPH / Pencerapan / Semakan Hasil.
 - Reka bentuk (muka hadapan, header, footer, warna, tetapan master) diambil daripada edisi 2026. Edisi 2026 dan 2027 tidak berubah.
 - Pemilih edisi kini menyokong edisi salinan: BPPS 2027 · BPPS 2026 · BPPS 2026(2).
+
+
+## Istilah peranan (Nov 2026)
+- **Pentadbir Sistem**: log masuk /kemaskini, terbit buku, cipta pautan unit, semak & terima kiriman.
+- **Setiausaha Unit**: buka pautan unit (/portal), kemas kini halaman unit dengan memilih baris teks pada halaman sebenar, hantar untuk disemak.

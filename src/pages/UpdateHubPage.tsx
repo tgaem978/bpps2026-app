@@ -55,7 +55,7 @@ export default function UpdateHubPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#E8C766]">Portal Kemas Kini</p>
           <h2 className="pt-display mt-1 text-3xl leading-tight">Kumpul kemas kini BPPS {year} daripada setiap unit</h2>
           <p className="mt-1 text-sm opacity-85">
-            Penyelaras unit mengisi dan mengemas kini halaman unit masing-masing melalui pautan portal. Kiriman masuk ke peti masuk di bawah; anda semak, terima atau tolak, dan buku dikemas kini secara automatik.
+            Setiausaha Unit mengisi dan mengemas kini halaman unit masing-masing melalui pautan portal. Kiriman masuk ke peti masuk di bawah; anda semak, terima atau tolak, dan buku dikemas kini secara automatik.
           </p>
         </div>
         <a className="inline-flex items-center gap-1.5 self-start rounded-md bg-white/10 px-3 py-1.5 text-sm font-medium hover:bg-white/20" href="/portal" target="_blank" rel="noreferrer">

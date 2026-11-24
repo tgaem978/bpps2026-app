@@ -212,13 +212,13 @@ export class PortalStore extends DurableObject<Env> {
     const ph = await this.passwordHash();
     if (!ph) throw new HttpError(503, 'Portal belum dikonfigurasi: tetapkan rahsia ADMIN_PASSWORD dalam Cloudflare.');
     const p = await this.verify(this.bearer(request));
-    if (!p || p.r !== 'a' || p.ph !== ph) throw new HttpError(401, 'Sesi pentadbir tamat. Sila log masuk semula.');
+    if (!p || p.r !== 'a' || p.ph !== ph) throw new HttpError(401, 'Sesi Pentadbir Sistem tamat. Sila log masuk semula.');
   }
   private async requireUnit(request: Request): Promise<PortalUnit> {
     const p = await this.verify(this.bearer(request));
     if (!p || p.r !== 'u' || !p.uid) throw new HttpError(401, 'Sesi tamat. Sila masukkan kod akses semula.');
     const unit = await this.store.get<PortalUnit>(`unit:${p.uid}`);
-    if (!unit || !unit.active || unit.codeVer !== p.cv) throw new HttpError(401, 'Kod akses telah ditukar atau unit tidak aktif. Minta pautan baharu daripada pentadbir.');
+    if (!unit || !unit.active || unit.codeVer !== p.cv) throw new HttpError(401, 'Kod akses telah ditukar atau unit tidak aktif. Minta pautan baharu daripada Pentadbir Sistem.');
     return unit;
   }
 
@@ -451,7 +451,7 @@ export class PortalStore extends DurableObject<Env> {
   /* ------------------------------------------------------------------ portal unit */
   private async portalState(unit: PortalUnit): Promise<Response> {
     const ed = await this.editionMeta();
-    if (!ed) throw new HttpError(409, 'Pentadbir belum menerbitkan buku ke portal. Cuba lagi kemudian.');
+    if (!ed) throw new HttpError(409, 'Pentadbir Sistem belum menerbitkan buku ke portal. Cuba lagi kemudian.');
     const editable = unitSectionIds(unit, ed.meta.outline);
     const mine = (await this.summaries()).filter((s) => s.unitId === unit.id);
     // Halaman yang telah dihantar tetapi belum diputuskan - kiriman terbaharu dahulu.

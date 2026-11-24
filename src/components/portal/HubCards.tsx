@@ -161,7 +161,7 @@ export function ConnectionStep({ health, healthError, loggedIn, onLogin, onLogou
   } else if (!health.configured) {
     body = (
       <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
-        <p className="font-semibold">Kata laluan pentadbir belum ditetapkan.</p>
+        <p className="font-semibold">Kata laluan Pentadbir Sistem belum ditetapkan.</p>
         <p className="mt-1 text-muted">
           Di Cloudflare: <b>Workers &amp; Pages → bpps2026-app → Settings → Variables and Secrets → Add</b>, pilih jenis <b>Secret</b>, nama <code>ADMIN_PASSWORD</code>, dan masukkan kata laluan pilihan anda. Kemudian muat semula halaman ini.
         </p>
@@ -171,7 +171,7 @@ export function ConnectionStep({ health, healthError, loggedIn, onLogin, onLogou
     body = (
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <CheckCircle2 size={18} className="text-green-600" aria-hidden />
-        <span className="flex-1">Disambungkan sebagai pentadbir.</span>
+        <span className="flex-1">Disambungkan sebagai Pentadbir Sistem.</span>
         <button className={btn} onClick={() => { adminLogout(); onLogout(); }}><LogOut size={15} /> Log keluar</button>
       </div>
     );
@@ -195,7 +195,7 @@ export function ConnectionStep({ health, healthError, loggedIn, onLogin, onLogou
         }}
       >
         <label className="min-w-[220px] flex-1 text-sm font-medium">
-          Kata laluan pentadbir
+          Kata Laluan Pentadbir Sistem
           <input type="password" autoComplete="current-password" className={`${field} mt-1`} value={pw} onChange={(e) => setPw(e.target.value)} />
         </label>
         <button className={`${btnPrimary} mt-6`} disabled={!pw || busy}>{busy ? <Loader2 size={15} className="animate-spin" /> : <KeyRound size={15} />} Log masuk</button>

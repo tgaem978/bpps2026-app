@@ -95,7 +95,7 @@ export function TakwimEditor({ block, onChange }: { block: TakwimBlock; onChange
               <button key={id} className={smallBtn} onClick={() => open(id)}>{sections[id].title}</button>
             ))}
           </div>
-          <p className="mt-1 text-muted">Sel dalam penyunting ini hanya untuk catatan tambahan pentadbir; cuti / acara seluruh sekolah diurus di sini.</p>
+          <p className="mt-1 text-muted">Sel dalam penyunting ini hanya untuk catatan tambahan Pentadbir Sistem; cuti / acara seluruh sekolah diurus di sini.</p>
         </div>
       )}
       <RangeTool block={block} onChange={onChange} />

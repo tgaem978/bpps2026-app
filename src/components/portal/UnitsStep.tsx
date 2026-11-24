@@ -107,7 +107,7 @@ function UnitRow({ unit, onChanged, onRemoved }: { unit: PortalUnit; onChanged: 
             <div className="min-w-0 flex-1">
               <p className="font-semibold">{unit.name} {!unit.active && <span className="text-xs font-normal text-muted">(tidak aktif)</span>}</p>
               <p className="text-xs text-muted">
-                {unit.coordinator || 'Tiada nama penyelaras'} · {count} halaman ·{' '}
+                {unit.coordinator || 'Tiada nama Setiausaha Unit'} · {count} halaman ·{' '}
                 {[...unit.partIds.map((id) => outline.find((p) => p.id === id)?.title ?? id), ...(unit.sectionIds.length ? [`+${unit.sectionIds.length} tajuk`] : [])].join(', ') || 'tiada bahagian'}
               </p>
             </div>
@@ -136,7 +136,7 @@ function UnitRow({ unit, onChanged, onRemoved }: { unit: PortalUnit; onChanged: 
         <div className="grid gap-3">
           <div className="grid gap-2 sm:grid-cols-2">
             <label className="text-sm font-medium">Nama unit<input className={`${field} mt-1`} value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} /></label>
-            <label className="text-sm font-medium">Penyelaras<input className={`${field} mt-1`} value={edit.coordinator} onChange={(e) => setEdit({ ...edit, coordinator: e.target.value })} /></label>
+            <label className="text-sm font-medium">Setiausaha Unit<input className={`${field} mt-1`} value={edit.coordinator} onChange={(e) => setEdit({ ...edit, coordinator: e.target.value })} /></label>
           </div>
           <ScopeEditor value={edit} outline={outline} sections={sections} onChange={(v) => setEdit({ ...edit, ...v })} />
           <div className="flex flex-wrap gap-2">
@@ -171,7 +171,7 @@ export function UnitsStep({ units, setUnits }: { units: PortalUnit[]; setUnits: 
       const made: PortalUnit[] = [];
       for (const u of defaultUnits(outline, (s) => resolveTokens(s, ctx))) made.push(await createUnit(u));
       setUnits([...units, ...made]);
-      toast(`${made.length} unit dicipta. Kongsi pautan setiap unit kepada penyelaras.`);
+      toast(`${made.length} unit dicipta. Kongsi pautan setiap unit kepada Setiausaha Unit.`);
     } catch (e) {
       toast((e as Error).message, 'error');
     } finally {
@@ -187,7 +187,7 @@ export function UnitsStep({ units, setUnits }: { units: PortalUnit[]; setUnits: 
       right={<button className={btn} onClick={() => setAdding({ name: '', coordinator: '', partIds: [], sectionIds: [] })}><Plus size={15} /> Tambah unit</button>}
     >
       <p className="text-sm text-muted">
-        Setiap unit mendapat pautan dan kod akses sendiri. Penyelaras membuka pautan di telefon / komputer, menyunting halaman unitnya dan menghantar kemas kini kepada anda untuk disemak.
+        Setiap unit mendapat pautan dan kod akses sendiri. Setiausaha Unit membuka pautan di telefon / komputer, menyunting halaman unitnya dan menghantar kemas kini kepada anda untuk disemak.
       </p>
       {units.length === 0 && !adding && (
         <div className="mt-3 rounded-md border-2 border-dashed border-border p-4 text-center">
@@ -201,7 +201,7 @@ export function UnitsStep({ units, setUnits }: { units: PortalUnit[]; setUnits: 
         <div className="mt-3 grid gap-3 rounded-md border border-primary/40 p-3">
           <div className="grid gap-2 sm:grid-cols-2">
             <label className="text-sm font-medium">Nama unit<input className={`${field} mt-1`} value={adding.name} onChange={(e) => setAdding({ ...adding, name: e.target.value })} placeholder="cth. Unit Kokurikulum" /></label>
-            <label className="text-sm font-medium">Penyelaras<input className={`${field} mt-1`} value={adding.coordinator} onChange={(e) => setAdding({ ...adding, coordinator: e.target.value })} placeholder="Nama penyelaras (pilihan)" /></label>
+            <label className="text-sm font-medium">Setiausaha Unit<input className={`${field} mt-1`} value={adding.coordinator} onChange={(e) => setAdding({ ...adding, coordinator: e.target.value })} placeholder="Nama Setiausaha Unit (pilihan)" /></label>
           </div>
           <ScopeEditor value={adding} outline={outline} sections={sections} onChange={(v) => setAdding({ ...adding, ...v })} />
           <div className="flex gap-2">
