@@ -71,7 +71,7 @@ const normCode = (c: string) => c.toUpperCase().replace(/[^A-Z0-9]/g, '').replac
 const newId = () => b64url(crypto.getRandomValues(new Uint8Array(9)));
 
 const SECTION_LAYOUTS = new Set(['standard', 'twocol', 'open', 'notes']);
-const BLOCK_TYPES = new Set(['heading', 'paragraph', 'list', 'table', 'keyvalue', 'image', 'orgchart', 'orgtree', 'committee', 'stafflist', 'takwim']);
+const BLOCK_TYPES = new Set(['heading', 'paragraph', 'list', 'table', 'keyvalue', 'image', 'orgchart', 'orgtree', 'committee', 'stafflist', 'takwim', 'planner', 'infographic']);
 
 /** Semakan bentuk kandungan halaman yang dihantar unit (kandungan disemak pentadbir sebelum diterima). */
 function checkSection(id: string, v: unknown): void {

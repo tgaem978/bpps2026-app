@@ -206,7 +206,7 @@ const usedPx = (segs: Segment[]) => segs.reduce((a, s) => a + (s.h ?? 0), 0);
 const CHARTS = new Set(['orgchart', 'orgtree']);
 const isChart = (b: AnyBlock) => CHARTS.has(b.type) || (b.type === 'committee' && b.display === 'chart');
 function zoomCap(blocks: AnyBlock[]): number {
-  if (blocks.some((b) => b.type === 'planner')) return 1; // planner bersaiz tetap sehalaman
+  if (blocks.some((b) => b.type === 'planner' || b.type === 'infographic')) return 1; // planner / infografik bersaiz tetap sehalaman
   if (blocks.length && blocks.every(isChart)) return 1.75;
   if (blocks.some((b) => b.type === 'table' || b.type === 'takwim' || b.type === 'stafflist' || isChart(b))) return 1.18;
   return 1.3;

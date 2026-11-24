@@ -10,6 +10,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { PANEL_HEADINGS, isCalendarTable, isPlaceholder, placeholderLabel } from '@/lib/variants';
 import { useStaffStore } from '@/stores/staffStore';
 import { PlannerView } from './PlannerView';
+import { InfographicView } from './InfographicView';
 import { useFramedPhoto } from '@/lib/photoFrame';
 
 /** Siluet potret elegan bila tiada gambar. */
@@ -583,6 +584,8 @@ export default function BlockView({ block, ctx, from = 0, to, density = 0, varia
     }
     case 'planner':
       return <PlannerView block={block} />;
+    case 'infographic':
+      return <InfographicView block={block} />;
     case 'tocrows':
       return (
         <div className="bp-block bp-table-wrap">

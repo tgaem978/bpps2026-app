@@ -876,3 +876,90 @@ body.portal-be nav[aria-label] button[aria-current="page"] { box-shadow: inset 3
 .bp-aside-soft .bp-aside-title { color: #0B2A5B; }
 .bp-aside-soft strong { color: #0B2A5B; }
 .bp-aside-navy, .bp-aside-soft { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+/* ======================================================================
+   Infografik sehalaman (cth. KP2027) — warna ikut tema buku.
+   ====================================================================== */
+.ig { --ig-a: var(--be-navy, var(--m-th-bg, #004358)); --ig-a2: var(--be-navy-2, #1F5C73); --ig-b: var(--be-gold, var(--m-accent, #CB8200)); --ig-b2: var(--be-gold-2, #F4C46A); --ig-b3: var(--be-gold-3, #FBEBCB); --ig-tint: var(--be-tint, #EEF3F5); --ig-tint2: var(--be-tint-2, #DDE7EB); --ig-line: var(--be-line, #C9D5DA); --ig-ink: var(--be-ink, #17212B); --ig-muted: var(--be-muted, #5A6672);
+  display: flex; flex-direction: column; gap: calc(var(--mm) * 4); min-height: calc(var(--mm) * 232); flex: 1 1 auto; color: var(--ig-ink); font-size: calc(var(--pt) * 10.5); line-height: 1.38; }
+.ig strong { color: var(--ig-a); }
+.ig-head { flex: none; display: flex; flex-direction: column; gap: calc(var(--mm) * 1.6); }
+.ig-kicker { margin: 0; align-self: flex-start; font-family: var(--m-title-font, Montserrat, sans-serif); font-weight: 800; font-size: calc(var(--pt) * 8); letter-spacing: .22em; color: var(--ig-a); background: var(--ig-b3); border-left: calc(var(--mm) * 1.2) solid var(--ig-b); padding: calc(var(--mm) * .8) calc(var(--mm) * 2.4); }
+.ig-title { margin: 0; font-family: var(--be-display, var(--m-title-font, Montserrat, sans-serif)); font-weight: 800; font-size: calc(var(--pt) * 22); line-height: 1.02; color: var(--ig-a); letter-spacing: .01em; }
+.ig-intro { margin: 0; font-size: calc(var(--pt) * 11); color: var(--ig-muted); max-width: 95%; }
+.ig-foot { flex: none; margin-top: auto; display: flex; align-items: center; gap: calc(var(--mm) * 4); padding-top: calc(var(--mm) * 2.5); border-top: calc(var(--mm) * .3) solid var(--ig-line); font-size: calc(var(--pt) * 8.2); color: var(--ig-muted); }
+.ig-foot-tx { display: flex; flex-direction: column; gap: calc(var(--mm) * 1); }
+.ig-foot-tx b { color: var(--ig-a); font-size: calc(var(--pt) * 10); }
+.ig .ig-qr { width: calc(var(--mm) * 26); height: calc(var(--mm) * 26); flex: none; border-radius: calc(var(--mm) * 1.5); border: calc(var(--mm) * .5) solid var(--ig-b); padding: calc(var(--mm) * 1); background: #fff; object-fit: contain; }
+
+/* 01 Matlamat */
+.ig-goals { flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; gap: calc(var(--mm) * 5); justify-content: center; }
+.ig-goal-badge { display: flex; align-items: center; gap: calc(var(--mm) * 3); padding: calc(var(--mm) * 3) calc(var(--mm) * 8) calc(var(--mm) * 3) calc(var(--mm) * 3); border-radius: 999px; background: linear-gradient(135deg, var(--ig-a), var(--ig-a2)); color: #fff; box-shadow: inset 0 calc(var(--mm) * -1) 0 var(--ig-b), 0 calc(var(--mm) * 1.5) calc(var(--mm) * 4) rgba(11, 42, 91, .2); }
+.ig-goal-badge b { font-family: var(--be-display, var(--m-title-font, Montserrat, sans-serif)); font-size: calc(var(--pt) * 24); letter-spacing: .12em; color: #fff; }
+.ig-goal-ico { width: calc(var(--mm) * 14); height: calc(var(--mm) * 14); border-radius: 50%; background: var(--ig-b); color: var(--ig-a); display: grid; place-items: center; }
+.ig-goal-ico svg { width: 66%; height: 66%; }
+.ig-goal-list { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: calc(var(--mm) * 3.2); position: relative; }
+.ig-goal-list::before { content: ""; position: absolute; left: 50%; top: calc(var(--mm) * -4); bottom: calc(var(--mm) * 2); width: calc(var(--mm) * .6); background: repeating-linear-gradient(var(--ig-b) 0 calc(var(--mm) * 1.6), transparent 0 calc(var(--mm) * 3)); transform: translateX(-50%); }
+.ig-goal { position: relative; width: 82%; display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: calc(var(--mm) * 3); padding: calc(var(--mm) * 4) calc(var(--mm) * 5); background: #fff; border: calc(var(--mm) * .35) solid var(--ig-line); border-radius: calc(var(--mm) * 3); box-shadow: 0 calc(var(--mm) * 1) calc(var(--mm) * 3) rgba(11, 42, 91, .08); font-size: calc(var(--pt) * 12); }
+.ig-goal0 { align-self: flex-start; border-left: calc(var(--mm) * 2.2) solid var(--ig-a); }
+.ig-goal1 { align-self: flex-end; border-right: calc(var(--mm) * 2.2) solid var(--ig-b); }
+.ig-goal-no { font-family: var(--be-display, var(--m-title-font, Montserrat, sans-serif)); font-weight: 800; font-size: calc(var(--pt) * 20); color: var(--ig-b); line-height: 1; }
+.ig-goal-ck { width: calc(var(--mm) * 9); height: calc(var(--mm) * 9); color: var(--ig-a); }
+.ig-goal-ck svg { width: 100%; height: 100%; }
+
+/* 02 Kerangka (roda) */
+.ig-fw { flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; gap: calc(var(--mm) * 4); justify-content: center; }
+.ig-wheel { width: calc(var(--mm) * 140); height: calc(var(--mm) * 140); overflow: visible; filter: drop-shadow(0 calc(var(--mm) * 1.2) calc(var(--mm) * 3) rgba(11, 42, 91, .18)); }
+.ig-w-outer { fill: var(--ig-a); }
+.ig-w-otext { fill: #fff; font: 800 13px var(--be-display, Montserrat, sans-serif); letter-spacing: .22em; }
+.ig-w-seg0 { fill: var(--ig-tint2); stroke: #fff; stroke-width: 1.2; }
+.ig-w-seg1 { fill: var(--ig-b3); stroke: #fff; stroke-width: 1.2; }
+.ig-w-etext { fill: var(--ig-a); font: 700 6.2px var(--m-title-font, Montserrat, sans-serif); letter-spacing: .02em; text-transform: uppercase; }
+.ig-w-inner { fill: var(--ig-b); }
+.ig-w-itext { fill: var(--ig-a); font: 800 8px var(--m-title-font, Montserrat, sans-serif); letter-spacing: .14em; }
+.ig-w-core { fill: #fff; stroke: var(--ig-b); stroke-width: 2.2; }
+.ig-w-ico { color: var(--ig-a); }
+.ig-w-ctext { fill: var(--ig-a); font: 800 10px var(--be-display, Montserrat, sans-serif); letter-spacing: .08em; }
+.ig-fw-legend { width: 100%; display: grid; grid-template-columns: 1fr 1.8fr 1fr; gap: calc(var(--mm) * 3); }
+.ig-fw-note { display: flex; flex-direction: column; gap: calc(var(--mm) * 1); padding: calc(var(--mm) * 3); border-radius: calc(var(--mm) * 2.5); background: var(--ig-tint); border-top: calc(var(--mm) * 1) solid var(--ig-b); font-size: calc(var(--pt) * 9); }
+.ig-fw-note b { color: var(--ig-a); font-family: var(--m-title-font, Montserrat, sans-serif); font-size: calc(var(--pt) * 9.5); text-transform: uppercase; letter-spacing: .08em; }
+
+/* 03 Tahap & fokus (tangga) */
+.ig-stairs { flex: 1 1 auto; display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: calc(var(--mm) * 2); align-items: end; padding-top: calc(var(--mm) * 2); }
+.ig-step { display: flex; flex-direction: column; gap: calc(var(--mm) * 2.5); align-items: stretch; }
+.ig-step-card { position: relative; padding: calc(var(--mm) * 3) calc(var(--mm) * 2.4); background: #fff; border: calc(var(--mm) * .35) solid var(--ig-line); border-radius: calc(var(--mm) * 2.5); font-size: calc(var(--pt) * 10); line-height: 1.35; box-shadow: 0 calc(var(--mm) * 1) calc(var(--mm) * 2.5) rgba(11, 42, 91, .08); }
+.ig-step-card::after { content: ""; position: absolute; left: 50%; bottom: calc(var(--mm) * -2.6); width: calc(var(--mm) * .5); height: calc(var(--mm) * 2.4); background: var(--ig-b); transform: translateX(-50%); }
+.ig-step-bar { position: relative; height: calc(var(--mm) * (26 + var(--i) * 13)); border-radius: calc(var(--mm) * 2.5) calc(var(--mm) * 2.5) 0 0; background: linear-gradient(180deg, var(--ig-a2), var(--ig-a)); color: #fff; display: flex; flex-direction: column; align-items: center; padding: calc(var(--mm) * 5) calc(var(--mm) * 1.5) 0; text-align: center; box-shadow: inset 0 calc(var(--mm) * 1.2) 0 var(--ig-b); }
+.ig-step-bar b { font-family: var(--be-display, var(--m-title-font, Montserrat, sans-serif)); font-size: calc(var(--pt) * 12); line-height: 1.05; letter-spacing: .04em; color: #fff; }
+.ig-step-bar small { margin-top: calc(var(--mm) * 1); font-size: calc(var(--pt) * 8.2); color: var(--ig-b2); font-weight: 700; }
+.ig-step-dot { position: absolute; top: calc(var(--mm) * -2.4); width: calc(var(--mm) * 4.8); height: calc(var(--mm) * 4.8); border-radius: 50%; background: var(--ig-b); border: calc(var(--mm) * 1) solid #fff; box-shadow: 0 0 0 calc(var(--mm) * .3) var(--ig-b); }
+
+/* 04 Pendekatan baharu */
+.ig-appr { flex: 1 1 auto; display: flex; flex-direction: column; gap: calc(var(--mm) * 5); justify-content: center; }
+.ig-ap { display: grid; grid-template-columns: calc(var(--mm) * 30) 1fr; border-radius: calc(var(--mm) * 3.5); overflow: hidden; background: #fff; border: calc(var(--mm) * .35) solid var(--ig-line); box-shadow: 0 calc(var(--mm) * 1.2) calc(var(--mm) * 3.5) rgba(11, 42, 91, .1); }
+.ig-ap-side { background: linear-gradient(160deg, var(--ig-a2), var(--ig-a)); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--mm) * 2); padding: calc(var(--mm) * 4) 0; box-shadow: inset calc(var(--mm) * -1.2) 0 0 var(--ig-b); }
+.ig-ap-no { font-family: var(--be-display, var(--m-title-font, Montserrat, sans-serif)); font-weight: 800; font-size: calc(var(--pt) * 30); line-height: 1; color: var(--ig-b2); }
+.ig-ap-ico { width: calc(var(--mm) * 13); height: calc(var(--mm) * 13); border-radius: 50%; background: rgba(255, 255, 255, .12); color: #fff; display: grid; place-items: center; }
+.ig-ap-ico svg { width: 62%; height: 62%; }
+.ig-ap-body { padding: calc(var(--mm) * 4.5) calc(var(--mm) * 5.5); }
+.ig-ap-body h3 { margin: 0 0 calc(var(--mm) * 2.2); font-family: var(--m-title-font, Montserrat, sans-serif); font-size: calc(var(--pt) * 13); font-weight: 800; color: var(--ig-a); display: inline-block; padding-bottom: calc(var(--mm) * 1); border-bottom: calc(var(--mm) * .8) solid var(--ig-b); }
+.ig-ap-body ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: calc(var(--mm) * 1.8); }
+.ig-ap-body li { position: relative; padding-left: calc(var(--mm) * 5); font-size: calc(var(--pt) * 10.4); }
+.ig-ap-body li::before { content: ""; position: absolute; left: 0; top: .5em; width: calc(var(--mm) * 2.2); height: calc(var(--mm) * 2.2); border-radius: 50%; background: var(--ig-b); box-shadow: 0 0 0 calc(var(--mm) * .7) var(--ig-b3); }
+
+/* 05 Garis masa */
+.ig-tl { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: calc(var(--mm) * 8); }
+.ig-tl-track { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(var(--mm) * 4); padding-top: calc(var(--mm) * 2); }
+.ig-tl-track::before { content: ""; position: absolute; left: 0; right: calc(var(--mm) * -2); top: calc(var(--mm) * 25); height: calc(var(--mm) * 2.4); background: linear-gradient(90deg, var(--ig-tint2), var(--ig-a) 70%, var(--ig-b)); border-radius: 999px; clip-path: polygon(0 0, calc(100% - var(--mm) * 4) 0, 100% 50%, calc(100% - var(--mm) * 4) 100%, 0 100%); }
+.ig-tl-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: calc(var(--mm) * 3); }
+.ig-tl-year { font-family: var(--be-display, var(--m-title-font, Montserrat, sans-serif)); font-weight: 800; font-size: calc(var(--pt) * 34); line-height: 1; color: var(--ig-a); height: calc(var(--mm) * 16); display: flex; align-items: flex-end; }
+.ig-tl-dot { width: calc(var(--mm) * 8); height: calc(var(--mm) * 8); border-radius: 50%; background: #fff; border: calc(var(--mm) * 2) solid var(--ig-a); z-index: 1; }
+.ig-tl-card { width: 100%; text-align: center; padding: calc(var(--mm) * 6) calc(var(--mm) * 3); min-height: calc(var(--mm) * 34); justify-content: center; border-radius: calc(var(--mm) * 3); background: var(--ig-tint); border: calc(var(--mm) * .35) solid var(--ig-line); font-size: calc(var(--pt) * 11); display: flex; flex-direction: column; gap: calc(var(--mm) * 1); }
+.ig-tl-card p { margin: 0; }
+.ig-tl-now .ig-tl-year { color: var(--ig-b); font-size: calc(var(--pt) * 44); }
+.ig-tl-now .ig-tl-dot { border-color: var(--ig-b); background: var(--ig-b); box-shadow: 0 0 0 calc(var(--mm) * 2) var(--ig-b3); width: calc(var(--mm) * 10); height: calc(var(--mm) * 10); }
+.ig-tl-now .ig-tl-card { background: linear-gradient(160deg, var(--ig-a2), var(--ig-a)); color: #fff; border: 0; box-shadow: inset 0 calc(var(--mm) * -1.2) 0 var(--ig-b), 0 calc(var(--mm) * 1.5) calc(var(--mm) * 4) rgba(11, 42, 91, .2); font-size: calc(var(--pt) * 12); }
+.ig-tl-now .ig-tl-card strong { color: var(--ig-b2); }
+.ig-tl-notes { display: flex; flex-direction: column; gap: calc(var(--mm) * 2); }
+.ig-tl-note { padding: calc(var(--mm) * 3) calc(var(--mm) * 4); background: var(--ig-b3); border-left: calc(var(--mm) * 1.4) solid var(--ig-b); border-radius: calc(var(--mm) * 1.5); display: flex; flex-direction: column; gap: calc(var(--mm) * .8); }
+.ig-tl-note b { color: var(--ig-a); }

@@ -20,6 +20,7 @@ export const blockLabels: Record<BlockType, string> = {
   stafflist: 'Senarai Guru',
   takwim: 'Takwim Bulanan',
   planner: 'Planner Bulanan',
+  infographic: 'Infografik',
 };
 
 export function createBlock(type: BlockType): Block {
@@ -59,6 +60,7 @@ export function createBlock(type: BlockType): Block {
       rows: [{ week: '1', date: '', day: 'Isnin', cells: ['', '', '', '', ''] }],
     };
     case 'planner': return { id, type, month: 0, todo: [], notes: '' };
+    case 'infographic': return { id, type, variant: 'goals', title: 'INFOGRAFIK', items: [{ label: '', text: '' }] };
   }
 }
 
@@ -77,6 +79,7 @@ export function blockHasContent(b: Block): boolean {
     case 'stafflist': return b.columns.length > 0;
     case 'takwim': return b.rows.some((r) => (r.span ?? '').trim() !== '' || r.cells.some((c) => c.trim() !== ''));
     case 'planner': return true;
+    case 'infographic': return b.items.some((i) => i.text.trim() !== '' || i.label.trim() !== '');
   }
 }
 

@@ -41,6 +41,7 @@ function swapBlock(b: Block, from: number, to: number): Block {
     case 'stafflist': return { ...b, title: y(b.title) };
     case 'takwim': return { ...b, title: y(b.title), rows: b.rows.map((r) => ({ ...r, span: r.span === undefined ? undefined : y(r.span), cells: r.cells.map(y) })) };
     case 'planner': return { ...b, todo: [], notes: '' }; // tugasan & catatan peribadi tidak dibawa ke tahun baharu
+    case 'infographic': return b; // nama kurikulum (cth. KP2027) bukan tahun edisi — tidak ditukar
   }
 }
 
@@ -143,6 +144,8 @@ export interface SectionRollover { section: SectionContent; regenerated: boolean
 /** Gulung satu halaman ke tahun baharu (tanpa tanda semakan). */
 export function rolloverSection(id: string, sec: SectionContent, from: number, to: number): SectionRollover {
   // Halaman kalendar rasmi tahun baharu (jika data tersedia): dijana sepenuhnya.
+  // Halaman Kurikulum Persekolahan 2027: nama kurikulum, bukan tahun edisi — kekal tanpa diubah.
+  if (id.startsWith('ma-kp2027')) return { section: sec, regenerated: false, cleared: false };
   const gen = academicSection(id, sec, to);
   if (gen) return { section: gen, regenerated: true, cleared: false };
   let regenerated = false;

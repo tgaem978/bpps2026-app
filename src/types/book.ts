@@ -1,6 +1,6 @@
 export type BlockType =
   | 'heading' | 'paragraph' | 'list' | 'table' | 'keyvalue' | 'image'
-  | 'orgchart' | 'orgtree' | 'committee' | 'stafflist' | 'takwim' | 'planner';
+  | 'orgchart' | 'orgtree' | 'committee' | 'stafflist' | 'takwim' | 'planner' | 'infographic';
 
 interface BaseBlock {
   id: string;
@@ -173,6 +173,27 @@ export interface PlannerBlock extends BaseBlock {
   plan?: PlannerMonth;
 }
 
+/** Infografik sehalaman bertema sistem (cth. Kurikulum Persekolahan 2027). */
+export interface InfographicBlock extends BaseBlock {
+  type: 'infographic';
+  variant: 'goals' | 'framework' | 'stages' | 'approaches' | 'timeline';
+  kicker?: string;
+  title: string;
+  intro?: string;
+  /** Item utama: matlamat / elemen / tahap / pendekatan / tahun. `text` boleh berbilang baris. */
+  items: { label: string; text: string; note?: string; icon?: string }[];
+  /** Teks tengah (matlamat / teras roda). */
+  center?: string;
+  /** Kerangka: gelang luar & gelang dalam. */
+  ring?: string[];
+  inner?: string[];
+  /** Kotak nota tambahan (legenda / maksud). */
+  notes?: { label: string; text: string }[];
+  qr?: string;
+  qrLabel?: string;
+  source?: string;
+}
+
 /** Blok dalaman (tidak boleh ditambah pengguna): baris isi kandungan. */
 export interface TocRowsBlock extends BaseBlock {
   type: 'tocrows';
@@ -181,7 +202,7 @@ export interface TocRowsBlock extends BaseBlock {
 
 export type Block =
   | HeadingBlock | ParagraphBlock | ListBlock | TableBlock | KeyValueBlock | ImageBlock
-  | OrgChartBlock | OrgTreeBlock | CommitteeBlock | StaffListBlock | TakwimBlock | PlannerBlock;
+  | OrgChartBlock | OrgTreeBlock | CommitteeBlock | StaffListBlock | TakwimBlock | PlannerBlock | InfographicBlock;
 export type AnyBlock = Block | TocRowsBlock;
 
 /** Jenis paparan halaman isi (layout). */

@@ -191,5 +191,27 @@ function Body({ block, onChange }: { block: Block; onChange: (b: Block) => void 
       return <TakwimEditor block={block} onChange={onChange} />;
     case 'planner':
       return <PlannerEditor block={block} onChange={onChange} />;
+    case 'infographic':
+      return (
+        <div className="grid gap-2">
+          <p className="text-xs text-muted">Infografik sehalaman — reka bentuk dijana automatik mengikut tema buku. Ubah teks di bawah; gunakan **teks** untuk tebal.</p>
+          <label className="text-xs font-medium text-muted">Tajuk<input className={`${field} mt-1`} value={block.title} onChange={(e) => onChange({ ...block, title: e.target.value })} /></label>
+          <label className="text-xs font-medium text-muted">Pengenalan<textarea className={`${field} mt-1 resize-y`} rows={2} value={block.intro ?? ''} onChange={(e) => onChange({ ...block, intro: e.target.value })} /></label>
+          {block.center !== undefined && <label className="text-xs font-medium text-muted">Teks tengah<input className={`${field} mt-1`} value={block.center} onChange={(e) => onChange({ ...block, center: e.target.value })} /></label>}
+          {block.items.map((it, i) => (
+            <div key={i} className="grid gap-1 rounded-md border border-border p-2">
+              <div className="flex items-center gap-2">
+                <span className="w-5 text-right text-xs text-muted">{i + 1}.</span>
+                <input className={field} placeholder="Label" value={it.label} onChange={(e) => onChange({ ...block, items: block.items.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)) })} />
+                {it.note !== undefined && <input className={field} placeholder="Nota" value={it.note} onChange={(e) => onChange({ ...block, items: block.items.map((x, j) => (j === i ? { ...x, note: e.target.value } : x)) })} />}
+              </div>
+              {(it.text || block.variant !== 'framework') && (
+                <textarea className={`${field} resize-y`} rows={Math.max(2, it.text.split('\n').length)} placeholder="Teks (satu baris = satu titik)" value={it.text} onChange={(e) => onChange({ ...block, items: block.items.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)) })} />
+              )}
+            </div>
+          ))}
+          <label className="text-xs font-medium text-muted">Sumber<input className={`${field} mt-1`} value={block.source ?? ''} onChange={(e) => onChange({ ...block, source: e.target.value })} /></label>
+        </div>
+      );
   }
 }

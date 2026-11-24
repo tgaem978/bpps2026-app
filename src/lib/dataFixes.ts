@@ -32,20 +32,22 @@ const FIXES: Fix[] = [
     },
   },
   {
-    // Sub-bahagian Kurikulum Persekolahan 2027 di bawah Maklumat Am (selepas Visi & Misi KPM).
+    // Sub-bahagian Kurikulum Persekolahan 2027 di bawah Maklumat Am (selepas Visi & Misi KPM):
+    // 5 infografik sehalaman bergaya sistem (menggantikan versi galeri imej sebelum ini).
     // Edisi arkib 2026 tidak diubah supaya penomboran halaman buku 2026 kekal.
-    flag: 'bpps-kp2027-2026-11-24',
+    flag: 'bpps-kp2027-infografik-2026-11-24',
     apply: (d, id) => {
       if (id === 2026) return d;
-      if (d.outline.some((x) => x.topics.some((t) => t.id === KP2027_IDS[0]))) return d;
+      const isKp = (x: string) => x.startsWith('ma-kp2027');
       const outline = d.outline.map((part) => {
-        if (part.id !== 'p-maklumat') return part;
-        const topics = [...part.topics];
+        const topics = part.topics.filter((t) => !isKp(t.id));
+        if (part.id !== 'p-maklumat') return { ...part, topics };
         const at = topics.findIndex((t) => t.id === 'b-visi-kpm');
-        topics.splice(at >= 0 ? at + 1 : topics.length, 0, { id: KP2027_IDS[0], children: [KP2027_IDS[1]], tocChildren: false });
+        topics.splice(at >= 0 ? at + 1 : topics.length, 0, { id: KP2027_IDS[0], children: KP2027_IDS.slice(1), tocChildren: false });
         return { ...part, topics };
       });
-      return { ...d, outline, sections: { ...kp2027Sections(), ...d.sections } };
+      const sections = Object.fromEntries(Object.entries(d.sections).filter(([k]) => !isKp(k)));
+      return { ...d, outline, sections: { ...sections, ...kp2027Sections() } };
     },
   },
 ];
